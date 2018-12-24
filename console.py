@@ -1,5 +1,5 @@
-# open bt shortcut on desktop
-# log in bt
+# open bn shortcut on desktop
+# log in bn
 # switch to hs
 # check files and
 # remove file:
@@ -15,9 +15,12 @@ import os, win32api
 import win32gui,sys
 import time
 import pyautogui
+import win32com.client
 import win32process as process
+import winshell
 
-
+def kill_process(process_name):
+    pass
 
 class LoginWindow:
     windowUpLeftX = 0
@@ -31,7 +34,9 @@ class LoginWindow:
         self.userPwd = userpwd
 
     def runbnet(self):
-        win32api.WinExec(self.programDir)
+        exist = win32gui.FindWindow(None, self.windowName)
+        if exist == 0:
+            win32api.WinExec(self.programDir)
         return
 
     def findWindow(self):
@@ -40,6 +45,7 @@ class LoginWindow:
             if hwndbnt == 0:
                 continue
             else:
+                win32gui.MoveWindow(hwndbnt, 100, 100, 365, 541, True)
                 rect = win32gui.GetWindowRect(hwndbnt)
             break
         win32gui.SetForegroundWindow(hwndbnt)
@@ -47,36 +53,42 @@ class LoginWindow:
         return hwndbnt, rect[0], rect[1]
 
     def login(self):
-        battlenetAccoutWindowX = self.windowUpLeftX + 400
-        battlenetAccoutWindowY = self.windowUpLeftY + 250
-        pyautogui.moveTo(battlenetAccoutWindowX, battlenetAccoutWindowY, 2, pyautogui.easeInOutQuad)
+        battlenetAccoutWindowX = self.windowUpLeftX + 200
+        battlenetAccoutWindowY = self.windowUpLeftY + 200
+        pyautogui.moveTo(battlenetAccoutWindowX, battlenetAccoutWindowY, 0.8, pyautogui.easeInOutQuad)
         pyautogui.click()
         t = time.time()
         while time.time() - t <= 5:
             pyautogui.press('backspace')
         if win32api.GetKeyboardLayout() == 134481924:
             pyautogui.press('shift')
-            print(win32api.GetKeyboardLayout())
+            # print(win32api.GetKeyboardLayout())
             time.sleep(0.25)
         pyautogui.typewrite(self.userName, interval=0.25)
         time.sleep(0.25)
         pyautogui.press('tab')
         pyautogui.typewrite(self.userPwd, interval=0.25)
+        btnhdl = win32gui.FindWindowEx(self.windowHwnd, 0, "Button", "登录")
+        return btnhdl
 
 
-bt_shortcut = desktop = os.path.expanduser("~/Desktop/")'D:\Program Files (x86)\Battle.net\Battle.net Launcher.exe'
-hearthstone = 'D:\Program Files (x86)\Hearthstone\Hearthstone_Data'
-loginbt = LoginWindow(battlenet, '暴雪战网登录', 'einom2000@163.com', '123NUNUchipi')
+hb_dir = 'D:\hb\\'
+bn_target = winshell.shortcut(os.path.join(winshell.desktop(), "暴雪战网.lnk")).path
+hs_target = winshell.shortcut(os.path.join(winshell.desktop(), "Hearthstone.exe - 快捷方式.lnk")).path
+hb_target = hb_dir + os.readlink(os.path.join(hb_dir, "Hearthbuddy.exe"))
+
+# hearthstone = 'D:\Program Files (x86)\Hearthstone\Hearthstone_Data'
+loginbt = LoginWindow(bn_target, '暴雪战网登录', 'einom2000@163.com', '123NUNUchipi')
 
 loginbt.runbnet()
 btwindowInfo = loginbt.findWindow()
-
 loginbt.windowHwnd = btwindowInfo[0]
 loginbt.windowUpLeftX = btwindowInfo[1]
 loginbt.windowUpLeftY = btwindowInfo[2]
 print(loginbt.windowHwnd, loginbt.windowUpLeftX, loginbt.windowUpLeftY)
 
-loginbt.login()
+print(loginbt.login())
+
 
 
 
