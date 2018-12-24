@@ -18,6 +18,10 @@ import pyautogui
 import win32com.client
 import win32process as process
 import winshell
+# from win32api import GetSystemMetrics
+#
+# SYS_WIDTH = GetSystemMetrics(0)
+# SYS_HEIGHT = GetSystemMetrics(1)
 
 def kill_process(process_name):
     pass
@@ -32,6 +36,7 @@ class LoginWindow:
         self.windowName = windowname
         self.userName = username
         self.userPwd = userpwd
+        self.rect = ()
 
     def runbnet(self):
         exist = win32gui.FindWindow(None, self.windowName)
@@ -46,24 +51,28 @@ class LoginWindow:
                 continue
             else:
                 win32gui.MoveWindow(hwndbnt, 100, 100, 365, 541, True)
-                rect = win32gui.GetWindowRect(hwndbnt)
+                self.rect = win32gui.GetWindowRect(hwndbnt)
+                print(self.rect)
             break
         win32gui.SetForegroundWindow(hwndbnt)
         time.sleep(0.5)
-        return hwndbnt, rect[0], rect[1]
+        return hwndbnt, self.rect[0], self.rect[1]
 
     def login(self):
-        battlenetAccoutWindowX = self.windowUpLeftX + 200
-        battlenetAccoutWindowY = self.windowUpLeftY + 200
+        battlenetAccoutWindowX = self.windowUpLeftX + int(200 / 365 * self.rect[2])
+        battlenetAccoutWindowY = self.windowUpLeftY + int(230 / 541 * self.rect[3])
         pyautogui.moveTo(battlenetAccoutWindowX, battlenetAccoutWindowY, 0.8, pyautogui.easeInOutQuad)
+        print(pyautogui.position())
         pyautogui.click()
         t = time.time()
         while time.time() - t <= 5:
             pyautogui.press('backspace')
-        if win32api.GetKeyboardLayout() == 134481924:
-            pyautogui.press('shift')
-            # print(win32api.GetKeyboardLayout())
-            time.sleep(0.25)
+        win32api.LoadKeyboardLayout('00000409', 1)
+        time.sleep(0.5)
+        # if win32api.GetKeyboardLayout() == 134481924:
+        #     pyautogui.press('shift')
+        #     # print(win32api.GetKeyboardLayout())
+        #     time.sleep(0.25)
         pyautogui.typewrite(self.userName, interval=0.25)
         time.sleep(0.25)
         pyautogui.press('tab')
@@ -74,8 +83,8 @@ class LoginWindow:
 
 hb_dir = 'D:\hb\\'
 bn_target = winshell.shortcut(os.path.join(winshell.desktop(), "暴雪战网.lnk")).path
-hs_target = winshell.shortcut(os.path.join(winshell.desktop(), "Hearthstone.exe - 快捷方式.lnk")).path
-hb_target = hb_dir + os.readlink(os.path.join(hb_dir, "Hearthbuddy.exe"))
+# hs_target = winshell.shortcut(os.path.join(winshell.desktop(), "Hearthstone.exe - 快捷方式.lnk")).path
+# hb_target = hb_dir + os.readlink(os.path.join(hb_dir, "Hearthbuddy.exe"))
 
 # hearthstone = 'D:\Program Files (x86)\Hearthstone\Hearthstone_Data'
 loginbt = LoginWindow(bn_target, '暴雪战网登录', 'einom2000@163.com', '123NUNUchipi')
