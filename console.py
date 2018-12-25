@@ -25,9 +25,7 @@ def kill_process(process_name, wd_name):
         # check whether the process name matches
         if proc.name() == process_name:
             proc.kill()
-            print('killed' + process_name)
     while win32gui.FindWindow(None, wd_name):
-         print(wd_name + 'still exist')
          pass
     return
 
@@ -87,9 +85,9 @@ class LoginWindow:
 
 hb_dir = 'D:\hb\\'
 bn_target = winshell.shortcut(os.path.join(winshell.desktop(), "暴雪战网.lnk")).path
-# hs_target = winshell.shortcut(os.path.join(winshell.desktop(), "Hearthstone.exe - 快捷方式.lnk")).path
-# hb_target = hb_dir + os.readlink(os.path.join(hb_dir, "Hearthbuddy.exe"))
-# hearthstone = 'D:\Program Files (x86)\Hearthstone\Hearthstone_Data'
+hs_target = winshell.shortcut(os.path.join(winshell.desktop(), "Hearthstone.exe - 快捷方式.lnk")).path
+hb_target = hb_dir + os.readlink(os.path.join(hb_dir, "Hearthbuddy.exe"))
+hearthstone = 'D:\Program Files (x86)\Hearthstone\Hearthstone_Data'
 loginbt = LoginWindow(bn_target, '暴雪战网登录', 'einom2000@163.com', '123NUNUchipi')
 
 logged_in = False
