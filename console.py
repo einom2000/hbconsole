@@ -20,6 +20,12 @@ import win32process as process
 import winshell, psutil
 import cv2
 
+def click_hb_btn(btn_name):
+    time.sleep(0.3)
+    pyautogui.moveTo(btn_name[0], btn_name[1], 0.5)
+    time.sleep(0.2)
+    pyautogui.click()
+
 def kill_process(process_name, wd_name):
     for proc in psutil.process_iter():
         # check whether the process name matches
@@ -98,8 +104,11 @@ hb_target = hb_dir + os.readlink(os.path.join(hb_dir, "Hearthbuddy.exe"))
 
 gold_miner_loop = True
 player_id = 0
+# in case break during one player's mining
+player_break = 0
 
 while gold_miner_loop:
+
     # open in battle net login window
     loginbt = LoginWindow(bn_target, '暴雪战网登录', account_id[player_id], account_psd[player_id])
     logged_in = False
@@ -150,7 +159,7 @@ while gold_miner_loop:
     time.sleep(3)
     win32gui.SetForegroundWindow(hs_window)
     hs_rec = win32gui.GetWindowRect(hs_window)
-    win32gui.MoveWindow(hs_window, 0, 700, hs_rec[2] - hs_rec[0], hs_rec[3] - hs_rec[1], 1)
+    win32gui.MoveWindow(hs_window, 620, 0, 800, 600, 1)
 
     # close bt window
     kill_process('Battle.net.exe', '暴雪战网')
@@ -198,28 +207,37 @@ while gold_miner_loop:
     stats_btn = (267, 159)
     stats_reset_btn = (49, 260)
     win_rec = [(84, 174), (116, 197)]
-    time.sleep(0.3)
-    pyautogui.moveTo(setting_btn[0], setting_btn[1], 0.5)
-    time.sleep(0.2)
-    pyautogui.click()
-    time.sleep(0.3)
-    pyautogui.moveTo(default_bot_btn[0], default_bot_btn[1], 0.5)
-    time.sleep(0.2)
-    pyautogui.click()
-    time.sleep(0.3)
-    pyautogui.moveTo(deck_btn[0], deck_btn[1], 0.5)
-    time.sleep(0.2)
-    pyautogui.click()
+    click_hb_btn(setting_btn)
+    click_hb_btn(default_bot_btn)
+    click_hb_btn(deck_btn)
     for i in range(20):
         pyautogui.press('backspace')
         pyautogui.press('delete')
         time.sleep(0.1)
     pyautogui.press('shift')
     pyautogui.typewrite(deck_list[player_id], interval=(random.randint(15, 30) / 100))
-    time.sleep(1)
-    pyautogui.moveTo(found_hb_start[0], found_hb_start[1], 1)
-    time.sleep(1)
-    pyautogui.click()
+    time.sleep(0.5)
+    click_hb_btn(found_hb_start)
+    time.sleep(0.5)
+    click_hb_btn(stats_btn)
+    #if it is a new player start mining, reset counter
+    if player_break == 0:
+        click_hb_btn(stats_reset_btn)
+    t = time.time()
+    check_bug_start = True
+    while check_bug_start:
+        check_bug = pyautogui.locateCenterOnScreen('wild_logo.png', region=(1231, 33, 1267, 69),
+                                                   grayscale=False, confidence=0.8)
+        print(check_bug)
+        if check_bug is not None:
+            # call change deck
+            t = time.time()
+            pass
+        if time.time() - t >= 300:
+            check_bug_start = False
+
+
+
 
 
     sys.exit()

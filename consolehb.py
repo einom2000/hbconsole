@@ -32,16 +32,10 @@ import  os, pyautogui,keyboard, win32gui,win32api, winshell, psutil,time,random
 # f.close()
 # print(account_id,accoun t_psd)
 
-# (346, 106)
+# (915, 259)(1108, 333)  (1231, 33)(1267, 69)
 
-# while True:
-#     if keyboard.is_pressed('space'):
-#         print(pyautogui.position())
-#         break
-player_id = 0
-
-
-time.sleep(0.5)
-pyautogui.click(setting_btn[0], setting_btn[1])
-time.sleep(0.5)
+while True:
+    if keyboard.is_pressed('space'):
+        print(pyautogui.position())
+        break
 
