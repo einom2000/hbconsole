@@ -4,12 +4,12 @@ import  os, pyautogui,keyboard, win32gui,win32api, winshell, psutil
 #     if 'Battle.net' in tsk:
 #         print(tsk)
 #         print ("yes!")
-
-while True:
-    if keyboard.is_pressed('space'):
-        hwnd = win32gui.GetForegroundWindow()
-        txt = win32gui.GetWindowText(hwnd)
-        print(txt)
+#
+# while True:
+#     if keyboard.is_pressed('space'):
+#         hwnd = win32gui.GetForegroundWindow()
+#         txt = win32gui.GetWindowText(hwnd)
+#         print(txt)
 
 # def kill_process(process_name, wd_name):
 #     for proc in psutil.process_iter():
@@ -25,3 +25,9 @@ while True:
 # print(bn)
 # print("try to kill")
 # kill_process(bn, '暴雪战网登录')
+f = open("account.txt","r")
+lines=f.readlines()
+account={lines[0][:-1]:lines[1][:-1], lines[2][:-1]: lines[3][:-1], lines[4][:-1]: lines[5][:-1]}
+f.close()
+print (account.items()[0])
+

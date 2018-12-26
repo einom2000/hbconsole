@@ -84,11 +84,21 @@ class LoginWindow:
 
 
 hb_dir = 'D:\hb\\'
+
+f = open("account.txt", "r")
+lines = f.readlines()
+account_id = (lines[0][:-1], lines[2][:-1], lines[4][:-1])
+account_psd = (lines[1][:-1], lines[3][:-1], lines[5][:-1])
+f.close()
+
 bn_target = winshell.shortcut(os.path.join(winshell.desktop(), "暴雪战网.lnk")).path
 hs_target = winshell.shortcut(os.path.join(winshell.desktop(), "Hearthstone.exe - 快捷方式.lnk")).path
 hb_target = hb_dir + os.readlink(os.path.join(hb_dir, "Hearthbuddy.exe"))
 # hearthstone = 'D:\Program Files (x86)\Hearthstone\Hearthstone_Data'
-loginbt = LoginWindow(bn_target, '暴雪战网登录', 'e', '123chipi')
+player_id = 0
+
+
+loginbt = LoginWindow(bn_target, '暴雪战网登录', account_id[player_id], account_psd[player_id])
 
 logged_in = False
 logging_time = time.time()
