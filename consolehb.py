@@ -1,4 +1,4 @@
-import  os, pyautogui,keyboard, win32gui,win32api, winshell, psutil
+import  os, pyautogui,keyboard, win32gui,win32api, winshell, psutil,time,random
 # tsks = os.popen('tasklist').readlines()
 # for tsk in tsks:
 #     if 'Battle.net' in tsk:
@@ -25,9 +25,23 @@ import  os, pyautogui,keyboard, win32gui,win32api, winshell, psutil
 # print(bn)
 # print("try to kill")
 # kill_process(bn, '暴雪战网登录')
-f = open("account.txt","r")
-lines=f.readlines()
-account={lines[0][:-1]:lines[1][:-1], lines[2][:-1]: lines[3][:-1], lines[4][:-1]: lines[5][:-1]}
-f.close()
-print (account.items()[0])
+# f = open("account.txt", "r")
+# lines = f.readlines()
+# account_id = (lines[0][:-1], lines[2][:-1], lines[4][:-1])
+# account_psd = (lines[1][:-1], lines[3][:-1], lines[5][:-1])
+# f.close()
+# print(account_id,accoun t_psd)
+
+# (346, 106)
+
+# while True:
+#     if keyboard.is_pressed('space'):
+#         print(pyautogui.position())
+#         break
+player_id = 0
+
+
+time.sleep(0.5)
+pyautogui.click(setting_btn[0], setting_btn[1])
+time.sleep(0.5)
 
