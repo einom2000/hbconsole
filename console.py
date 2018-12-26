@@ -254,6 +254,7 @@ while gold_miner_loop:
     pyautogui.typewrite(deck_list[player_id], interval=(random.randint(15, 30) / 100))
     time.sleep(2)
     click_hb_btn(buddy_btn_dict['start_btn'])
+    logging.info('start the buddy.')
     time.sleep(1)
     click_hb_btn(buddy_btn_dict['stats_btn'])
     time.sleep(1)
@@ -261,20 +262,24 @@ while gold_miner_loop:
     #if it is a new player start mining, reset counter
     if player_break == 0:
         click_hb_btn(buddy_btn_dict['stats_reset_btn'])
+        logging.info('status info reset!')
     t = time.time()
     check_bug_start = True
     while check_bug_start:
         check_bug = pyautogui.locateCenterOnScreen('wild_logo.png', region=(1231, 33, 1267, 69),
                                                    grayscale=False, confidence=0.8)
         if check_bug is not None:
+            logging.warning('buddy deck bugs found!')
             # click stop
             time.sleep(0.5)
             click_hb_btn(buddy_btn_dict['start_btn'])
+            logging.info('stop the buddy.')
             time.sleep(3)
             time.sleep(0.5)
             click_hb_btn(buddy_btn_dict['default_bot_btn'])
             time.sleep(3)
             click_hb_btn(buddy_btn_dict['rule_btn'])
+            logging.info('change the rules...')
             time.sleep(0.5)
             # if the first time bug
             if player_break == 0 or player_break % 2 == 0:
@@ -284,6 +289,7 @@ while gold_miner_loop:
                 time.sleep(2)
                 player_break += 1
                 click_hb_btn(buddy_btn_dict['start_btn'])
+                logging.info('buddy restarted..')
                 time.sleep(2)
                 click_hb_btn(buddy_btn_dict['stats_btn'])
             elif player_break % 2 == 1:
@@ -295,6 +301,7 @@ while gold_miner_loop:
                 time.sleep(2)
                 player_break += 1
                 click_hb_btn(buddy_btn_dict['start_btn'])
+                logging.info('buddy restarted..')
                 # double check the start button?
                 # while True:
                 #     time.sleep(5)
@@ -308,6 +315,7 @@ while gold_miner_loop:
             t = time.time()
         if time.time() - t >= 300:
             check_bug_start = False
+            logging.info('buddy running so fine!')
     #loop to check score and dead every 10 minuites
     t = time.time()
     checking_continue = True
@@ -315,26 +323,34 @@ while gold_miner_loop:
     # last_json_data = ''
     while checking_continue:
         if time.time() - t >= 600:
+            logging.info('start to check the score...')
             # read score
             with open("Settings\Default\Stats.json") as json_file:
                 json_data = json.load(json_file)
+                logging.info('status shows: ' + str(json_data))
                 win_count = json_data['Wins']
                 if int(win_count) >= 32:
-                    print(account_id[player_id] + str(win_count))
+                    logging.warning('player No.' + str(player_id) + ' got ' + str(win_count) + ' wins!')
+                    logging.info('close hstone program.....')
                     kill_process('Hearthstone.exe', '炉石传说')
                     player_id += 1
+                    logging.info('shift to the next player...')
                     player_break = 0
                     checking_continue = False
                     if player_id >= 3:
+                        logging.warning('maxium players has been played....terminating...')
                         sys.exit()
                     break
             # (1231, 33)(1267, 69) check failure
             failure_found = pyautogui.locateCenterOnScreen('close_logo.png', region=(1200, 25, 1300, 80),
                                                            grayscale=False, confidence= 0.8)
             if failure_found is not None:
-                print(account_id[player_id] + ' fails' + str(player_break) + ' times!')
+                logging.warning('game disconnected.....')
+                logging.info(str((account_id[player_id]) + ' fails ' + str(player_break) + ' times!'))
+                logging.info('close hstone program.....')
                 kill_process('Hearthstone.exe', '炉石传说')
                 player_break += 1
+                logging.info('adding one more failure...')
                 checking_continue = False
                 break
             t = time.time()
