@@ -231,10 +231,11 @@ while gold_miner_loop:
         time.sleep(0.1)
     pyautogui.press('shift')
     pyautogui.typewrite(deck_list[player_id], interval=(random.randint(15, 30) / 100))
-    time.sleep(0.5)
+    time.sleep(2)
     click_hb_btn(buddy_btn_dict['start_btn'])
-    time.sleep(0.5)
+    time.sleep(1)
     click_hb_btn(buddy_btn_dict['stats_btn'])
+    time.sleep(1)
 
     #if it is a new player start mining, reset counter
     if player_break == 0:
@@ -249,6 +250,9 @@ while gold_miner_loop:
             time.sleep(0.5)
             click_hb_btn(buddy_btn_dict['start_btn'])
             time.sleep(3)
+            time.sleep(0.5)
+            click_hb_btn(buddy_btn_dict['default_bot_btn'])
+            time.sleep(3)
             click_hb_btn(buddy_btn_dict['rule_btn'])
             time.sleep(0.5)
             # if the first time bug
@@ -256,24 +260,44 @@ while gold_miner_loop:
                 pyautogui.press('up')
                 time.sleep(0.5)
                 pyautogui.press('enter')
-                time.sleep(0.5)
+                time.sleep(2)
                 player_break += 1
                 click_hb_btn(buddy_btn_dict['start_btn'])
+                while True:
+                    time.sleep(5)
+                    chck = pyautogui.locateCenterOnScreen('hb_start.png', region=(0, 0, hb_rec[2], hb_rec[3]),
+                                                          grayscale=False, confidence=0.8)
+                    if chck is not None:
+                        break
+                    click_hb_btn(buddy_btn_dict['start_btn'])
+                time.sleep(2)
+                click_hb_btn(buddy_btn_dict['stats_btn'])
             elif player_break % 2 == 1:
                 pyautogui.press('down')
                 time.sleep(0.5)
                 pyautogui.press('down')
                 time.sleep(0.5)
                 pyautogui.press('enter')
-                time.sleep(0.5)
+                time.sleep(2)
                 player_break += 1
                 click_hb_btn(buddy_btn_dict['start_btn'])
+                while True:
+                    time.sleep(5)
+                    chck = pyautogui.locateCenterOnScreen('hb_start.png', region=(0, 0, hb_rec[2], hb_rec[3]),
+                                                          grayscale=False, confidence=0.8)
+                    if chck is not None:
+                        break
+                    click_hb_btn(buddy_btn_dict['start_btn'])
+                time.sleep(2)
+                click_hb_btn(buddy_btn_dict['stats_btn'])
             t = time.time()
         if time.time() - t >= 300:
             check_bug_start = False
     #loop to check score and dead every 10 minuites
     t = time.time()
     checking_continue = True
+    # win_count = 0
+    # last_json_data = ''
     while checking_continue:
         if time.time() - t >= 600:
             # read score
@@ -281,6 +305,7 @@ while gold_miner_loop:
                 json_data = json.load(json_file)
                 win_count = json_data['Wins']
                 if int(win_count) >= 32:
+                    print(account_id[player_id] + str(win_count))
                     kill_process('Hearthstone.exe', '炉石传说')
                     player_id += 1
                     player_break = 0
@@ -292,6 +317,7 @@ while gold_miner_loop:
             failure_found = pyautogui.locateCenterOnScreen('close_logo.png', region=(1200, 25, 1300, 80),
                                                            grayscale=False, confidence= 0.8)
             if failure_found is not None:
+                print(account_id[player_id] + ' fails' + str(player_break) + ' times!')
                 kill_process('Hearthstone.exe', '炉石传说')
                 player_break += 1
                 checking_continue = False
