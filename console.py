@@ -19,6 +19,7 @@ import win32com.client
 import win32process as process
 import winshell, psutil
 import cv2
+from datetime import datetime
 
 
 def click_hb_btn(btn_name):
@@ -108,6 +109,14 @@ player_id = 0
 # in case break during one player's mining
 player_break = 0
 
+#wait for the midnight
+now = datetime.now()
+while True:
+    seconds_since_midnight = (datetime.now() - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
+    if seconds_since_midnight > 86400:
+        break
+
+#main loop
 while gold_miner_loop:
 
     # open in battle net login window
