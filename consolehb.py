@@ -33,9 +33,27 @@ import  os, pyautogui,keyboard, win32gui,win32api, winshell, psutil,time,random
 # print(account_id,accoun t_psd)
 
 # (915, 259)(1108, 333)  (1231, 33)(1267, 69)
+#
+# while True:
+#     if keyboard.is_pressed('space'):
+#         print(pyautogui.position())
+#         break
 
-while True:
-    if keyboard.is_pressed('space'):
-        print(pyautogui.position())
-        break
+import json
 
+def kill_process(process_name, wd_name):
+    for proc in psutil.process_iter():
+        # check whether the process name matches
+        if proc.name() == process_name:
+            proc.kill()
+    while win32gui.FindWindow(None, wd_name):
+         pass
+    return
+
+with open("Stats.json") as json_file:
+    json_data = json.load(json_file)
+    win_count = json_data['Wins']
+    print(win_count)
+
+
+kill_process('hearthstone.exe', '炉石传说')

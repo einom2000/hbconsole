@@ -11,7 +11,7 @@
 # monitor the hs window status
 
 
-import os, win32api,random
+import os, win32api,random,json
 import win32gui,sys
 import time
 import pyautogui
@@ -19,6 +19,7 @@ import win32com.client
 import win32process as process
 import winshell, psutil
 import cv2
+
 
 def click_hb_btn(btn_name):
     time.sleep(0.3)
@@ -204,6 +205,7 @@ while gold_miner_loop:
                       'stats_btn': (267, 159),
                       'stats_reset_btn': (49, 260),
                       'win_rec': [(84, 174), (116, 197)]}
+
     click_hb_btn(buddy_btn_dict['setting_btn'])
     click_hb_btn(buddy_btn_dict['default_bot_btn'])
     click_hb_btn(buddy_btn_dict['deck_btn'])
@@ -218,6 +220,7 @@ while gold_miner_loop:
     click_hb_btn(buddy_btn_dict['start_btn'])
     time.sleep(0.5)
     click_hb_btn(buddy_btn_dict['stats_btn'])
+
     #if it is a new player start mining, reset counter
     if player_break == 0:
         click_hb_btn(buddy_btn_dict['stats_reset_btn'])
@@ -226,17 +229,46 @@ while gold_miner_loop:
     while check_bug_start:
         check_bug = pyautogui.locateCenterOnScreen('wild_logo.png', region=(1231, 33, 1267, 69),
                                                    grayscale=False, confidence=0.8)
-        print(check_bug)
         if check_bug is not None:
-            # call change deck
+            # click stop
+            time.sleep(0.5)
+            click_hb_btn(buddy_btn_dict['start_btn'])
+            time.sleep(3)
+            click_hb_btn(buddy_btn_dict['rule_btn'])
+            time.sleep(0.5)
+            # if the first time bug
+            if player_break == 0 or player_break % 2 == 0:
+                pyautogui.press('up')
+                time.sleep(0.5)
+                pyautogui.press('enter')
+                time.sleep(0.5)
+                player_break += 1
+                click_hb_btn(buddy_btn_dict['start_btn'])
+            elif player_break % 2 == 1:
+                pyautogui.press('down')
+                time.sleep(0.5)
+                pyautogui.press('down')
+                time.sleep(0.5)
+                pyautogui.press('enter')
+                time.sleep(0.5)
+                player_break += 1
+                click_hb_btn(buddy_btn_dict['start_btn'])
             t = time.time()
-            pass
         if time.time() - t >= 300:
             check_bug_start = False
-
-
-
-
+    #loop to check score and dead every 10 minuites
+    t = time.time()
+    checking_continue = True
+    while checking_continue:
+        if time.time() - t >= 600:
+            # read score
+            with open("Stats.json") as json_file:
+                json_data = json.load(json_file)
+                win_count = json_data['Wins']
+                if int(win_count) >= 32:
+                    kill_process('hearthstone.exe', '炉石传说')
+            # check failure
+            t = time.time()
 
     sys.exit()
 
