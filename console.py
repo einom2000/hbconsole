@@ -191,25 +191,23 @@ while gold_miner_loop:
     while True:
         found_hb_start = pyautogui.locateCenterOnScreen('hb_start.png', region=(0, 0, hb_rec[2], hb_rec[3]),
                                                         grayscale=False, confidence=0.8)
-        print(found_hb_start)
         if found_hb_start:
-            # print(found_hb_start)
-            # pyautogui.moveTo(found_hb_start[0], found_hb_start[1], 1)
-            # time.sleep(2)
-            # pyautogui.click()
             break
     # start to set monitor
-    setting_btn = (99, 137)
-    default_bot_btn = (99, 160)
-    mode_btn = (269, 344)
-    rule_btn = (270, 374)
-    deck_btn = (201, 400)
-    stats_btn = (267, 159)
-    stats_reset_btn = (49, 260)
-    win_rec = [(84, 174), (116, 197)]
-    click_hb_btn(setting_btn)
-    click_hb_btn(default_bot_btn)
-    click_hb_btn(deck_btn)
+
+    buddy_btn_dict = {'start_btn': found_hb_start,
+                      'setting_btn': (99, 137),
+                      'default_bot_btn': (99, 160),
+                      'mode_btn': (269, 344),
+                      'rule_btn': (270, 374),
+                      'deck_btn': (201, 400),
+                      'stats_btn': (267, 159),
+                      'stats_reset_btn': (49, 260),
+                      'win_rec': [(84, 174), (116, 197)]}
+    click_hb_btn(buddy_btn_dict['setting_btn'])
+    click_hb_btn(buddy_btn_dict['default_bot_btn'])
+    click_hb_btn(buddy_btn_dict['deck_btn'])
+
     for i in range(20):
         pyautogui.press('backspace')
         pyautogui.press('delete')
@@ -217,12 +215,12 @@ while gold_miner_loop:
     pyautogui.press('shift')
     pyautogui.typewrite(deck_list[player_id], interval=(random.randint(15, 30) / 100))
     time.sleep(0.5)
-    click_hb_btn(found_hb_start)
+    click_hb_btn(buddy_btn_dict['start_btn'])
     time.sleep(0.5)
-    click_hb_btn(stats_btn)
+    click_hb_btn(buddy_btn_dict['stats_btn'])
     #if it is a new player start mining, reset counter
     if player_break == 0:
-        click_hb_btn(stats_reset_btn)
+        click_hb_btn(buddy_btn_dict['stats_reset_btn'])
     t = time.time()
     check_bug_start = True
     while check_bug_start:
