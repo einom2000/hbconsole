@@ -21,6 +21,11 @@ import winshell, psutil
 import cv2
 from datetime import datetime
 
+import logging
+logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+logging.basicConfig(filename='example.log',level=logging.DEBUG)
+logging.info('Program starts.')
+
 
 def click_hb_btn(btn_name):
     time.sleep(0.3)
@@ -109,12 +114,15 @@ player_id = 0
 # in case break during one player's mining
 player_break = 0
 
+logging.info('All variables were loaded.')
+
 #wait for the midnight
 from datetime import datetime
 now = datetime.now()
 t = time.time()
 while True:
     seconds_since_midnight = (datetime.now() - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
+    logging.info('shall wait for '+ str(int(86400 - seconds_since_midnight)) + ' seconds to start!')
     if seconds_since_midnight > 86400:
         break
     else:
@@ -124,6 +132,7 @@ while True:
 
 #main loop
 while gold_miner_loop:
+    logging.info('miner No.' + str(player_id) + ' player starts.')
 
     # open in battle net login window
     loginbt = LoginWindow(bn_target, '暴雪战网登录', account_id[player_id], account_psd[player_id])
@@ -140,11 +149,14 @@ while gold_miner_loop:
             bt_window = win32gui.FindWindow(None, '暴雪战网')
             if bt_window > 0:
                 logged_in = True
+                logging.info('logging No.' + str(player_id) + ' player succeeded!')
                 break
         if not logged_in:
             kill_process('Battle.net.exe', '暴雪战网登录')
+            logging.warning('log No.' + str(player_id) + ' player failed!')
         if time.time() - logging_time >= 600:
             # after 10 minutes failure, terminate program
+            logging.warning('logging keeps failing, terminated!')
             sys.exit()
 
     # logged in Battle net!!!
@@ -157,6 +169,7 @@ while gold_miner_loop:
     # looking for hs and click waiting for hs
     x, y = pyautogui.locateCenterOnScreen('hs.png', region=(0, 0, bt_rec[2], bt_rec[3]),
                                           grayscale=False, confidence=0.9)
+    logging.info('hs logo found in (' + str(x) + ', ' + str(y) + ')!')
     pyautogui.moveTo(x, y, 1,  pyautogui.easeInQuad)
     pyautogui.click(x, y)
     time.sleep(1)
@@ -169,9 +182,11 @@ while gold_miner_loop:
     hs_is_running = False
     hs_window = 0
     while not hs_is_running:
+        logging.info('waiting for hstone loaded...')
         hs_window = win32gui.FindWindow(None,'炉石传说')
         if hs_window > 0:
             hs_is_running = True
+    logging.info('hstone loaded successfully!')
     time.sleep(3)
     win32gui.SetForegroundWindow(hs_window)
     hs_rec = win32gui.GetWindowRect(hs_window)
@@ -179,13 +194,16 @@ while gold_miner_loop:
 
     # close bt window
     kill_process('Battle.net.exe', '暴雪战网')
+    logging.info('battlenet window was shut!')
 
     #lauching hb
+    logging.info('start to load buddy...')
     win32api.WinExec('Hearthbuddy.exe')
     while True:
         config_window = win32gui.FindWindow(None, 'Configuration Window')
         if config_window > 0:
             win32gui.SetForegroundWindow(config_window)
+            logging.info('buddy configure shown up!')
             time.sleep(2)
             pyautogui.press('enter')
             time.sleep(1)
@@ -198,6 +216,7 @@ while gold_miner_loop:
         hb_window = win32gui.FindWindow(None, 'Hearthbuddy[0.3.1446.417] 学习交流,免费使用,严禁贩卖!')
         if hb_window > 0:
             hb_is_running = True
+            logging.info('buddy main window shown up!')
     time.sleep(2)
     hb_rec = win32gui.GetWindowRect(hb_window)
     win32gui.MoveWindow(hb_window, 0, 0, 620, 790, 1)
@@ -208,6 +227,7 @@ while gold_miner_loop:
         found_hb_start = pyautogui.locateCenterOnScreen('hb_start.png', region=(0, 0, hb_rec[2], hb_rec[3]),
                                                         grayscale=False, confidence=0.8)
         if found_hb_start:
+            logging.info('buddy start button found, buddy ready!')
             break
     # start to set monitor
 
@@ -224,6 +244,7 @@ while gold_miner_loop:
     click_hb_btn(buddy_btn_dict['setting_btn'])
     click_hb_btn(buddy_btn_dict['default_bot_btn'])
     click_hb_btn(buddy_btn_dict['deck_btn'])
+    logging.info('trying to type in the right deck\'s name...')
 
     for i in range(20):
         pyautogui.press('backspace')
