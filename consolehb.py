@@ -51,22 +51,22 @@ import json
 #          pass
 #     return
 #
-# with open("Stats.json") as json_file:
-#     json_data = json.load(json_file)
-#     win_count = json_data['Wins']
-#     print(win_count)
+with open("Settings\Default\Stats.json") as json_file:
+    json_data = json.load(json_file)
+    win_count = json_data['Wins']
+    print(win_count)
 #
 #
 # kill_process('Hearthstone.exe', '炉石传说')
 
-from datetime import datetime
-now = datetime.now()
-t = time.time()
-while True:
-    seconds_since_midnight = (datetime.now() - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
-    if seconds_since_midnight > 86400:
-        break
-    else:
-        if time.time() - t >= 2:
-            print("There are still " + str(int(86400 - seconds_since_midnight))+ ' seconds to start!')
-            t = time.time()
+# from datetime import datetime
+# now = datetime.now()
+# t = time.time()
+# while True:
+#     seconds_since_midnight = (datetime.now() - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
+#     if seconds_since_midnight > 86400:
+#         break
+#     else:
+#         if time.time() - t >= 2:
+#             print("There are still " + str(int(86400 - seconds_since_midnight))+ ' seconds to start!')
+#             t = time.time()
