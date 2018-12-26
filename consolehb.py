@@ -44,6 +44,7 @@ import json
 def kill_process(process_name, wd_name):
     for proc in psutil.process_iter():
         # check whether the process name matches
+        # print(proc)
         if proc.name() == process_name:
             proc.kill()
     while win32gui.FindWindow(None, wd_name):
@@ -56,4 +57,4 @@ with open("Stats.json") as json_file:
     print(win_count)
 
 
-kill_process('hearthstone.exe', '炉石传说')
+kill_process('Hearthstone.exe', '炉石传说')

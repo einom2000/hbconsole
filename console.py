@@ -266,8 +266,18 @@ while gold_miner_loop:
                 json_data = json.load(json_file)
                 win_count = json_data['Wins']
                 if int(win_count) >= 32:
-                    kill_process('hearthstone.exe', '炉石传说')
+                    kill_process('Hearthstone.exe', '炉石传说')
+                    player_id += 1
+                    player_break = 0
+                    if player_id >= 3:
+                        sys.exit()
+                    break
+
             # check failure
+            #(1231, 33)(1267, 69) check failure
+                #kill_process('Hearthstone.exe', '炉石传说')
+                # player_break += 1
+                #break
             t = time.time()
 
     sys.exit()
