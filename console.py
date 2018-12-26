@@ -263,13 +263,6 @@ while gold_miner_loop:
                 time.sleep(2)
                 player_break += 1
                 click_hb_btn(buddy_btn_dict['start_btn'])
-                while True:
-                    time.sleep(5)
-                    chck = pyautogui.locateCenterOnScreen('hb_start.png', region=(0, 0, hb_rec[2], hb_rec[3]),
-                                                          grayscale=False, confidence=0.8)
-                    if chck is not None:
-                        break
-                    click_hb_btn(buddy_btn_dict['start_btn'])
                 time.sleep(2)
                 click_hb_btn(buddy_btn_dict['stats_btn'])
             elif player_break % 2 == 1:
@@ -281,13 +274,14 @@ while gold_miner_loop:
                 time.sleep(2)
                 player_break += 1
                 click_hb_btn(buddy_btn_dict['start_btn'])
-                while True:
-                    time.sleep(5)
-                    chck = pyautogui.locateCenterOnScreen('hb_start.png', region=(0, 0, hb_rec[2], hb_rec[3]),
-                                                          grayscale=False, confidence=0.8)
-                    if chck is not None:
-                        break
-                    click_hb_btn(buddy_btn_dict['start_btn'])
+                # double check the start button?
+                # while True:
+                #     time.sleep(5)
+                #     chck = pyautogui.locateCenterOnScreen('hb_start.png', region=(0, 0, hb_rec[2], hb_rec[3]),
+                #                                           grayscale=False, confidence=0.8)
+                #     if chck is None:
+                #         break
+                #     click_hb_btn(buddy_btn_dict['start_btn'])
                 time.sleep(2)
                 click_hb_btn(buddy_btn_dict['stats_btn'])
             t = time.time()
