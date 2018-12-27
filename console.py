@@ -104,6 +104,7 @@ player_id = 0
 player_break = 0
 suffix = ''
 if os.path.basename(__file__) == 'console_surface.py':
+    logging.warning('script running on surface!')
     suffix = '_sur'
 logging.info('All variables were loaded.')
 
