@@ -70,7 +70,7 @@ import json
 #         if time.time() - t >= 2:
 #             print("There are still " + str(int(86400 - seconds_since_midnight))+ ' seconds to start!')
 #             t = time.time()
-print(os.path.basename(__file__))
+# print(os.path.basename(__file__))
 #
 # import logging
 # logging.basicConfig(filename='example.log',level=logging.DEBUG)
@@ -79,3 +79,10 @@ print(os.path.basename(__file__))
 # logging.warning('And this, too')
 # while True:
 #     pass
+
+while True:
+    if keyboard.is_pressed('space'):
+        print(pyautogui.position())
+        time.sleep(1  )
+    elif keyboard.is_pressed('q'):
+        break
