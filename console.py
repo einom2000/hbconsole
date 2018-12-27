@@ -236,7 +236,11 @@ while gold_miner_loop:
             logging.info('buddy main window shown up!')
     time.sleep(2)
     hb_rec = win32gui.GetWindowRect(hb_window)
-    win32gui.MoveWindow(hb_window, 0, 0, 620, 790, 1)
+    if suffix != "":
+        hs_wd_height = 790 + 200
+    else:
+        hs_wd_height = 790
+    win32gui.MoveWindow(hb_window, 0, 0, 620, hs_wd_height, 1)
 
     # waiting and click start for buddy
     time.sleep(5)
