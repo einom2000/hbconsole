@@ -11,7 +11,7 @@
 # monitor the hs window status
 
 
-import os, win32api,random,json
+import os, win32api,random,json, keyboard
 import win32gui,sys
 import time
 import pyautogui
@@ -23,7 +23,7 @@ from datetime import datetime
 
 import logging
 logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
-logging.basicConfig(filename='example.log',level=logging.DEBUG)
+logging.basicConfig(filename='running.log', level=logging.DEBUG)
 logging.info('Program starts.')
 
 
@@ -121,6 +121,8 @@ from datetime import datetime
 now = datetime.now()
 t = time.time()
 while True:
+    if keyboard.is_pressed('space'):
+        break
     seconds_since_midnight = (datetime.now() - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
     logging.info('shall wait for '+ str(int(86400 - seconds_since_midnight)) + ' seconds to start!')
     if seconds_since_midnight > 86400:
@@ -128,6 +130,7 @@ while True:
     else:
         if time.time() - t >= 10:
             print("There are still " + str(int(86400 - seconds_since_midnight)) + ' seconds to start!')
+            print('Or you might press SPACE to skip!')
             t = time.time()
 
 #main loop

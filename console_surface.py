@@ -23,7 +23,7 @@ from datetime import datetime
 
 import logging
 logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
-logging.basicConfig(filename='example.log',level=logging.DEBUG)
+logging.basicConfig(filename='__running.log', level=logging.DEBUG)
 logging.info('Program starts.')
 
 
@@ -96,7 +96,7 @@ class LoginWindow:
         return
 
 
-hb_dir = 'D:\hb\\'
+hb_dir = 'C:\hb\\'
 
 f = open("account.txt", "r")
 lines = f.readlines()
