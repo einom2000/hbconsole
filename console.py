@@ -120,18 +120,19 @@ logging.info('All variables were loaded.')
 from datetime import datetime
 now = datetime.now()
 t = time.time()
-while True:
-    if keyboard.is_pressed('space'):
-        break
+
+start_right_now = False
+while not start_right_now:
     seconds_since_midnight = (datetime.now() - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
     logging.info('shall wait for '+ str(int(86400 - seconds_since_midnight)) + ' seconds to start!')
     if seconds_since_midnight > 86400:
         break
-    else:
-        if time.time() - t >= 10:
+    elif time.time() - t >= 10:
             print("There are still " + str(int(86400 - seconds_since_midnight)) + ' seconds to start!')
             print('Or you might press SPACE to skip!')
             t = time.time()
+    elif keyboard.is_pressed('space'):
+        start_right_now = True
 
 #main loop
 while gold_miner_loop:
