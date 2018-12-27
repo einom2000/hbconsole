@@ -3,7 +3,7 @@
 
 
 import os, win32api,random,json, keyboard
-import win32gui,sys
+import win32gui,sys,winsound
 import time
 import pyautogui
 import win32com.client
@@ -123,6 +123,7 @@ while not start_right_now:
             print('Or you might press SPACE to skip!')
             t = time.time()
     elif keyboard.is_pressed('space'):
+        winsound.Beep(500, 300)
         print('"space" was pressed, skip counting!')
         logging.info('"space" was pressed, skip counting!')
         start_right_now = True
