@@ -96,8 +96,6 @@ class LoginWindow:
         return
 
 
-hb_dir = 'D:\hb\\'
-
 f = open("account.txt", "r")
 lines = f.readlines()
 account_id = (lines[0][:-1], lines[2][:-1], lines[4][:-1])
@@ -106,8 +104,7 @@ f.close()
 deck_list = ('BB_STAN_WL', 'BB_STAN_PS', 'BB_STAN_DR')
 bn_target = winshell.shortcut(os.path.join(winshell.desktop(), "暴雪战网.lnk")).path
 hs_target = winshell.shortcut(os.path.join(winshell.desktop(), "Hearthstone.exe - 快捷方式.lnk")).path
-hb_target = hb_dir + os.readlink(os.path.join(hb_dir, "Hearthbuddy.exe"))
-# hearthstone = 'D:\Program Files (x86)\Hearthstone\Hearthstone_Data'
+
 
 gold_miner_loop = True
 player_id = 0

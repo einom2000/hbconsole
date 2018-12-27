@@ -11,8 +11,8 @@
 # monitor the hs window status
 
 
-import os, win32api, random, json, keyboard
-import win32gui, sys
+import os, win32api,random,json, keyboard
+import win32gui,sys
 import time
 import pyautogui
 import win32com.client
@@ -22,7 +22,6 @@ import cv2
 from datetime import datetime
 
 import logging
-
 logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 logging.basicConfig(filename='running.log', level=logging.DEBUG)
 logging.info('Program starts.')
@@ -34,18 +33,17 @@ def click_hb_btn(btn_name):
     time.sleep(0.2)
     pyautogui.click()
 
-
 def kill_process(process_name, wd_name):
     for proc in psutil.process_iter():
         # check whether the process name matches
         if proc.name() == process_name:
             proc.kill()
     while win32gui.FindWindow(None, wd_name):
-        pass
+         pass
     return
 
-
 class LoginWindow:
+
     windowHwnd = 0
 
     def __init__(self, programdir, windowname, username, userpwd):
@@ -98,8 +96,6 @@ class LoginWindow:
         return
 
 
-hb_dir = 'C:\hb\\'
-
 f = open("account.txt", "r")
 lines = f.readlines()
 account_id = (lines[0][:-1], lines[2][:-1], lines[4][:-1])
@@ -108,8 +104,7 @@ f.close()
 deck_list = ('BB_STAN_WL', 'BB_STAN_PS', 'BB_STAN_DR')
 bn_target = winshell.shortcut(os.path.join(winshell.desktop(), "暴雪战网.lnk")).path
 hs_target = winshell.shortcut(os.path.join(winshell.desktop(), "Hearthstone.exe - 快捷方式.lnk")).path
-hb_target = hb_dir + os.readlink(os.path.join(hb_dir, "Hearthbuddy.exe"))
-# hearthstone = 'D:\Program Files (x86)\Hearthstone\Hearthstone_Data'
+
 
 gold_miner_loop = True
 player_id = 0
@@ -118,26 +113,25 @@ player_break = 0
 
 logging.info('All variables were loaded.')
 
-# wait for the midnight
+#wait for the midnight
 from datetime import datetime
-
 now = datetime.now()
 t = time.time()
 
 start_right_now = False
 while not start_right_now:
     seconds_since_midnight = (datetime.now() - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
-    logging.info('shall wait for ' + str(int(86400 - seconds_since_midnight)) + ' seconds to start!')
+    logging.info('shall wait for '+ str(int(86400 - seconds_since_midnight)) + ' seconds to start!')
     if seconds_since_midnight > 86400:
         break
     elif time.time() - t >= 10:
-        print("There are still " + str(int(86400 - seconds_since_midnight)) + ' seconds to start!')
-        print('Or you might press SPACE to skip!')
-        t = time.time()
+            print("There are still " + str(int(86400 - seconds_since_midnight)) + ' seconds to start!')
+            print('Or you might press SPACE to skip!')
+            t = time.time()
     elif keyboard.is_pressed('space'):
         start_right_now = True
 
-# main loop
+#main loop
 while gold_miner_loop:
     logging.info('miner No.' + str(player_id) + ' player starts.')
 
@@ -183,12 +177,12 @@ while gold_miner_loop:
             break
 
     logging.info('hs logo found in (' + str(x) + ', ' + str(y) + ')!')
-    pyautogui.moveTo(x, y, 1, pyautogui.easeInQuad)
+    pyautogui.moveTo(x, y, 1,  pyautogui.easeInQuad)
     pyautogui.click(x, y)
     time.sleep(1)
     x, y = pyautogui.locateCenterOnScreen('login.png', region=(0, 0, bt_rec[2], bt_rec[3]),
                                           grayscale=False, confidence=0.9)
-    pyautogui.moveTo(x, y, 1, pyautogui.easeInQuad)
+    pyautogui.moveTo(x, y, 1,  pyautogui.easeInQuad)
     pyautogui.click(x, y)
 
     # waiting for hs running
@@ -196,7 +190,7 @@ while gold_miner_loop:
     hs_window = 0
     while not hs_is_running:
         logging.info('waiting for hstone loaded...')
-        hs_window = win32gui.FindWindow(None, '炉石传说')
+        hs_window = win32gui.FindWindow(None,'炉石传说')
         if hs_window > 0:
             hs_is_running = True
     logging.info('hstone loaded successfully!')
@@ -209,7 +203,7 @@ while gold_miner_loop:
     kill_process('Battle.net.exe', '暴雪战网')
     logging.info('battlenet window was shut!')
 
-    # lauching hb
+    #lauching hb
     logging.info('start to load buddy...')
     win32api.WinExec('Hearthbuddy.exe')
     while True:
@@ -234,7 +228,7 @@ while gold_miner_loop:
     hb_rec = win32gui.GetWindowRect(hb_window)
     win32gui.MoveWindow(hb_window, 0, 0, 620, 790, 1)
 
-    # waiting and click start for hbuddy
+    #waiting and click start for hbuddy
     time.sleep(5)
     while True:
         found_hb_start = pyautogui.locateCenterOnScreen('hb_start.png', region=(0, 0, hb_rec[2], hb_rec[3]),
@@ -272,7 +266,7 @@ while gold_miner_loop:
     click_hb_btn(buddy_btn_dict['stats_btn'])
     time.sleep(1)
 
-    # if it is a new player start mining, reset counter
+    #if it is a new player start mining, reset counter
     if player_break == 0:
         click_hb_btn(buddy_btn_dict['stats_reset_btn'])
         logging.info('status info reset!')
@@ -329,7 +323,7 @@ while gold_miner_loop:
         if time.time() - t >= 300:
             check_bug_start = False
             logging.info('buddy running so fine!')
-    # loop to check score and dead every 10 minuites
+    #loop to check score and dead every 10 minuites
     t = time.time()
     checking_continue = True
     # win_count = 0
@@ -356,7 +350,7 @@ while gold_miner_loop:
                     break
             # (1231, 33)(1267, 69) check failure
             failure_found = pyautogui.locateCenterOnScreen('close_logo.png', region=(1200, 25, 1300, 80),
-                                                           grayscale=False, confidence=0.8)
+                                                           grayscale=False, confidence= 0.8)
             if failure_found is not None:
                 logging.warning('game disconnected.....')
                 logging.info(str((account_id[player_id]) + ' fails ' + str(player_break) + ' times!'))
