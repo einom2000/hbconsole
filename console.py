@@ -22,8 +22,8 @@ import cv2
 from datetime import datetime
 
 import logging
-logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 logging.basicConfig(filename='running.log', level=logging.DEBUG)
+logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 logging.info('Program starts.')
 
 
@@ -98,10 +98,10 @@ class LoginWindow:
 
 f = open("account.txt", "r")
 lines = f.readlines()
-account_id = (lines[0][:-1], lines[2][:-1], lines[4][:-1])
-account_psd = (lines[1][:-1], lines[3][:-1], lines[5][:-1])
+account_id = (lines[0][:-1], lines[3][:-1], lines[6][:-1])
+account_psd = (lines[1][:-1], lines[4][:-1], lines[7][:-1])
+deck_list = (lines[2][:-1], lines[5][:-1], lines[8][:-1])
 f.close()
-deck_list = ('BB_STAN_WL', 'BB_STAN_PS', 'BB_STAN_DR')
 bn_target = winshell.shortcut(os.path.join(winshell.desktop(), "暴雪战网.lnk")).path
 hs_target = winshell.shortcut(os.path.join(winshell.desktop(), "Hearthstone.exe - 快捷方式.lnk")).path
 
