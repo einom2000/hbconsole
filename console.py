@@ -387,19 +387,3 @@ while gold_miner_loop:
                 checking_continue = False
                 break
             t = time.time()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -298,8 +298,11 @@ while gold_miner_loop:
     t = time.time()
     check_bug_start = True
     wild_logo_png = 'wild_logo' + suffix + '.png'
+    wild_logo_rgn = (1231, 33, 1267, 69)
+    if suffix == "_sur":
+        wild_logo_rgn = (1220, 45, 1270, 90)
     while check_bug_start:
-        check_bug = pyautogui.locateCenterOnScreen(wild_logo_png, region=(1231, 33, 1267, 69),
+        check_bug = pyautogui.locateCenterOnScreen(wild_logo_png, region=wild_logo_rgn,
                                                    grayscale=False, confidence=0.8)
         if check_bug is not None:
             logging.warning('buddy deck bugs found!')
@@ -347,6 +350,9 @@ while gold_miner_loop:
     # win_count = 0
     # last_json_data = ''
     close_logo_png = 'close_logo' + suffix + '.png'
+    close_logo_rgn = (900, 100, 1300, 500)
+    if suffix == '_sur':
+        close_logo_rgn = (900, 200, 1300, 500)
     while checking_continue:
         if time.time() - t >= 600:
             logging.info('start to check the score...')
@@ -369,7 +375,7 @@ while gold_miner_loop:
                     break
             # (1231, 33)(1267, 69) check failure
 
-            failure_found = pyautogui.locateCenterOnScreen(close_logo_png, region=(1200, 25, 1300, 80),
+            failure_found = pyautogui.locateCenterOnScreen(close_logo_png, region=close_logo_rgn,
                                                            grayscale=False, confidence=0.8)
             if failure_found is not None:
                 logging.warning('game disconnected.....')
@@ -381,14 +387,6 @@ while gold_miner_loop:
                 checking_continue = False
                 break
             t = time.time()
-
-
-
-
-
-
-
-
 
 
 
