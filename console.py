@@ -80,6 +80,7 @@ class LoginWindow:
         time.sleep((random.randint(15, 30) / 100))
         pyautogui.press('tab')
         pyautogui.typewrite(self.userPwd, interval=(random.randint(15, 30) / 100))
+        time.sleep(5)
         for i in range(3):
             pyautogui.press('tab')
             time.sleep(random.randint(3, 5) / 10)
