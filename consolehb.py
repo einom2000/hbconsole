@@ -71,3 +71,11 @@ import json
 #             print("There are still " + str(int(86400 - seconds_since_midnight))+ ' seconds to start!')
 #             t = time.time()
 print(os.path.basename(__file__))
+#
+# import logging
+# logging.basicConfig(filename='example.log',level=logging.DEBUG)
+# logging.debug('This message should go to the log file')
+# logging.info('So should this')
+# logging.warning('And this, too')
+# while True:
+#     pass

@@ -119,9 +119,12 @@ now = datetime.now()
 t = time.time()
 
 start_right_now = False
+# just for logging purpose:
+seconds_since_midnight = (datetime.now() - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
+logging.info('shall wait for ' + str(int(86400 - seconds_since_midnight)) + ' seconds to start!')
+
 while not start_right_now:
     seconds_since_midnight = (datetime.now() - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
-    logging.info('shall wait for '+ str(int(86400 - seconds_since_midnight)) + ' seconds to start!')
     if seconds_since_midnight > 86400:
         break
     elif time.time() - t >= 10:
@@ -129,6 +132,8 @@ while not start_right_now:
             print('Or you might press SPACE to skip!')
             t = time.time()
     elif keyboard.is_pressed('space'):
+        print('"space" was pressed, skip counting!')
+        logging.info('"space" was pressed, skip counting!')
         start_right_now = True
 
 #main loop
@@ -188,8 +193,8 @@ while gold_miner_loop:
     # waiting for hs running
     hs_is_running = False
     hs_window = 0
+    logging.info('waiting for hstone loaded...')
     while not hs_is_running:
-        logging.info('waiting for hstone loaded...')
         hs_window = win32gui.FindWindow(None,'炉石传说')
         if hs_window > 0:
             hs_is_running = True
