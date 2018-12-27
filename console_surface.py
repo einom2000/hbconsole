@@ -236,7 +236,7 @@ while gold_miner_loop:
             logging.info('buddy main window shown up!')
     time.sleep(2)
     hb_rec = win32gui.GetWindowRect(hb_window)
-    if suffix != "":
+    if suffix == "_sur":
         hs_wd_height = 790 + 200
     else:
         hs_wd_height = 790
@@ -262,6 +262,16 @@ while gold_miner_loop:
                       'stats_btn': (267, 159),
                       'stats_reset_btn': (49, 260),
                       'win_rec': [(84, 174), (116, 197)]}
+    if suffix == "_sur":
+        buddy_btn_dict = {'start_btn': found_hb_start,
+                          'setting_btn': (149, 204),
+                          'default_bot_btn': (142, 237),
+                          'mode_btn': (407, 517),
+                          'rule_btn': (405, 562),
+                          'deck_btn': (304, 599),
+                          'stats_btn': (395, 240),
+                          'stats_reset_btn': (74, 389),
+                          'win_rec': [(84, 174), (116, 197)]}
 
     click_hb_btn(buddy_btn_dict['setting_btn'])
     click_hb_btn(buddy_btn_dict['default_bot_btn'])
