@@ -169,9 +169,9 @@ while gold_miner_loop:
     time.sleep(1)
 
     # looking for hs and click waiting for hs
+    hs_png = 'hs' + suffix + '.png'
     while True:
-        found = pyautogui.locateCenterOnScreen('hs' + suffix + '.png',
-                                               region=(0, 0, bt_rec[2], bt_rec[3]),
+        found = pyautogui.locateCenterOnScreen(hs_png, region=(0, 0, bt_rec[2], bt_rec[3]),
                                                grayscale=False, confidence=0.9)
         if found is not None:
             x = found[0]
@@ -182,11 +182,18 @@ while gold_miner_loop:
     pyautogui.moveTo(x, y, 1,  pyautogui.easeInQuad)
     pyautogui.click(x, y)
     time.sleep(1)
-    x, y = pyautogui.locateCenterOnScreen('login' + suffix + '.png',
-                                          region=(0, 0, bt_rec[2], bt_rec[3]),
-                                          grayscale=False, confidence=0.9)
+    login_png = 'login' + suffix + '.png'
+    while True:
+        found = pyautogui.locateCenterOnScreen(login_png, region=(0, 0, bt_rec[2], bt_rec[3]),
+                                               grayscale=False, confidence=0.9)
+        if found is not None:
+            x = found[0]
+            y = found[1]
+            logging.info('found the login button!')
+            break
     pyautogui.moveTo(x, y, 1,  pyautogui.easeInQuad)
     pyautogui.click(x, y)
+    logging.info('hs log in button was pressed!')
 
     # waiting for hs running
     hs_is_running = False
@@ -233,9 +240,9 @@ while gold_miner_loop:
 
     # waiting and click start for buddy
     time.sleep(5)
+    hb_png = 'hb_start' + suffix + '.png'
     while True:
-        found_hb_start = pyautogui.locateCenterOnScreen('hb_start' + suffix + '.png',
-                                                        region=(0, 0, hb_rec[2], hb_rec[3]),
+        found_hb_start = pyautogui.locateCenterOnScreen(hb_png, region=(0, 0, hb_rec[2], hb_rec[3]),
                                                         grayscale=False, confidence=0.8)
         if found_hb_start:
             logging.info('buddy start button found, buddy ready!')
@@ -276,9 +283,9 @@ while gold_miner_loop:
         logging.info('status info reset!')
     t = time.time()
     check_bug_start = True
+    wild_logo_png = 'wild_logo' + suffix + '.png'
     while check_bug_start:
-        check_bug = pyautogui.locateCenterOnScreen('wild_logo' + suffix + '.png',
-                                                   region=(1231, 33, 1267, 69),
+        check_bug = pyautogui.locateCenterOnScreen(wild_logo_png, region=(1231, 33, 1267, 69),
                                                    grayscale=False, confidence=0.8)
         if check_bug is not None:
             logging.warning('buddy deck bugs found!')
@@ -325,6 +332,7 @@ while gold_miner_loop:
     checking_continue = True
     # win_count = 0
     # last_json_data = ''
+    close_logo_png = 'close_logo' + suffix + '.png'
     while checking_continue:
         if time.time() - t >= 600:
             logging.info('start to check the score...')
@@ -346,8 +354,8 @@ while gold_miner_loop:
                         sys.exit()
                     break
             # (1231, 33)(1267, 69) check failure
-            failure_found = pyautogui.locateCenterOnScreen('close_logo' + suffix + '.png',
-                                                           region=(1200, 25, 1300, 80),
+
+            failure_found = pyautogui.locateCenterOnScreen(close_logo_png, region=(1200, 25, 1300, 80),
                                                            grayscale=False, confidence=0.8)
             if failure_found is not None:
                 logging.warning('game disconnected.....')
