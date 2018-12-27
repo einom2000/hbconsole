@@ -1,14 +1,5 @@
-# open bn shortcut on desktop
-# log in bn
-# switch to hs
-# check files and
-# remove file:
-# run
-# wait and enter the deck
-# run hb D:\hb\ symlink
-# wait and click start
-# monitor the hb start button and the win times
-# monitor the hs window status
+# check json twice to compare the failure
+# use the list to locatecenter
 
 
 import os, win32api,random,json, keyboard
@@ -22,8 +13,9 @@ import cv2
 from datetime import datetime
 
 import logging
-logging.basicConfig(filename='running.log', level=logging.DEBUG)
-logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+logging.basicConfig(filename='running.log', filemode='W',
+                    format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                    datefmt='%H:%M:%S', level=logging.DEBUG)
 logging.info('Program starts.')
 
 
