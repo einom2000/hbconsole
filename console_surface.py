@@ -174,8 +174,14 @@ while gold_miner_loop:
     time.sleep(1)
 
     # looking for hs and click waiting for hs
-    x, y = pyautogui.locateCenterOnScreen('hs.png', region=(0, 0, bt_rec[2], bt_rec[3]),
-                                          grayscale=False, confidence=0.9)
+    while True:
+        found = pyautogui.locateCenterOnScreen('hs.png', region=(0, 0, bt_rec[2], bt_rec[3]),
+                                               grayscale=False, confidence=0.9)
+        if found is not None:
+            x = found[0]
+            y = found[1]
+            break
+
     logging.info('hs logo found in (' + str(x) + ', ' + str(y) + ')!')
     pyautogui.moveTo(x, y, 1, pyautogui.easeInQuad)
     pyautogui.click(x, y)
