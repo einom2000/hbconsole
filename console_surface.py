@@ -247,7 +247,7 @@ while gold_miner_loop:
     hb_png = 'hb_start' + suffix + '.png'
     while True:
         found_hb_start = pyautogui.locateCenterOnScreen(hb_png, region=(0, 0, hb_rec[2], hb_rec[3]),
-                                                        grayscale=False, confidence=0.8)
+                                                        grayscale=False, confidence=0.9)
         if found_hb_start:
             logging.info('buddy start button found, buddy ready!')
             break
