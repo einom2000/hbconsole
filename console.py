@@ -359,7 +359,6 @@ while gold_miner_loop:
     if suffix == '_sur':
         close_logo_rgn = (900, 200, 1300, 500)
     while checking_continue:
-        time.sleep(500)
         if time.time() - t >= 600:
             logging.info('start to check the score...')
             # read score
