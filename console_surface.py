@@ -80,6 +80,7 @@ class LoginWindow:
         time.sleep((random.randint(15, 30) / 100))
         pyautogui.press('tab')
         pyautogui.typewrite(self.userPwd, interval=(random.randint(15, 30) / 100))
+        time.sleep(5)
         for i in range(3):
             pyautogui.press('tab')
             time.sleep(random.randint(3, 5) / 10)
@@ -90,9 +91,10 @@ class LoginWindow:
 
 f = open("account.txt", "r")
 lines = f.readlines()
-account_id = (lines[0][:-1], lines[3][:-1], lines[6][:-1])
-account_psd = (lines[1][:-1], lines[4][:-1], lines[7][:-1])
-deck_list = (lines[2][:-1], lines[5][:-1], lines[8][:-1])
+total_acount  = int(lines[0][:-1])
+account_id = (lines[1][:-1], lines[4][:-1], lines[7][:-1])
+account_psd = (lines[2][:-1], lines[5][:-1], lines[8][:-1])
+deck_list = (lines[3][:-1], lines[6][:-1], lines[9][:-1])
 f.close()
 bn_target = winshell.shortcut(os.path.join(winshell.desktop(), "暴雪战网.lnk")).path
 hs_target = winshell.shortcut(os.path.join(winshell.desktop(), "Hearthstone.exe - 快捷方式.lnk")).path
@@ -117,6 +119,7 @@ start_right_now = False
 # just for logging purpose:
 seconds_since_midnight = (datetime.now() - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
 logging.info('shall wait for ' + str(int(86400 - seconds_since_midnight)) + ' seconds to start!')
+logging.info(str(total_acount) + 'acounts to mine')
 
 while not start_right_now:
     seconds_since_midnight = (datetime.now() - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
@@ -124,12 +127,14 @@ while not start_right_now:
         break
     elif time.time() - t >= 10:
             print("There are still " + str(int(86400 - seconds_since_midnight)) + ' seconds to start!')
+            print(str(total_acount) + 'acounts to mine')
             print('Or you might press SPACE to skip!')
             t = time.time()
     elif keyboard.is_pressed('space'):
         winsound.Beep(500, 300)
         print('"space" was pressed, skip counting!')
         logging.info('"space" was pressed, skip counting!')
+        time.sleep(3)
         start_right_now = True
 
 # main loop
@@ -247,7 +252,7 @@ while gold_miner_loop:
     hb_png = 'hb_start' + suffix + '.png'
     while True:
         found_hb_start = pyautogui.locateCenterOnScreen(hb_png, region=(0, 0, hb_rec[2], hb_rec[3]),
-                                                        grayscale=False, confidence=0.9)
+                                                        grayscale=False, confidence=0.8)
         if found_hb_start:
             logging.info('buddy start button found, buddy ready!')
             break
@@ -354,6 +359,7 @@ while gold_miner_loop:
     if suffix == '_sur':
         close_logo_rgn = (900, 200, 1300, 500)
     while checking_continue:
+        time.sleep(500)
         if time.time() - t >= 600:
             logging.info('start to check the score...')
             # read score
@@ -369,7 +375,7 @@ while gold_miner_loop:
                     logging.info('shift to the next player...')
                     player_break = 0
                     checking_continue = False
-                    if player_id >= 3:
+                    if player_id >= total_acount:
                         logging.warning('maxium players has been played....terminating...')
                         sys.exit()
                     break
@@ -387,11 +393,3 @@ while gold_miner_loop:
                 checking_continue = False
                 break
             t = time.time()
-
-
-
-
-
-
-
-
