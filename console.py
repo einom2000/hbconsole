@@ -134,6 +134,7 @@ while not start_right_now:
         winsound.Beep(500, 300)
         print('"space" was pressed, skip counting!')
         logging.info('"space" was pressed, skip counting!')
+        time.sleep(3)
         start_right_now = True
 
 # main loop
