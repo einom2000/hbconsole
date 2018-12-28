@@ -91,9 +91,10 @@ class LoginWindow:
 
 f = open("account.txt", "r")
 lines = f.readlines()
-account_id = (lines[0][:-1], lines[3][:-1], lines[6][:-1])
-account_psd = (lines[1][:-1], lines[4][:-1], lines[7][:-1])
-deck_list = (lines[2][:-1], lines[5][:-1], lines[8][:-1])
+total_acount  = int(lines[0][:-1])
+account_id = (lines[1][:-1], lines[4][:-1], lines[7][:-1])
+account_psd = (lines[2][:-1], lines[5][:-1], lines[8][:-1])
+deck_list = (lines[3][:-1], lines[6][:-1], lines[9][:-1])
 f.close()
 bn_target = winshell.shortcut(os.path.join(winshell.desktop(), "暴雪战网.lnk")).path
 hs_target = winshell.shortcut(os.path.join(winshell.desktop(), "Hearthstone.exe - 快捷方式.lnk")).path
@@ -118,6 +119,7 @@ start_right_now = False
 # just for logging purpose:
 seconds_since_midnight = (datetime.now() - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
 logging.info('shall wait for ' + str(int(86400 - seconds_since_midnight)) + ' seconds to start!')
+logging.info(str(total_acount) + 'acounts to mine')
 
 while not start_right_now:
     seconds_since_midnight = (datetime.now() - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
@@ -125,6 +127,7 @@ while not start_right_now:
         break
     elif time.time() - t >= 10:
             print("There are still " + str(int(86400 - seconds_since_midnight)) + ' seconds to start!')
+            print(str(total_acount) + 'acounts to mine')
             print('Or you might press SPACE to skip!')
             t = time.time()
     elif keyboard.is_pressed('space'):
@@ -370,7 +373,7 @@ while gold_miner_loop:
                     logging.info('shift to the next player...')
                     player_break = 0
                     checking_continue = False
-                    if player_id >= 3:
+                    if player_id >= total_acount:
                         logging.warning('maxium players has been played....terminating...')
                         sys.exit()
                     break
