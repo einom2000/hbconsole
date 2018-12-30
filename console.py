@@ -29,6 +29,7 @@ def kill_process(process_name, wd_name):
         # check whether the process name matches
         if proc.name() == process_name:
             proc.kill()
+            break
     while win32gui.FindWindow(None, wd_name):
         pass
     return
@@ -214,8 +215,9 @@ while gold_miner_loop:
     hs_rec = win32gui.GetWindowRect(hs_window)
     win32gui.MoveWindow(hs_window, 620, 0, 800, 600, 1)
 
-    # close bt window
-    kill_process('Battle.net.exe', '暴雪战网')
+    # close bt window be set in comfigure of bn
+    # kill_process('Battle.net.exe', '暴雪战网')
+    time.sleep(5)
     logging.info('battlenet window was shut!')
 
     # launching hb

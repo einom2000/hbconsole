@@ -40,16 +40,16 @@ import  os, pyautogui,keyboard, win32gui,win32api, winshell, psutil,time,random
 #         break
 
 import json
-#
-# def kill_process(process_name, wd_name):
-#     for proc in psutil.process_iter():
-#         # check whether the process name matches
-#         # print(proc)
-#         if proc.name() == process_name:
-#             proc.kill()
-#     while win32gui.FindWindow(None, wd_name):
-#          pass
-#     return
+
+def kill_process(process_name, wd_name):
+    for proc in psutil.process_iter():
+        # check whether the process name matches
+        print(proc)
+        if proc.name() == process_name:
+            proc.kill()
+    while win32gui.FindWindow(None, wd_name):
+         pass
+    return
 #
 # with open("Settings\Default\Stats.json") as json_file:
 #     json_data = json.load(json_file)
@@ -57,7 +57,7 @@ import json
 #     print(win_count)
 # #
 #
-# kill_process('Hearthstone.exe', '炉石传说')
+kill_process('Hearthstone.exe', '炉石传说')
 
 # from datetime import datetime
 # now = datetime.now()
@@ -80,9 +80,4 @@ import json
 # while True:
 #     pass
 
-while True:
-    if keyboard.is_pressed('space'):
-        print(pyautogui.position())
-        time.sleep(1  )
-    elif keyboard.is_pressed('q'):
-        break
+
