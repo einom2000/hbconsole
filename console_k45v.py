@@ -216,7 +216,10 @@ while gold_miner_loop:
     time.sleep(3)
     win32gui.SetForegroundWindow(hs_window)
     hs_rec = win32gui.GetWindowRect(hs_window)
-    win32gui.MoveWindow(hs_window, 620, 0, 800, 600, 1)
+    if suffix == 'k45v':
+        win32gui.MoveWindow(hs_window, 620, 0, 400, 300, 1)
+    else:
+        win32gui.MoveWindow(hs_window, 620, 0, 800, 600, 1)
 
     # close bt window be set in comfigure of bn
     # kill_process('Battle.net.exe', '暴雪战网')
