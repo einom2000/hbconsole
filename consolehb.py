@@ -8,8 +8,9 @@ import  os, pyautogui,keyboard, win32gui,win32api, winshell, psutil,time,random
 # while True:
 #     if keyboard.is_pressed('space'):
 #         hwnd = win32gui.GetForegroundWindow()
-#         txt = win32gui.GetWindowText(hwnd)
-#         print(txt)
+#         rec = win32gui.GetWindowRect(hwnd)
+#         win32gui.MoveWindow(hwnd, 620, 0, 549, 439, 1)
+
 
 # def kill_process(process_name, wd_name):
 #     for proc in psutil.process_iter():
@@ -32,24 +33,24 @@ import  os, pyautogui,keyboard, win32gui,win32api, winshell, psutil,time,random
 # f.close()
 # print(account_id,accoun t_psd)
 
-# (915, 259)(1108, 333)  (1231, 33)(1267, 69)
+# (915, 259)(1108, 333)   (1231, 33)(1267, 69)
 #
-# while True:
-#     if keyboard.is_pressed('space'):
-#         print(pyautogui.position())
-#         break
+while True:
+    if keyboard.is_pressed('space'):
+        print(pyautogui.position())
+        break
 
 import json
 
-def kill_process(process_name, wd_name):
-    for proc in psutil.process_iter():
-        # check whether the process name matches
-        print(proc)
-        if proc.name() == process_name:
-            proc.kill()
-    while win32gui.FindWindow(None, wd_name):
-         pass
-    return
+# def kill_process(process_name, wd_name):
+#     for proc in psutil.process_iter():
+#         # check whether the process name matches
+#         print(proc)
+#         if proc.name() == process_name:
+#             proc.kill()
+#     while win32gui.FindWindow(None, wd_name):
+#          pass
+#     return
 #
 # with open("Settings\Default\Stats.json") as json_file:
 #     json_data = json.load(json_file)
@@ -57,7 +58,7 @@ def kill_process(process_name, wd_name):
 #     print(win_count)
 # #
 #
-kill_process('Hearthstone.exe', '炉石传说')
+# kill_process('Hearthstone.exe', '炉石传说')
 
 # from datetime import datetime
 # now = datetime.now()
