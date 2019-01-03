@@ -10,6 +10,11 @@ import winshell, psutil
 import cv2
 from datetime import datetime
 import logging
+from win32api import GetKeyState
+from win32con import VK_CAPITAL
+
+while GetKeyState(VK_CAPITAL):
+    pyautogui.press('capslock')
 
 logging.basicConfig(filename='running.log', filemode='w',
                     format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
