@@ -109,6 +109,9 @@ suffix = ''
 if os.path.basename(__file__) == 'console_surface.py':
     logging.warning('script running on surface!')
     suffix = '_sur'
+if os.path.basename(__file__) == 'console_k45v.py':
+    logging.warning('script running on k45v book')
+    suffix = '_k45v'
 logging.info('All variables were loaded.')
 
 
@@ -213,7 +216,10 @@ while gold_miner_loop:
     time.sleep(3)
     win32gui.SetForegroundWindow(hs_window)
     hs_rec = win32gui.GetWindowRect(hs_window)
-    win32gui.MoveWindow(hs_window, 620, 0, 800, 600, 1)
+    if suffix == '_k45v':
+        win32gui.MoveWindow(hs_window, 620, 0, 549, 439, 1)
+    else:
+        win32gui.MoveWindow(hs_window, 620, 0, 800, 600, 1)
 
     # close bt window be set in comfigure of bn
     # kill_process('Battle.net.exe', '暴雪战网')
@@ -254,7 +260,7 @@ while gold_miner_loop:
     hb_png = 'hb_start' + suffix + '.png'
     while True:
         found_hb_start = pyautogui.locateCenterOnScreen(hb_png, region=(0, 0, hb_rec[2], hb_rec[3]),
-                                                        grayscale=False, confidence=0.8)
+                                                        grayscale=False, confidence=0.9)
         if found_hb_start:
             logging.info('buddy start button found, buddy ready!')
             break
@@ -268,7 +274,9 @@ while gold_miner_loop:
                       'deck_btn': (201, 400),
                       'stats_btn': (267, 159),
                       'stats_reset_btn': (49, 260),
-                      'win_rec': [(84, 174), (116, 197)]}
+                      'wild_logo_rgn': (1231, 33, 1267, 69),
+                      'close_logo_rgn': (900, 100, 1300, 500)
+                      }
     if suffix == "_sur":
         buddy_btn_dict = {'start_btn': found_hb_start,
                           'setting_btn': (149, 204),
@@ -278,7 +286,21 @@ while gold_miner_loop:
                           'deck_btn': (304, 599),
                           'stats_btn': (395, 240),
                           'stats_reset_btn': (74, 389),
-                          'win_rec': [(84, 174), (116, 197)]}
+                          'wild_logo_rgn': (1220, 45, 1270, 90),
+                          'close_logo_rgn': (900, 100, 1300, 500)
+                          }
+    if suffix == "_k45v":
+        buddy_btn_dict = {'start_btn': found_hb_start,
+                          'setting_btn': (100, 139),
+                          'default_bot_btn': (100, 161),
+                          'mode_btn': (270, 347),
+                          'rule_btn': (270, 375),
+                          'deck_btn': (202, 402),
+                          'stats_btn': (262, 160),
+                          'stats_reset_btn': (51, 260),
+                          'wild_logo_rgn': (1020, 35, 1075, 65),
+                          'close_logo_rgn': (830, 200, 950, 250)
+                          }
 
     click_hb_btn(buddy_btn_dict['setting_btn'])
     click_hb_btn(buddy_btn_dict['default_bot_btn'])
@@ -305,9 +327,7 @@ while gold_miner_loop:
     t = time.time()
     check_bug_start = True
     wild_logo_png = 'wild_logo' + suffix + '.png'
-    wild_logo_rgn = (1231, 33, 1267, 69)
-    if suffix == "_sur":
-        wild_logo_rgn = (1220, 45, 1270, 90)
+    wild_logo_rgn = buddy_btn_dict['wild_logo_rgn']
     while check_bug_start:
         check_bug = pyautogui.locateCenterOnScreen(wild_logo_png, region=wild_logo_rgn,
                                                    grayscale=False, confidence=0.8)
@@ -357,11 +377,8 @@ while gold_miner_loop:
     # win_count = 0
     # last_json_data = ''
     close_logo_png = 'close_logo' + suffix + '.png'
-    close_logo_rgn = (900, 100, 1300, 500)
-    if suffix == '_sur':
-        close_logo_rgn = (900, 200, 1300, 500)
+    close_logo_rgn = buddy_btn_dict['close_logo_rgn']
     while checking_continue:
-        time.sleep(500)
         if time.time() - t >= 600:
             logging.info('start to check the score...')
             # read score
