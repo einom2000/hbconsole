@@ -262,17 +262,18 @@ while gold_miner_loop:
     time.sleep(2)
     hb_rec = win32gui.GetWindowRect(hb_window)
     if suffix == "_sur":
-        hs_wd_height = 790 + 200
+        hs_wd_height = 790 + 400
     else:
         hs_wd_height = 790
     win32gui.MoveWindow(hb_window, 0, 0, 620, hs_wd_height, 1)
+    hb_rec = win32gui.GetWindowRect(hb_window)
 
     # waiting and click start for buddy
-    time.sleep(5)
+    time.sleep(15)
     hb_png = 'hb_start' + suffix + '.png'
     while True:
         found_hb_start = pyautogui.locateCenterOnScreen(hb_png, region=(0, 0, hb_rec[2], hb_rec[3]),
-                                                        grayscale=False, confidence=0.8)
+                                                        grayscale=False, confidence=0.9)
         if found_hb_start:
             logging.info('buddy start button found, buddy ready!')
             break
@@ -288,14 +289,14 @@ while gold_miner_loop:
                       'stats_reset_btn': (49, 260),
                       'win_rec': [(84, 174), (116, 197)]}
     if suffix == "_sur":
-        buddy_btn_dict = {'start_btn': found_hb_start,
-                          'setting_btn': (149, 204),
-                          'default_bot_btn': (142, 237),
-                          'mode_btn': (407, 517),
-                          'rule_btn': (405, 562),
-                          'deck_btn': (304, 599),
-                          'stats_btn': (395, 240),
-                          'stats_reset_btn': (74, 389),
+        buddy_btn_dict = {'start_btn': (366, 180),
+                          'setting_btn': (175, 236),
+                          'default_bot_btn': (175, 279),
+                          'mode_btn': (477, 608),
+                          'rule_btn': (479, 653),
+                          'deck_btn': (354, 697),
+                          'stats_btn': (459, 278),
+                          'stats_reset_btn': (83, 456),
                           'win_rec': [(84, 174), (116, 197)]}
 
     click_hb_btn(buddy_btn_dict['setting_btn'])
