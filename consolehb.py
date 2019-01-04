@@ -38,8 +38,8 @@ import  os, pyautogui,keyboard, win32gui,win32api, winshell, psutil,time,random
 # while True:
 #     if keyboard.is_pressed('space'):
 #         print(pyautogui.position())
-#         break
-#
+#         time.sleep(2)
+
 # import json
 
 # def kill_process(process_name, wd_name):
@@ -92,10 +92,15 @@ import  os, pyautogui,keyboard, win32gui,win32api, winshell, psutil,time,random
 # if ((CAPSLOCK) & 0xffff) != 0:
 #     print("\nWARNING:  CAPS LOCK IS ENABLED!\n")
 
-from win32api import GetKeyState
-from win32con import VK_CAPITAL
+# from win32api import GetKeyState
+# from win32con import VK_CAPITAL
+#
+# while GetKeyState(VK_CAPITAL):
+#     pyautogui.press('capslock')
+#
+# print(GetKeyState(VK_CAPITAL))
 
-while GetKeyState(VK_CAPITAL):
-    pyautogui.press('capslock')
+found = pyautogui.locateCenterOnScreen('login_sur.png', region=(450, 850, 880, 1000),
+                                                   grayscale=True, confidence=0.9)
+print(found)
 
-print(GetKeyState(VK_CAPITAL))

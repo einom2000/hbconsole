@@ -179,6 +179,7 @@ while gold_miner_loop:
     bt_rec = win32gui.GetWindowRect(bt_window)
     if os.path.basename(__file__) == 'console_surface.py':
         win32gui.MoveWindow(bt_window, 0, 0, 1280, 820, 1)
+        bt_rec = win32gui.GetWindowRect(bt_window)
     else:
         win32gui.MoveWindow(bt_window, 0, 0, bt_rec[2] - bt_rec[0], bt_rec[3] - bt_rec[1], 1)
     time.sleep(1)
@@ -186,8 +187,12 @@ while gold_miner_loop:
     # looking for hs and click waiting for hs
     hs_png = 'hs' + suffix + '.png'
     while True:
-        found = pyautogui.locateCenterOnScreen(hs_png, region=(0, 0, bt_rec[2], bt_rec[3]),
-                                               grayscale=False, confidence=0.9)
+        if os.path.basename(__file__) == 'console_surface.py':
+            found = pyautogui.locateCenterOnScreen(hs_png, region=(10, 380, 300, 500),
+                                                   grayscale=False, confidence=0.9)
+        else:
+            found = pyautogui.locateCenterOnScreen(hs_png, region=(0, 0, bt_rec[2], bt_rec[3]),
+                                                   grayscale=False, confidence=0.9)
         if found is not None:
             x = found[0]
             y = found[1]
@@ -199,8 +204,12 @@ while gold_miner_loop:
     time.sleep(1)
     login_png = 'login' + suffix + '.png'
     while True:
-        found = pyautogui.locateCenterOnScreen(login_png, region=(0, 0, bt_rec[2], bt_rec[3]),
-                                               grayscale=False, confidence=0.9)
+        if os.path.basename(__file__) == 'console_surface.py':
+            found = pyautogui.locateCenterOnScreen(login_png, region=(450, 850, 880, 1000),
+                                                   grayscale=False, confidence=0.9)
+        else:
+            found = pyautogui.locateCenterOnScreen(login_png, region=(0, 0, bt_rec[2], bt_rec[3]),
+                                                   grayscale=False, confidence=0.9)
         if found is not None:
             x = found[0]
             y = found[1]
