@@ -177,7 +177,10 @@ while gold_miner_loop:
     # move bn window to 0,0
     win32gui.SetForegroundWindow(bt_window)
     bt_rec = win32gui.GetWindowRect(bt_window)
-    win32gui.MoveWindow(bt_window, 0, 0, bt_rec[2] - bt_rec[0], bt_rec[3] - bt_rec[1], 1)
+    if os.path.basename(__file__) == 'console_surface.py':
+        win32gui.MoveWindow(bt_window, 0, 0, 1280, 820, 1)
+    else:
+        win32gui.MoveWindow(bt_window, 0, 0, bt_rec[2] - bt_rec[0], bt_rec[3] - bt_rec[1], 1)
     time.sleep(1)
 
     # looking for hs and click waiting for hs
