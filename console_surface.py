@@ -378,9 +378,9 @@ while gold_miner_loop:
     # last_json_data = ''
     close_logo_png = 'close_logo' + suffix + '.png'
     close_logo_rgn = (900, 100, 1300, 500)
-    break1_png = 'break1' + suffix + '.png'
-    break2_png = 'break2' + suffix + '.png'
-    break3_png = 'break3' + suffix + '.png'
+    break1_png = 'broke1' + suffix + '.png'
+    break2_png = 'broke2' + suffix + '.png'
+    break3_png = 'broke3' + suffix + '.png'
     break1_rgn = (750, 260, 840, 350)
     break2_rgn = (890, 240, 1160, 400)
     break3_rgn = (890, 240, 1160, 400)

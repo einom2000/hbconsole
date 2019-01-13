@@ -35,10 +35,10 @@ import  os, pyautogui,keyboard, win32gui,win32api, winshell, psutil,time,random
 
 # (915, 259)(1108, 333)   (1231, 33)(1267, 69)
 #
-while True:
-    if keyboard.is_pressed('space'):
-        print(pyautogui.position())
-        time.sleep(2)
+# while True:
+#     if keyboard.is_pressed('space'):
+#         print(pyautogui.position())
+#         time.sleep(2)
 
 # import json
 
@@ -103,4 +103,7 @@ while True:
 # found = pyautogui.locateCenterOnScreen('login_sur.png', region=(450, 850, 880, 1000),
 #                                                    grayscale=True, confidence=0.9)
 # print(found)
+
+ailure_found_3 = pyautogui.locateCenterOnScreen('broke2_sur.png', region=(890, 240, 1160, 400),
+                                                             grayscale=False, confidence=0.9)
 
