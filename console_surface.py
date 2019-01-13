@@ -413,8 +413,9 @@ while gold_miner_loop:
 
             failure_found_1 = pyautogui.locateCenterOnScreen(close_logo_png, region=close_logo_rgn,
                                                              grayscale=False, confidence=0.9)
-            failure_found_2 = pyautogui.locateCenterOnScreen(break1_png, region=break1_rgn,
-                                                             grayscale=False, confidence=0.9)
+            # failure_found_2 = pyautogui.locateCenterOnScreen(break1_png, region=break1_rgn,
+            #                                                  grayscale=False, confidence=0.9)
+            failure_found_2 = (0, 0)  # disable break1 png
             failure_found_3 = pyautogui.locateCenterOnScreen(break2_png, region=break2_rgn,
                                                              grayscale=False, confidence=0.9)
             failure_found_4 = pyautogui.locateCenterOnScreen(break3_png, region=break3_rgn,
