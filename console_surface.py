@@ -99,6 +99,7 @@ f = open("account.txt", "r")
 lines = f.readlines()
 total_account = int(lines[0][:-1])
 max_wins = int(lines[1][:-1])
+already_won = 0
 account_id = (lines[2][:-1], lines[5][:-1], lines[8][:-1])
 account_psd = (lines[3][:-1], lines[6][:-1], lines[9][:-1])
 deck_list = (lines[4][:-1], lines[7][:-1], lines[10][:-1])
@@ -377,22 +378,30 @@ while gold_miner_loop:
     # last_json_data = ''
     close_logo_png = 'close_logo' + suffix + '.png'
     close_logo_rgn = (900, 100, 1300, 500)
+    break1_png = 'break1' + suffix + '.png'
+    break2_png = 'break2' + suffix + '.png'
+    break3_png = 'break3' + suffix + '.png'
+    break1_rgn = (750, 260, 840, 350)
+    break2_rgn = (890, 240, 1160, 400)
+    break3_rgn = (890, 240, 1160, 400)
     if suffix == '_sur':
         close_logo_rgn = (900, 200, 1300, 500)
+    checking_period = 300
     while checking_continue:
-        time.sleep(500)
-        if time.time() - t >= 600:
+        time.sleep(checking_period)
+        if time.time() - t >= checking_period - 50:
             logging.info('start to check the score...')
             # read score
             with open("Settings\Default\Stats.json") as json_file:
                 json_data = json.load(json_file)
                 logging.info('status shows: ' + str(json_data))
                 win_count = json_data['Wins']
-                if int(win_count) >= max_wins:
-                    logging.warning('player No.' + str(player_id) + ' got ' + str(win_count) + ' wins!')
+                if int(win_count) >= (max_wins - already_won):
+                    logging.warning('player No.' + str(player_id) + ' got ' + str(win_count + already_won) + ' wins!')
                     logging.info('close hstone program.....')
                     kill_process('Hearthstone.exe', '炉石传说')
                     player_id += 1
+                    already_won = 0
                     logging.info('shift to the next player...')
                     player_break = 0
                     checking_continue = False
@@ -402,11 +411,24 @@ while gold_miner_loop:
                     break
             # (1231, 33)(1267, 69) check failure
 
-            failure_found = pyautogui.locateCenterOnScreen(close_logo_png, region=close_logo_rgn,
-                                                           grayscale=False, confidence=0.8)
-            if failure_found is not None:
+            failure_found_1 = pyautogui.locateCenterOnScreen(close_logo_png, region=close_logo_rgn,
+                                                             grayscale=False, confidence=0.9)
+            failure_found_2 = pyautogui.locateCenterOnScreen(break1_png, region=break1_rgn,
+                                                             grayscale=False, confidence=0.9)
+            failure_found_3 = pyautogui.locateCenterOnScreen(break2_png, region=break2_rgn,
+                                                             grayscale=False, confidence=0.9)
+            failure_found_4 = pyautogui.locateCenterOnScreen(break3_png, region=break3_rgn,
+                                                             grayscale=False, confidence=0.9)
+            if failure_found_1 is not None or failure_found_2 is not None\
+                    or failure_found_3 is not None or failure_found_4 is not None:
                 logging.warning('game disconnected.....')
+                with open("Settings\Default\Stats.json") as json_file:
+                    json_data = json.load(json_file)
+                    logging.info('status shows: ' + str(json_data))
+                    win_count = json_data['Wins']
+                    already_won = win_count
                 logging.info(str((account_id[player_id]) + ' fails ' + str(player_break) + ' times!'))
+                logging.info('Player won ' + str(already_won) + ' games before broken')
                 logging.info('close hstone program.....')
                 kill_process('Hearthstone.exe', '炉石传说')
                 player_break += 1
