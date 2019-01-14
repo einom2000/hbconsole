@@ -386,10 +386,10 @@ while gold_miner_loop:
     break3_rgn = (890, 240, 1160, 400)
     if suffix == '_sur':
         close_logo_rgn = (900, 200, 1300, 500)
-    checking_period = 300
+    checking_period = 60
     while checking_continue:
         time.sleep(checking_period)
-        if time.time() - t >= checking_period - 50:
+        if time.time() - t >= checking_period - 10:
             logging.info('start to check the score...')
             # read score
             with open("Settings\Default\Stats.json") as json_file:
@@ -415,13 +415,14 @@ while gold_miner_loop:
                                                              grayscale=False, confidence=0.9)
             # failure_found_2 = pyautogui.locateCenterOnScreen(break1_png, region=break1_rgn,
             #                                                  grayscale=False, confidence=0.9)
-            failure_found_2 = (0, 0)  # disable break1 png
+            failure_found_2 = None  # disable break1 png
             failure_found_3 = pyautogui.locateCenterOnScreen(break2_png, region=break2_rgn,
                                                              grayscale=False, confidence=0.9)
             failure_found_4 = pyautogui.locateCenterOnScreen(break3_png, region=break3_rgn,
                                                              grayscale=False, confidence=0.9)
             if failure_found_1 is not None or failure_found_2 is not None\
                     or failure_found_3 is not None or failure_found_4 is not None:
+                print(failure_found_1, failure_found_2, failure_found_3, failure_found_4)
                 logging.warning('game disconnected.....')
                 with open("Settings\Default\Stats.json") as json_file:
                     json_data = json.load(json_file)
