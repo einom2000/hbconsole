@@ -386,7 +386,11 @@ while gold_miner_loop:
     break3_rgn = (890, 240, 1160, 400)
     if suffix == '_sur':
         close_logo_rgn = (900, 200, 1300, 500)
-    checking_period = 60
+    checking_period = 600
+    last_win = 0
+    last_losses = 0
+    last_concedes = 0
+    general_failure = None
     while checking_continue:
         time.sleep(checking_period)
         if time.time() - t >= checking_period - 10:
@@ -396,6 +400,8 @@ while gold_miner_loop:
                 json_data = json.load(json_file)
                 logging.info('status shows: ' + str(json_data))
                 win_count = json_data['Wins']
+                lose_count = json_data['Losses']
+                concede_count = json_data['Concedes']
                 if int(win_count) >= (max_wins - already_won):
                     logging.warning('player No.' + str(player_id) + ' got ' + str(win_count + already_won) + ' wins!')
                     logging.info('close hstone program.....')
@@ -409,6 +415,14 @@ while gold_miner_loop:
                         logging.warning('maxium players has been played....terminating...')
                         sys.exit()
                     break
+                if int(win_count) == last_win and int(lose_count) == last_losses and \
+                        int(concede_count) == last_concedes:
+                    general_failure = 'Not None"'
+                else:
+                    last_win = int(win_count)
+                    last_losses = int(lose_count)
+                    last_concedes = int(concede_count)
+
             # (1231, 33)(1267, 69) check failure
 
             failure_found_1 = pyautogui.locateCenterOnScreen(close_logo_png, region=close_logo_rgn,
@@ -420,7 +434,7 @@ while gold_miner_loop:
                                                              grayscale=False, confidence=0.9)
             failure_found_4 = pyautogui.locateCenterOnScreen(break3_png, region=break3_rgn,
                                                              grayscale=False, confidence=0.9)
-            if failure_found_1 is not None or failure_found_2 is not None\
+            if failure_found_1 is not None or general_failure is not None\
                     or failure_found_3 is not None or failure_found_4 is not None:
                 print(failure_found_1, failure_found_2, failure_found_3, failure_found_4)
                 logging.warning('game disconnected.....')
@@ -428,7 +442,7 @@ while gold_miner_loop:
                     json_data = json.load(json_file)
                     logging.info('status shows: ' + str(json_data))
                     win_count = json_data['Wins']
-                    already_won = win_count
+                    already_won = int(win_count)
                 logging.info(str((account_id[player_id]) + ' fails ' + str(player_break) + ' times!'))
                 logging.info('Player won ' + str(already_won) + ' games before broken')
                 logging.info('close hstone program.....')
