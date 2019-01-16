@@ -436,7 +436,7 @@ while gold_miner_loop:
                                                              grayscale=False, confidence=0.9)
             if failure_found_1 is not None or general_failure is not None\
                     or failure_found_3 is not None or failure_found_4 is not None:
-                print(failure_found_1, failure_found_2, failure_found_3, failure_found_4)
+                print(failure_found_1, failure_found_2, failure_found_3, failure_found_4, general_failure)
                 logging.warning('game disconnected.....')
                 with open("Settings\Default\Stats.json") as json_file:
                     json_data = json.load(json_file)
