@@ -442,7 +442,7 @@ while gold_miner_loop:
                     json_data = json.load(json_file)
                     logging.info('status shows: ' + str(json_data))
                     win_count = json_data['Wins']
-                    already_won = int(win_count)
+                    already_won += int(win_count)
                 logging.info(str((account_id[player_id]) + ' fails ' + str(player_break) + ' times!'))
                 logging.info('Player won ' + str(already_won) + ' games before broken')
                 logging.info('close hstone program.....')
