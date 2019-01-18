@@ -70,7 +70,7 @@ class LoginWindow:
 
     def login(self):
         # to log in id
-        for i in range(4):
+        for i in range(4): # orginal 4
             pyautogui.press('tab')
             time.sleep(random.randint(3, 5) / 10)
         # clear box
@@ -442,7 +442,7 @@ while gold_miner_loop:
                     json_data = json.load(json_file)
                     logging.info('status shows: ' + str(json_data))
                     win_count = json_data['Wins']
-                    already_won += int(win_count)
+                    already_won = int(win_count)
                 logging.info(str((account_id[player_id]) + ' fails ' + str(player_break) + ' times!'))
                 logging.info('Player won ' + str(already_won) + ' games before broken')
                 logging.info('close hstone program.....')
