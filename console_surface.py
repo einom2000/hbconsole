@@ -319,9 +319,8 @@ while gold_miner_loop:
     time.sleep(1)
 
     # if it is a new player start mining, reset counter
-    if player_break == 0:
-        click_hb_btn(buddy_btn_dict['stats_reset_btn'])
-        logging.info('status info reset!')
+    click_hb_btn(buddy_btn_dict['stats_reset_btn'])
+    logging.info('status info reset!')
     t = time.time()
     check_bug_start = True
     wild_logo_png = 'wild_logo' + suffix + '.png'
@@ -442,7 +441,7 @@ while gold_miner_loop:
                     json_data = json.load(json_file)
                     logging.info('status shows: ' + str(json_data))
                     win_count = json_data['Wins']
-                    already_won = int(win_count)
+                    already_won += int(win_count)
                 logging.info(str((account_id[player_id]) + ' fails ' + str(player_break) + ' times!'))
                 logging.info('Player won ' + str(already_won) + ' games before broken')
                 logging.info('close hstone program.....')
