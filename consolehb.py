@@ -104,6 +104,14 @@ import  os, pyautogui,keyboard, win32gui,win32api, winshell, psutil,time,random
 #                                                    grayscale=True, confidence=0.9)
 # print(found)
 
-ailure_found_3 = pyautogui.locateCenterOnScreen('broke2_sur.png', region=(890, 240, 1160, 400),
-                                                             grayscale=False, confidence=0.9)
+# ailure_found_3 = pyautogui.locateCenterOnScreen('broke2_sur.png', region=(890, 240, 1160, 400),
+#                                                              grayscale=False, confidence=0.9)
+
+from datetime import datetime
+import logging
+
+logging.basicConfig(filename='running_' + str(datetime.now().date()) + '.log', filemode='w',
+                    format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                    datefmt='%H:%M:%S', level=logging.DEBUG)
+logging.info('Program starts.')
 
