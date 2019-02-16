@@ -109,9 +109,14 @@ import  os, pyautogui,keyboard, win32gui,win32api, winshell, psutil,time,random
 
 from datetime import datetime
 import logging
+#
+# logging.basicConfig(filename='running_' + str(datetime.now().date()) + '.log', filemode='w',
+#                     format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+#                     datefmt='%H:%M:%S', level=logging.DEBUG)
+# logging.info('Program starts.')
+import pyautogui, keyboard
 
-logging.basicConfig(filename='running_' + str(datetime.now().date()) + '.log', filemode='w',
-                    format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-                    datefmt='%H:%M:%S', level=logging.DEBUG)
-logging.info('Program starts.')
-
+while True:
+    if keyboard.is_pressed(' '):
+        print(pyautogui.position())
+        break
