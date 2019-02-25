@@ -237,9 +237,10 @@ while True:
 
         # close bt window be set in comfigure of bn
         # kill_process('Battle.net.exe', '暴雪战网')
-        time.sleep(5)
+        time.sleep(15)
         logging.info('battlenet window was shut!')
-
+        pyautogui.moveTo(850, 200, 1,  pyautogui.easeInQuad)
+        pyautogui.click()
         # launching hb
         logging.info('start to load buddy...')
         win32api.WinExec('Hearthbuddy.exe')
@@ -313,6 +314,9 @@ while True:
         pyautogui.press('shift')
         pyautogui.typewrite(deck_list[player_id], interval=(random.randint(15, 30) / 100))
         time.sleep(2)
+        # in case bug
+        pyautogui.moveTo(850, 200, 1,  pyautogui.easeInQuad)
+        pyautogui.click()
         click_hb_btn(buddy_btn_dict['start_btn'])
         logging.info('start the buddy.')
         time.sleep(1)
