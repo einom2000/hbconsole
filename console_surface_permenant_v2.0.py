@@ -115,7 +115,7 @@ while True:
     # in case break during one player's mining
     player_break = 0
     suffix = ''
-    if os.path.basename(__file__) == 'console_surface_permenant_v1.0.py':
+    if os.path.basename(__file__) == 'console_surface_permenant_v2.0.py':
         logging.warning('script running on surface with an endless loop!')
         suffix = '_sur'
     logging.info('All variables were loaded.')
@@ -305,16 +305,33 @@ while True:
         click_hb_btn(buddy_btn_dict['setting_btn'])
         click_hb_btn(buddy_btn_dict['default_bot_btn'])
         click_hb_btn(buddy_btn_dict['deck_btn'])
-        logging.info('trying to type in the right deck\'s name...')
-
-        for i in range(20):
-            pyautogui.press('backspace')
-            pyautogui.press('delete')
-            time.sleep(0.1)
-        pyautogui.press('shift')
-        pyautogui.typewrite(deck_list[player_id], interval=(random.randint(15, 30) / 100))
+        # uncheck 2 boxes for cache
+        pyautogui.moveTo(367, 445, 1, pyautogui.easeInQuad)
+        pyautogui.click()
         time.sleep(2)
-        # in case bug
+        pyautogui.moveTo(371, 488, 1, pyautogui.easeInQuad)
+        pyautogui.click()
+        time.sleep(2)
+        # FOR UPDATE FROM APRIL 5TH MONO.DLL WAS RE-ALLOCATED
+        HS_BATTLE_SELECTION_BTN = (1017, 218)
+        HS_BATTLE_START_BTN = (1239, 487)
+        HS_START_BTN_REGION = (1175, 432, 200, 150)
+        SEARCHING_BOX = (900, 100, 300, 200)
+        time.sleep(random.randint(1000, 2000) / 1000)
+        pyautogui.moveTo(HS_BATTLE_SELECTION_BTN[0], HS_BATTLE_SELECTION_BTN[1], 1, pyautogui.easeInQuad)
+        time.sleep(random.randint(1000, 2000) / 1000)
+        pyautogui.click()
+        tm = time.time()
+        while time.time() - tm <= 20:
+            if pyautogui.locateCenterOnScreen('START_NEW.png', region=HS_START_BTN_REGION,
+                                              grayscale=False, confidence=0.9) is not None:
+                pyautogui.moveTo(HS_BATTLE_START_BTN[0], HS_BATTLE_START_BTN[1], 1, pyautogui.easeInQuad)
+                pyautogui.click()
+                time.sleep(random.randint(1000, 2000) / 1000)
+                if pyautogui.locateCenterOnScreen('searching.png', region=SEARCHING_BOX,
+                                                  grayscale=False, confidence=0.9) is not None:
+                    break
+
         pyautogui.moveTo(850, 200, 1,  pyautogui.easeInQuad)
         pyautogui.click()
         click_hb_btn(buddy_btn_dict['start_btn'])
@@ -396,7 +413,21 @@ while True:
         last_concedes = 0
         general_failure = None
         while checking_continue:
-            time.sleep(checking_period)
+            print(pyautogui.locateCenterOnScreen('START_NEW.png', region=HS_START_BTN_REGION,
+                                                 grayscale=False, confidence=0.9))
+            if pyautogui.locateCenterOnScreen('START_NEW.png', region=HS_START_BTN_REGION,
+                                              grayscale=False, confidence=0.9) is not None:
+                click_hb_btn(buddy_btn_dict['start_btn'])
+                time.sleep(2)
+                pyautogui.moveTo(HS_BATTLE_START_BTN[0], HS_BATTLE_START_BTN[1], 1, pyautogui.easeInQuad)
+                pyautogui.click()
+                time.sleep(random.randint(1000, 2000) / 1000)
+                while True:
+                    if pyautogui.locateCenterOnScreen('searching.png', region=SEARCHING_BOX,
+                                                  grayscale=False, confidence=0.9) is not None:
+                        click_hb_btn(buddy_btn_dict['start_btn'])
+                        break
+
             if time.time() - t >= checking_period - 10:
                 logging.info('start to check the score...')
                 # read score

@@ -115,8 +115,8 @@ import logging
 #                     datefmt='%H:%M:%S', level=logging.DEBUG)
 # logging.info('Program starts.')
 import pyautogui, keyboard
-
+import time
 while True:
     if keyboard.is_pressed(' '):
         print(pyautogui.position())
-        break
+        time.sleep(2)
