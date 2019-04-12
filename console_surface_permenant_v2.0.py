@@ -82,7 +82,7 @@ class LoginWindow:
         time.sleep((random.randint(15, 30) / 100))
         pyautogui.press('tab')
         pyautogui.typewrite(self.userPwd, interval=(random.randint(15, 30) / 100))
-        time.sleep(40)
+        time.sleep(20)
         for i in range(3):
             pyautogui.press('tab')
             time.sleep(random.randint(3, 5) / 10)
@@ -324,13 +324,14 @@ while True:
         tm = time.time()
         while time.time() - tm <= 20:
             if pyautogui.locateCenterOnScreen('START_NEW.png', region=HS_START_BTN_REGION,
-                                              grayscale=False, confidence=0.9) is not None:
+                                              grayscale=False, confidence=0.8) is not None:
                 pyautogui.moveTo(HS_BATTLE_START_BTN[0], HS_BATTLE_START_BTN[1], 1, pyautogui.easeInQuad)
                 pyautogui.click()
                 time.sleep(random.randint(1000, 2000) / 1000)
                 if pyautogui.locateCenterOnScreen('searching.png', region=SEARCHING_BOX,
-                                                  grayscale=False, confidence=0.9) is not None:
+                                                  grayscale=False, confidence=0.8) is not None:
                     break
+
 
         pyautogui.moveTo(850, 200, 1,  pyautogui.easeInQuad)
         pyautogui.click()
