@@ -82,7 +82,7 @@ class LoginWindow:
         time.sleep((random.randint(15, 30) / 100))
         pyautogui.press('tab')
         pyautogui.typewrite(self.userPwd, interval=(random.randint(15, 30) / 100))
-        time.sleep(20)
+        time.sleep(13)
         for i in range(3):
             pyautogui.press('tab')
             time.sleep(random.randint(3, 5) / 10)
@@ -315,25 +315,24 @@ while True:
         # FOR UPDATE FROM APRIL 5TH MONO.DLL WAS RE-ALLOCATED
         HS_BATTLE_SELECTION_BTN = (1017, 218)
         HS_BATTLE_START_BTN = (1239, 487)
-        HS_START_BTN_REGION = (1175, 432, 200, 150)
+        HS_START_BTN_REGION = (1000, 300, 500, 500)
         SEARCHING_BOX = (900, 100, 300, 200)
-        time.sleep(random.randint(1000, 2000) / 1000)
-        pyautogui.moveTo(HS_BATTLE_SELECTION_BTN[0], HS_BATTLE_SELECTION_BTN[1], 1, pyautogui.easeInQuad)
-        time.sleep(random.randint(1000, 2000) / 1000)
-        pyautogui.click()
-        tm = time.time()
-        while time.time() - tm <= 20:
-            if pyautogui.locateCenterOnScreen('START_NEW.png', region=HS_START_BTN_REGION,
-                                              grayscale=False, confidence=0.8) is not None:
+        while True:
+            time.sleep(random.randint(1000, 2000) / 1000)
+            pyautogui.moveTo(HS_BATTLE_SELECTION_BTN[0], HS_BATTLE_SELECTION_BTN[1], 1, pyautogui.easeInQuad)
+            time.sleep(random.randint(1000, 2000) / 1000)
+            pyautogui.click()
+            found_it = pyautogui.locateCenterOnScreen('START_NEW.png', region=HS_START_BTN_REGION,
+                                                      grayscale=False, confidence=0.7)
+            print(found_it)
+            if found_it is not None:
                 pyautogui.moveTo(HS_BATTLE_START_BTN[0], HS_BATTLE_START_BTN[1], 1, pyautogui.easeInQuad)
                 pyautogui.click()
                 time.sleep(random.randint(1000, 2000) / 1000)
                 if pyautogui.locateCenterOnScreen('searching.png', region=SEARCHING_BOX,
-                                                  grayscale=False, confidence=0.8) is not None:
+                                                  grayscale=False, confidence=0.7) is not None:
                     break
-        # pyautogui.moveTo(850, 200, 1,  pyautogui.easeInQuad)
-        # pyautogui.click()
-        pyautogui.moveTo(1242, 489, 1, pyautogui.easeInQuad)
+        pyautogui.moveTo(850, 200, 1,  pyautogui.easeInQuad)
         pyautogui.click()
         click_hb_btn(buddy_btn_dict['start_btn'])
         logging.info('start the buddy.')

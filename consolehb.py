@@ -116,7 +116,12 @@ import logging
 # logging.info('Program starts.')
 import pyautogui, keyboard
 import time
+
+HS_START_BTN_REGION = (1000, 300, 500, 500)
 while True:
     if keyboard.is_pressed(' '):
         print(pyautogui.position())
+        fd = pyautogui.locateCenterOnScreen('START_NEW.png', region=HS_START_BTN_REGION,
+                                            grayscale=False, confidence=0.7)
+        print(fd)
         time.sleep(2)
