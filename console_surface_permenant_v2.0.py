@@ -331,9 +331,9 @@ while True:
                 if pyautogui.locateCenterOnScreen('searching.png', region=SEARCHING_BOX,
                                                   grayscale=False, confidence=0.8) is not None:
                     break
-
-
-        pyautogui.moveTo(850, 200, 1,  pyautogui.easeInQuad)
+        # pyautogui.moveTo(850, 200, 1,  pyautogui.easeInQuad)
+        # pyautogui.click()
+        pyautogui.moveTo(1242, 489, 1, pyautogui.easeInQuad)
         pyautogui.click()
         click_hb_btn(buddy_btn_dict['start_btn'])
         logging.info('start the buddy.')
