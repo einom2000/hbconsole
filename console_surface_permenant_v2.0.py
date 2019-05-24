@@ -191,10 +191,10 @@ while True:
         while True:
             if os.path.basename(__file__) == 'console_surface.py':
                 found = pyautogui.locateCenterOnScreen(hs_png, region=(10, 380, 300, 500),
-                                                       grayscale=False, confidence=0.9)
+                                                       grayscale=False, confidence=0.7)
             else:
                 found = pyautogui.locateCenterOnScreen(hs_png, region=(0, 0, bt_rec[2], bt_rec[3]),
-                                                       grayscale=False, confidence=0.9)
+                                                       grayscale=False, confidence=0.7)
             if found is not None:
                 x = found[0]
                 y = found[1]
@@ -208,10 +208,10 @@ while True:
         while True:
             if os.path.basename(__file__) == 'console_surface.py':
                 found = pyautogui.locateCenterOnScreen(login_png, region=(450, 850, 880, 1000),
-                                                       grayscale=False, confidence=0.9)
+                                                       grayscale=False, confidence=0.7)
             else:
                 found = pyautogui.locateCenterOnScreen(login_png, region=(0, 0, bt_rec[2], bt_rec[3]),
-                                                       grayscale=False, confidence=0.9)
+                                                       grayscale=False, confidence=0.7)
             if found is not None:
                 x = found[0]
                 y = found[1]
@@ -276,7 +276,7 @@ while True:
         hb_png = 'hb_start' + suffix + '.png'
         while True:
             found_hb_start = pyautogui.locateCenterOnScreen(hb_png, region=(0, 0, hb_rec[2], hb_rec[3]),
-                                                            grayscale=False, confidence=0.9)
+                                                            grayscale=False, confidence=0.7)
             if found_hb_start:
                 logging.info('buddy start button found, buddy ready!')
                 break
@@ -351,7 +351,7 @@ while True:
             wild_logo_rgn = (1220, 45, 1270, 90)
         while check_bug_start:
             check_bug = pyautogui.locateCenterOnScreen(wild_logo_png, region=wild_logo_rgn,
-                                                       grayscale=False, confidence=0.8)
+                                                       grayscale=False, confidence=0.7)
             if check_bug is not None:
                 logging.warning('buddy deck bugs found!')
                 # click stop
@@ -414,9 +414,9 @@ while True:
         general_failure = None
         while checking_continue:
             print(pyautogui.locateCenterOnScreen('START_NEW.png', region=HS_START_BTN_REGION,
-                                                 grayscale=False, confidence=0.9))
+                                                 grayscale=False, confidence=0.7))
             if pyautogui.locateCenterOnScreen('START_NEW.png', region=HS_START_BTN_REGION,
-                                              grayscale=False, confidence=0.9) is not None:
+                                              grayscale=False, confidence=0.7) is not None:
                 click_hb_btn(buddy_btn_dict['start_btn'])
                 time.sleep(2)
                 pyautogui.moveTo(HS_BATTLE_START_BTN[0], HS_BATTLE_START_BTN[1], 1, pyautogui.easeInQuad)
@@ -424,7 +424,7 @@ while True:
                 time.sleep(random.randint(1000, 2000) / 1000)
                 while True:
                     if pyautogui.locateCenterOnScreen('searching.png', region=SEARCHING_BOX,
-                                                  grayscale=False, confidence=0.9) is not None:
+                                                  grayscale=False, confidence=0.7) is not None:
                         click_hb_btn(buddy_btn_dict['start_btn'])
                         break
 
@@ -465,14 +465,14 @@ while True:
                 # (1231, 33)(1267, 69) check failure
 
                 failure_found_1 = pyautogui.locateCenterOnScreen(close_logo_png, region=close_logo_rgn,
-                                                                 grayscale=False, confidence=0.9)
+                                                                 grayscale=False, confidence=0.7)
                 # failure_found_2 = pyautogui.locateCenterOnScreen(break1_png, region=break1_rgn,
-                #                                                  grayscale=False, confidence=0.9)
+                #                                                  grayscale=False, confidence=0.7)
                 failure_found_2 = None  # disable break1 png
                 failure_found_3 = pyautogui.locateCenterOnScreen(break2_png, region=break2_rgn,
-                                                                 grayscale=False, confidence=0.9)
+                                                                 grayscale=False, confidence=0.7)
                 failure_found_4 = pyautogui.locateCenterOnScreen(break3_png, region=break3_rgn,
-                                                                 grayscale=False, confidence=0.9)
+                                                                 grayscale=False, confidence=0.7)
                 if failure_found_1 is not None or general_failure is not None\
                         or failure_found_3 is not None or failure_found_4 is not None:
                     print(failure_found_1, failure_found_2, failure_found_3, failure_found_4, general_failure)
