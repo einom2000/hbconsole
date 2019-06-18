@@ -267,6 +267,7 @@ while True:
             if lost_confirm is not None:
                 pyautogui.moveTo(1000, 375, 1, pyautogui.easeInQuad)
                 pyautogui.click()
+                break
 
         # close bt window be set in comfigure of bn
         # kill_process('Battle.net.exe', '暴雪战网')
