@@ -92,7 +92,7 @@ class LoginWindow:
 
 
 while True:
-
+    # Creat log file
     logging.basicConfig(filename='running_' + str(datetime.now().date()) + '.log', filemode='a',
                         format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                         datefmt='%H:%M:%S', level=logging.DEBUG)
@@ -226,7 +226,7 @@ while True:
         hs_window = 0
         logging.info('waiting for hstone loaded...')
         while not hs_is_running:
-            hs_window = win32gui.FindWindow(None,'炉石传说')
+            hs_window = win32gui.FindWindow(None, '炉石传说')
             if hs_window > 0:
                 hs_is_running = True
         logging.info('hstone loaded successfully!')
@@ -239,6 +239,8 @@ while True:
         # kill_process('Battle.net.exe', '暴雪战网')
         time.sleep(15)
         logging.info('battlenet window was shut!')
+        # =============================================why 850, 200=========================
+        # ==== should check the pop confirm buttom, if yes, click to reach the menu=========
         pyautogui.moveTo(850, 200, 1,  pyautogui.easeInQuad)
         pyautogui.click()
         # launching hb
@@ -318,6 +320,8 @@ while True:
         HS_START_BTN_REGION = (1000, 300, 500, 500)
         SEARCHING_BOX = (900, 100, 300, 200)
         while True:
+            #===== should check if the game is crashed, if yes, reload
+            #===== all stacked here before
             time.sleep(random.randint(1000, 2000) / 1000)
             pyautogui.moveTo(HS_BATTLE_SELECTION_BTN[0], HS_BATTLE_SELECTION_BTN[1], 1, pyautogui.easeInQuad)
             time.sleep(random.randint(1000, 2000) / 1000)
@@ -413,8 +417,7 @@ while True:
         last_concedes = 0
         general_failure = None
         while checking_continue:
-            print(pyautogui.locateCenterOnScreen('START_NEW.png', region=HS_START_BTN_REGION,
-                                                 grayscale=False, confidence=0.7))
+            # monitoring the battle end, should also monitor the crash of battle
             if pyautogui.locateCenterOnScreen('START_NEW.png', region=HS_START_BTN_REGION,
                                               grayscale=False, confidence=0.7) is not None:
                 click_hb_btn(buddy_btn_dict['start_btn'])
@@ -427,7 +430,7 @@ while True:
                                                   grayscale=False, confidence=0.7) is not None:
                         click_hb_btn(buddy_btn_dict['start_btn'])
                         break
-
+            # checking play stats, to see if it is running properly
             if time.time() - t >= checking_period - 10:
                 logging.info('start to check the score...')
                 # read score
@@ -473,6 +476,7 @@ while True:
                                                                  grayscale=False, confidence=0.7)
                 failure_found_4 = pyautogui.locateCenterOnScreen(break3_png, region=break3_rgn,
                                                                  grayscale=False, confidence=0.7)
+                # =====failure handlling================================================================================
                 if failure_found_1 is not None or general_failure is not None\
                         or failure_found_3 is not None or failure_found_4 is not None:
                     print(failure_found_1, failure_found_2, failure_found_3, failure_found_4, general_failure)
