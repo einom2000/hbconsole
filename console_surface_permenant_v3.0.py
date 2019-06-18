@@ -256,6 +256,17 @@ while True:
         win32gui.SetForegroundWindow(hs_window)
         hs_rec = win32gui.GetWindowRect(hs_window)
         win32gui.MoveWindow(hs_window, 620, 0, 800, 600, 1)
+        t = time.time()
+        # (986, 355), (1055, 389)
+        pyautogui.moveTo(739, 116, 1, pyautogui.easeInQuad)
+        pyautogui.click()
+        while time.time() - t <= 20:
+            lost_confirm = pyautogui.locateCenterOnScreen('lost_confirmation_logo.png',
+                                                          region=(980, 350, 200, 50),
+                                                            grayscale=False, confidence=0.7)
+            if lost_confirm is not None:
+                pyautogui.moveTo(1000, 375, 1, pyautogui.easeInQuad)
+                pyautogui.click()
 
         # close bt window be set in comfigure of bn
         # kill_process('Battle.net.exe', '暴雪战网')
