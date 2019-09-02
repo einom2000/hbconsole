@@ -193,26 +193,24 @@ print('        2,3 == farming 2nd & 3rd with default max win')
 print('        1-20,3-10 == farming 1st.with 20wins, 3rd with 10wins')
 print('        0-20 == farming all with 20 wins')
 wrong_cmd = True
+today_farming = {}
 while wrong_cmd:
-    command = input('plsease give a command: ')
-    if len(command) <= total_acc * 4 + total_acc - 1 and command != '':
-        if command == '0':
-            print('0')
-            break
-        elif command[:2] == '0-':
-            print('0-')
-            break
-        elif command.count('-') > 0:
-            print('found-')
-            break
-        elif command.count(',') > 0:
-            print('found ,')
-            break
-        elif command.isdigit():
-            print('digital')
-            break
+    commands = input('plsease give a command: ')
+    if commands.endswith(','):
+        commands = commands[:-1]
+    if len(commands) <= total_acc * 4 + total_acc - 1 and commands != '':
+        commands = commands.split(',')
+        print(commands)
+        t = 0
+        if len(commands) == 1 and commands[0].isdigit() and int(commands[0]) <= total_acc:
+                if commands[0] == '0':
+                    today_farming = farming.copy()
+                else:
+                    today_farming.update({'total_acc': 1})
+                    today_farming.update({})
 
 
+        break
     print('wrong command, try again', file=sys.stderr)
     time.sleep(0.3)
 
