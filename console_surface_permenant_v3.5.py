@@ -1,10 +1,23 @@
 # check json twice to compare the failure
 # use the list to locatecenter
-# v3.5 addon real_time checking online command
+# ---------------above is v3.0 -------------------------------------------
+
+# -----------------v3.5 version ------------------------------------------
+# real_time checking online command
 # /bin/command.json   not encrypted dictionary for cammand
 # /bin/en.bin  encrypted dictionary with server public key, ready for sending
 # /bin/keys_here.json keys of local private, server public, and local public, all non-encrypted
 # /bin/server_ip.json store non-encrypted server address and port
+
+# deleting all logging files which are 3 days ago
+
+# command 'pause' for quit and game and record the wins, and waiting for command'activated'
+# command 'activated' resume the farming
+# command 'cease' for stopping farming and wait for next day loop
+# command 'quit' for quiting farming program.
+
+# while start program, key in number requied: 0 for all accounts, 23 for 2nd and 3rd acounts,
+# 2 for 2nd account only, etc.
 
 # --------------------------- v3.0 --------------------------------------
 import os, win32api, random, json, keyboard
