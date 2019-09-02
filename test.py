@@ -1,6 +1,20 @@
-import json
-with open('account_per_3.0.json', 'r') as data:
-    acc_list = json.load(data)
+from datetime import *
+import os, sys
 
-print(acc_list[0]['acc'], acc_list[0]['psw'])
+valid_date = datetime.now() + timedelta(days=-160)
+for root, dirs, files in os.walk("C:\\Users\\Einom_Ng\\PycharmProjects\\hbconsole"):
+    for file in files:
+        if file.endswith(".log") and file.startswith("running_2"):
+            log_date = datetime.strptime(file[-14: -4], "%Y-%m-%d")
+            if log_date < valid_date:
+                filename = os.path.join(root, file)
+                os.remove(filename)
+                print('Deleting OLD LOG FILE: ', file=sys.stderr)
+                print(filename)
 
+
+
+
+# filename = 'running_' + str(datetime.now().date() - 1) + '.log'
+
+# print(filename)

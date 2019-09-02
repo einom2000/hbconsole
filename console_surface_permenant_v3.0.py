@@ -61,7 +61,7 @@ class LoginWindow:
                 # print(win32gui.GetWindowRect(hwndbnt))
                 # print(win32gui.GetWindowText(hwndbnt))
                 win32gui.MoveWindow(hwndbnt, 100, 100, 365, 541, True)
-            break
+                break
         win32gui.SetForegroundWindow(hwndbnt)
         time.sleep(0.5)
         return hwndbnt

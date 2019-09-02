@@ -1,22 +1,23 @@
 # check json twice to compare the failure
-# use the list to locatecenter
+# use the list to locate in center
 # ---------------above is v3.0 -------------------------------------------
 
 # -----------------v3.5 version ------------------------------------------
 # real_time checking online command
-# /bin/command.json   not encrypted dictionary for cammand
+# /bin/command.json   not encrypted dictionary for command
 # /bin/en.bin  encrypted dictionary with server public key, ready for sending
 # /bin/keys_here.json keys of local private, server public, and local public, all non-encrypted
 # /bin/server_ip.json store non-encrypted server address and port
 
 # deleting all logging files which are 3 days ago
+# to check size ration of the login window of btnet. Normal 4, other 5 tabs added, before key in.
 
 # command 'pause' for quit and game and record the wins, and waiting for command'activated'
 # command 'activated' resume the farming
 # command 'cease' for stopping farming and wait for next day loop
 # command 'quit' for quiting farming program.
 
-# while start program, key in number requied: 0 for all accounts, 23 for 2nd and 3rd acounts,
+# while start program, key in number required: 0 for all accounts, 23 for 2nd and 3rd account,
 # 2 for 2nd account only, etc.
 
 # --------------------------- v3.0 --------------------------------------
@@ -27,6 +28,7 @@ import pyautogui
 import winshell, psutil, shutil
 import cv2
 from datetime import datetime
+from datetime import timedelta
 import logging
 from win32api import GetKeyState
 from win32con import VK_CAPITAL
@@ -37,6 +39,21 @@ import communication
 import client_sending
 
 
+# deleting old log files
+def clean_log_files():
+    # clean all files 3 days ago
+    valid_date = datetime.now() + timedelta(days=-3)
+    for root, dirs, files in os.walk("C:\\Users\\Einom_Ng\\PycharmProjects\\hbconsole"):
+        for file in files:
+            if file.endswith(".log") and file.startswith("running_2"):
+                log_date = datetime.strptime(file[-14: -4], "%Y-%m-%d")
+                if log_date < valid_date:
+                    filename = os.path.join(root, file)
+                    os.remove(filename)
+                    print('Deleting OLD LOG FILE: ', file=sys.stderr)
+                    print(filename)
+
+# click buddy's btn, a btn_name list with x, y should be given
 def click_hb_btn(btn_name):
     time.sleep(0.3)
     pyautogui.moveTo(btn_name[0], btn_name[1], 0.5)
@@ -44,6 +61,7 @@ def click_hb_btn(btn_name):
     pyautogui.click()
 
 
+# kill certain process, process's name and window's name should be given
 def kill_process(process_name, wd_name):
     for proc in psutil.process_iter():
         # check whether the process name matches
@@ -55,6 +73,7 @@ def kill_process(process_name, wd_name):
     return
 
 
+# login class
 class LoginWindow:
 
     windowHwnd = 0
@@ -65,76 +84,142 @@ class LoginWindow:
         self.userName = username
         self.userPwd = userpwd
 
+    # load btnet
     def runbnet(self):
         exist = win32gui.FindWindow(None, self.windowName)
         if exist == 0:
             win32api.WinExec(self.programDir)
         return
 
+    # looking for btnet window and return handle
     def findWindow(self):
         while True:
             hwndbnt = win32gui.FindWindow(None, self.windowName)
             if hwndbnt == 0:
                 continue
             else:
-                # print(win32gui.GetWindowRect(hwndbnt))
-                # print(win32gui.GetWindowText(hwndbnt))
                 win32gui.MoveWindow(hwndbnt, 100, 100, 365, 541, True)
-            break
+                break
         win32gui.SetForegroundWindow(hwndbnt)
         time.sleep(0.5)
         return hwndbnt
 
+    # login process
     def login(self):
         # to log in id
-        for i in range(4): # orginal 4
+        # should check size ration of the login window of btnet. Normal 4, other 5  ********************
+        tabs = 4
+        # if the size ratio of the login window of btnet is in normal range?
+        if False:
+            tabs = 5
+        for i in range(tabs):
             pyautogui.press('tab')
-            time.sleep(random.randint(3, 5) / 10)
+            time.sleep(random.uniform(3.0, 5.0) / 10)
         # clear box
         pyautogui.press('backspace')
-        time.sleep(random.randint(3, 5) / 10)
+        time.sleep(random.uniform(3.0, 5.0) / 10)
         # change to english
         pyautogui.press('shift')
-        time.sleep(random.randint(3, 5) / 10)
+        time.sleep(random.uniform(3.0, 5.0) / 10)
         win32api.LoadKeyboardLayout('00000409', 1)
-        time.sleep(random.randint(3, 5) / 10)
-        # typein
+        time.sleep(random.uniform(3.0, 5.0) / 10)
+        # type in
         pyautogui.typewrite(self.userName, interval=(random.randint(15, 30) / 100))
-        time.sleep((random.randint(15, 30) / 100))
+        time.sleep((random.uniform(15.0, 30.0) / 100))
         pyautogui.press('tab')
         pyautogui.typewrite(self.userPwd, interval=(random.randint(15, 30) / 100))
         time.sleep(13)
         for i in range(3):
             pyautogui.press('tab')
-            time.sleep(random.randint(3, 5) / 10)
+            time.sleep(random.uniform(3.0, 5.0) / 10)
         # log in
         pyautogui.press('enter')
         return
 
 
 # ------------------------- main loop ----------------------------------
+logging.basicConfig(filename='running_' + str(datetime.now().date()) + '.log', filemode='a',
+                    format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                    datefmt='%H:%M:%S', level=logging.DEBUG)
+logging.info('Program starts.')
 
 # checking capslock is not activated.
 while GetKeyState(VK_CAPITAL):
     pyautogui.press('capslock')
+    logging.info('capslock released!')
 
+# deleting old log files
+clean_log_files()
+logging.warning('OLD LOG FILES DELETED!')
+
+        # convering old txt format to new json file
+        # with open("account_per.txt") as f:
+        #     lines = f.readlines()
+        #     print(lines)
+        #     total_account = int(lines[0][:-1])
+        #     max_wins = [int(lines[1][:-1]), int(lines[5][:-1]), int(lines[9][:-1])]
+        #     already_won = 0
+        #     account_id = (lines[2][:-1], lines[6][:-1], lines[10][:-1])
+        #     account_psd = (lines[3][:-1], lines[7][:-1], lines[11][:-1])
+        #     deck_list = (lines[4][:-1], lines[8][:-1], lines[12][:-1])
+        #
+        # with open('account_per.json', 'w') as f:
+        #     farming_acc_dict = {}
+        #     farming_acc_dict.update({'total_acc': total_account})
+        #     for i in range(total_account):
+        #         j = i + 1
+        #         farming_acc_dict.update({str(j) + '_acc': account_id[i]})
+        #         farming_acc_dict.update({str(j) + '_psw': account_psd[i]})
+        #         farming_acc_dict.update({str(j) + '_max': max_wins[i]})
+        #         farming_acc_dict.update({str(j) + '_dek': deck_list[i]})
+        #     json.dump(farming_acc_dict, f)
+
+# get farming accounts from file
+with open('account_per.json', 'r') as f:
+    farming = json.load(f)
+
+total_acc = farming['total_acc']
+
+# get command from a user
+print('There are %d account(s) in list, how do you want farm:' % total_acc, file=sys.stderr)
+time.sleep(0.5)
+for i in range(total_acc):
+    j = i + 1
+    print(j, end='   :')
+    print(farming[str(j) + '_acc'])
+print('sample: 0 == farming all with default max win')
+print('        1 == farming 1st.acc with default max win')
+print('        2,3 == farming 2nd & 3rd with default max win')
+print('        1-20,3-10 == farming 1st.with 20wins, 3rd with 10wins')
+print('        0-20 == farming all with 20 wins')
+wrong_cmd = True
+while wrong_cmd:
+    command = input('plsease give a command: ')
+    if len(command) <= total_acc * 4 + total_acc - 1 and command != '':
+        if command == '0':
+            print('0')
+            break
+        elif command[:2] == '0-':
+            print('0-')
+            break
+        elif command.count('-') > 0:
+            print('found-')
+            break
+        elif command.count(',') > 0:
+            print('found ,')
+            break
+        elif command.isdigit():
+            print('digital')
+            break
+
+
+    print('wrong command, try again', file=sys.stderr)
+    time.sleep(0.3)
+
+sys.exit()
 # main loop starts here
 while True:
 
-    logging.basicConfig(filename='running_' + str(datetime.now().date()) + '.log', filemode='a',
-                        format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-                        datefmt='%H:%M:%S', level=logging.DEBUG)
-    logging.info('Program starts.')
-
-    f = open("account_per.txt", "r")
-    lines = f.readlines()
-    total_account = int(lines[0][:-1])
-    max_wins = [int(lines[1][:-1]), int(lines[5][:-1]), int(lines[9][:-1])]
-    already_won = 0
-    account_id = (lines[2][:-1], lines[6][:-1], lines[10][:-1])
-    account_psd = (lines[3][:-1], lines[7][:-1], lines[11][:-1])
-    deck_list = (lines[4][:-1], lines[8][:-1], lines[12][:-1])
-    f.close()
     bn_target = winshell.shortcut(os.path.join(winshell.desktop(), "暴雪战网.lnk")).path
     hs_target = winshell.shortcut(os.path.join(winshell.desktop(), "炉石传说.lnk")).path
 
