@@ -228,7 +228,7 @@ class LoginWindow:
 # ------------------------- initialization -----------------------------------------------------------------------------
 logging.basicConfig(filename='running_' + str(datetime.now().date()) + '.log', filemode='a',
                     format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-                    datefmt='%H:%M:%S', level=logging.DEBUG)
+                    datefmt='%m/%d/%Y--%H:%M:%S', level=logging.DEBUG)
 logging.info('Program starts.')
 
 # checking capslock is not activated.
@@ -247,24 +247,29 @@ sf_list = parse_farming_list_file('acc_farm_list.pcl')
 # get today's farming order from a user
 tf_list = get_and_parse_command(sf_list)
 # so far we have tf_list to start farming and sf_list for the next day.
+logging.info('standard_farming list and today_farming list all loaded!')
 
 
+# --------------------------variables------------------------------------------------
+bn_target = winshell.shortcut(os.path.join(winshell.desktop(), "暴雪战网.lnk")).path
+hs_target = winshell.shortcut(os.path.join(winshell.desktop(), "炉石传说.lnk")).path
 
+if os.path.basename(__file__) == 'console_surface_permenant_v3.5.py':
+    logging.warning('script running on surface with an endless loop!')
+    suffix = '_sur'
+else:
+    suffix = ''
+    logging.warning('script running on other machine with an endless loop!')
+logging.info('All variables were loaded.')
+
+sys.exit()
 # --------------------------main loop starts here-----------------------------------------------------------------------
-while True:
-
-    bn_target = winshell.shortcut(os.path.join(winshell.desktop(), "暴雪战网.lnk")).path
-    hs_target = winshell.shortcut(os.path.join(winshell.desktop(), "炉石传说.lnk")).path
-
+while True:  # endless loop
     gold_miner_loop = True
     player_id = 0
     # in case break during one player's mining
     player_break = 0
-    suffix = ''
-    if os.path.basename(__file__) == 'console_surface_permenant_v3.0.py':
-        logging.warning('script running on surface with an endless loop!')
-        suffix = '_sur'
-    logging.info('All variables were loaded.')
+
 
     # wait for the midnight
     now = datetime.now()

@@ -18,5 +18,11 @@
 # filename = 'running_' + str(datetime.now().date() - 1) + '.log'
 
 # print(filename)
-print(' 1'.isdigit())
+# print(' 1 '.strip(' ').isdigit())
 
+
+import time
+from datetime import datetime
+
+print(time.time())
+print(datetime.now())
