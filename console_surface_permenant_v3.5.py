@@ -11,6 +11,7 @@
 
 # deleting all logging files which are 3 days ago
 # to check size ration of the login window of btnet. Normal 4, other 5 tabs added, before key in.
+# auto check midnight time to restart
 
 # command 'pause' for quit and game and record the wins, and waiting for command'activated'
 # command 'activated' resume the farming
@@ -21,7 +22,7 @@
 # 2 for 2nd account only, etc.
 
 # --------------------------- v3.0 --------------------------------------
-import os, win32api, random, json, keyboard
+import os, win32api, random, json, keyboard, pickle
 import win32gui, sys, winsound
 import time
 import pyautogui
@@ -39,6 +40,40 @@ import communication
 import client_sending
 
 
+# farming_acc list from txt file, and save to pickle file
+def generate_farming_list(account_txt, pickle_file):
+    # change account_txt file to json
+    with open(account_txt) as f:
+        lines = f.readlines()
+        total_account = int(lines[0][:-1])
+        max_wins = [int(lines[1][:-1]), int(lines[5][:-1]), int(lines[9][:-1])]
+        already_won = [0, 0, 0]
+        account_id = (lines[2][:-1], lines[6][:-1], lines[10][:-1])
+        account_psd = (lines[3][:-1], lines[7][:-1], lines[11][:-1])
+        deck_list = (lines[4][:-1], lines[8][:-1], lines[12][:-1])
+
+    farming_list = []
+    for i in range(total_account):
+        acc = {'acc': account_id[i],
+               'psw': account_psd[i],
+               'max': max_wins[i],
+               'won': already_won[i],
+               'dck': deck_list[0]}
+        farming_list.append(acc)
+
+    with open(pickle_file, 'wb') as f:
+        pickle.dump(farming_list, f)
+
+    return
+
+
+# get farming list from the pickle file
+def parse_farming_list_file(pickle_file):
+    with open(pickle_file, 'rb') as f:
+        lst = pickle.load(f)
+    return lst
+
+
 # deleting old log files
 def clean_log_files():
     # clean all files 3 days ago
@@ -52,6 +87,59 @@ def clean_log_files():
                     os.remove(filename)
                     print('Deleting OLD LOG FILE: ', file=sys.stderr)
                     print(filename)
+
+
+# get command for today's farming from a user
+def get_and_parse_command(tf_list):
+    # set all accounts won to max
+    for role in tf_list:
+        role['won'] = role['max']
+
+    # asking for a command line
+    print('There are %d account(s) in list, how do you want farm:' % len(sf_list), file=sys.stderr)
+    time.sleep(0.5)
+    i = 1
+    for role in sf_list:
+        print(i, end='   :')
+        print(role['acc'])
+        i += 1
+    print('sample: 0 == farming all with default max win')
+    print('        1 == farming 1st.acc with default max win')
+    print('        2,3 == farming 2nd & 3rd with default max win')
+    print('        1-20,3-10 == farming 1st.with 20wins, 3rd with 10wins')
+    print('        0-20 == farming all with 20 wins')
+    wrong_cmd = True
+    # parse command, to win = max - won
+    while wrong_cmd:
+        commands = input('plsease give a command: ').split(',')
+        if len(commands) == 1 and commands[0] == '0':
+            for role in tf_list:
+                role['won'] = 0
+            wrong_cmd = False
+        else:
+            for cmd in commands:
+                if cmd.replace(' ', '').isdigit() and int(cmd) <= len(tf_list):
+                    tf_list[int(cmd) - 1]['won'] = 0
+                    wrong_cmd = False
+                elif cmd.count('-') == 1:
+                    cmds = cmd.split('-')
+                    if cmds[0].replace(' ', '').isdigit() and int(cmds[0]) <= len(tf_list) \
+                                                          and cmds[1].replace(' ', '').isdigit() and int(cmds[1]) < 31:
+
+                        tf_list[int(cmds[0]) - 1]['won'] = 31 - int(cmds[1])
+                        wrong_cmd = False
+                    else:
+                        wrong_cmd = True
+                        break
+                else:
+                    wrong_cmd = True
+                    break
+        if not wrong_cmd:
+            return tf_list
+
+        print('wrong command, try again', file=sys.stderr)
+        time.sleep(0.3)
+
 
 # click buddy's btn, a btn_name list with x, y should be given
 def click_hb_btn(btn_name):
@@ -152,67 +240,15 @@ while GetKeyState(VK_CAPITAL):
 clean_log_files()
 logging.warning('OLD LOG FILES DELETED!')
 
-        # convering old txt format to new json file
-        # with open("account_per.txt") as f:
-        #     lines = f.readlines()
-        #     print(lines)
-        #     total_account = int(lines[0][:-1])
-        #     max_wins = [int(lines[1][:-1]), int(lines[5][:-1]), int(lines[9][:-1])]
-        #     already_won = 0
-        #     account_id = (lines[2][:-1], lines[6][:-1], lines[10][:-1])
-        #     account_psd = (lines[3][:-1], lines[7][:-1], lines[11][:-1])
-        #     deck_list = (lines[4][:-1], lines[8][:-1], lines[12][:-1])
-        #
-        # with open('account_per.json', 'w') as f:
-        #     farming_acc_dict = {}
-        #     farming_acc_dict.update({'total_acc': total_account})
-        #     for i in range(total_account):
-        #         j = i + 1
-        #         farming_acc_dict.update({str(j) + '_acc': account_id[i]})
-        #         farming_acc_dict.update({str(j) + '_psw': account_psd[i]})
-        #         farming_acc_dict.update({str(j) + '_max': max_wins[i]})
-        #         farming_acc_dict.update({str(j) + '_dek': deck_list[i]})
-        #     json.dump(farming_acc_dict, f)
+# get standard farming list in to sf_list
+generate_farming_list('account_per.txt', 'acc_farm_list.pcl')
+sf_list = parse_farming_list_file('acc_farm_list.pcl')
 
-# get farming accounts from file
-with open('account_per.json', 'r') as f:
-    farming = json.load(f)
-
-total_acc = farming['total_acc']
-
-# get command from a user
-print('There are %d account(s) in list, how do you want farm:' % total_acc, file=sys.stderr)
-time.sleep(0.5)
-for i in range(total_acc):
-    j = i + 1
-    print(j, end='   :')
-    print(farming[str(j) + '_acc'])
-print('sample: 0 == farming all with default max win')
-print('        1 == farming 1st.acc with default max win')
-print('        2,3 == farming 2nd & 3rd with default max win')
-print('        1-20,3-10 == farming 1st.with 20wins, 3rd with 10wins')
-print('        0-20 == farming all with 20 wins')
-wrong_cmd = True
-today_farming = {}
-while wrong_cmd:
-    commands = input('plsease give a command: ')
-    if commands.endswith(','):
-        commands = commands[:-1]
-    if len(commands) <= total_acc * 4 + total_acc - 1 and commands != '':
-        commands = commands.split(',')
-        print(commands)
-        t = 0
-        if len(commands) == 1 and commands[0].isdigit() and int(commands[0]) <= total_acc:
-                if commands[0] == '0':
-                    today_farming = farming.copy()
-                else:
-                    today_farming.update({'total_acc': 1})
-                    today_farming.update({})
+# get today's farming order from a user
+tf_list = get_and_parse_command(sf_list)
 
 
-        break
-    print('wrong command, try again', file=sys.stderr)
-    time.sleep(0.3)
+
 
 sys.exit()
 # main loop starts here
