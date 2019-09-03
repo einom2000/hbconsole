@@ -34,7 +34,7 @@ import logging
 from win32api import GetKeyState
 from win32con import VK_CAPITAL
 
-# ----------------------communication related---------------------------
+# ----------------------communication related------------------------------
 import rsa_encrypto
 import communication
 import client_sending
@@ -225,7 +225,7 @@ class LoginWindow:
         return
 
 
-# ------------------------- main loop ----------------------------------
+# ------------------------- initialization -----------------------------------------------------------------------------
 logging.basicConfig(filename='running_' + str(datetime.now().date()) + '.log', filemode='a',
                     format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                     datefmt='%H:%M:%S', level=logging.DEBUG)
@@ -246,12 +246,11 @@ sf_list = parse_farming_list_file('acc_farm_list.pcl')
 
 # get today's farming order from a user
 tf_list = get_and_parse_command(sf_list)
+# so far we have tf_list to start farming and sf_list for the next day.
 
 
 
-
-sys.exit()
-# main loop starts here
+# --------------------------main loop starts here-----------------------------------------------------------------------
 while True:
 
     bn_target = winshell.shortcut(os.path.join(winshell.desktop(), "暴雪战网.lnk")).path
