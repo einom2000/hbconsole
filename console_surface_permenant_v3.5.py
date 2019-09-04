@@ -22,7 +22,7 @@
 # 2 for 2nd account only, etc.
 
 # --------------------------- v3.0 --------------------------------------
-import os, win32api, random, json, keyboard, pickle
+import os, win32api, random, json, keyboard, pickle, random
 import win32gui, sys, winsound
 import time
 import pyautogui
@@ -78,7 +78,7 @@ def parse_farming_list_file(pickle_file):
 def clean_log_files():
     # clean all files 3 days ago
     valid_date = datetime.now() + timedelta(days=-3)
-    for root, dirs, files in os.walk("C:\\Users\\Einom_Ng\\PycharmProjects\\hbconsole"):
+    for root, dirs, files in os.walk(os.getcwd()):
         for file in files:
             if file.endswith(".log") and file.startswith("running_2"):
                 log_date = datetime.strptime(file[-14: -4], "%Y-%m-%d")
@@ -161,6 +161,54 @@ def kill_process(process_name, wd_name):
     return
 
 
+# check hs folder   ------------ mono.dll and bnl_checkout_client.dll
+def check_version():
+    mono_path = os.path.split(hs_target)[0] + '\\Hearthstone_Data\\mono'
+    target_mono_path = os.path.split(hs_target)[0] + '\\Hearthstone_Data\\mono\\etc'
+    plugin_path = os.path.split(hs_target)[0] + '\\Hearthstone_Data\\plugins'
+    # should be 2115520 not 2117056
+    if os.path.isfile(os.path.join(mono_path, 'mono.dll')) and \
+            os.path.getsize(os.path.join(mono_path, 'mono.dll')) != 2115520:
+        shutil.move(os.path.join(mono_path, 'mono.dll'), os.path.join(target_mono_path, 'mono.dll'))
+        print('move mono.dll to etc folder!', file=sys.stderr)
+    if os.path.isfile(os.path.join(mono_path, 'MonoPosixHelper.dll')):
+        shutil.move(os.path.join(mono_path, 'MonoPosixHelper.dll'),
+                    os.path.join(target_mono_path, 'MonoPosixHelper.dll'))
+        print('move MonoPosixHelper.dll to etc folder!', file=sys.stderr)
+    if not os.path.isfile(os.path.join(mono_path, 'mono.dll')):
+        shutil.copy(os.path.split(hs_target)[0] + '\\Hearthstone_Data\\mono.dll',
+                    os.path.join(mono_path, 'mono.dll'))
+        print('copy the 2066kb mono.dll to mono folder!', file=sys.stderr)
+    if os.path.isfile(os.path.join(plugin_path, 'bnl_checkout_client.dll')):
+        shutil.move(os.path.join(plugin_path, 'bnl_checkout_client.dll'),
+                    os.path.join(target_mono_path, 'bnl_checkout_client.dll'))
+        print('move the bnl_checkout_client.dll to etc folder.', file=sys.stderr)
+
+
+# wait for midnight
+def wait_for_midnight():
+    now = datetime.now()
+    t = time.time()
+    logging.info('start to wait for the midnight or for the user to start to command.')
+    while True:
+        seconds_since_midnight = (
+                    datetime.now() - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
+        if seconds_since_midnight > 86400:
+            time.sleep(random.uniform(120, 600))
+            return True
+        elif time.time() - t >= 10:
+            print("There are still " + str(int(86400 - seconds_since_midnight)) + ' seconds to start!')
+            print(str(len(sf_list)) + 'accounts to mine')
+            print('Or you might press SPACE to skip!')
+            t = time.time()
+        elif keyboard.is_pressed('space'):
+            winsound.Beep(500, 300)
+            print('"space" was pressed, skip waiting for midnight!')
+            logging.info('"space" was pressed, skip waiting for midnight, direct to user command input.')
+            time.sleep(3)
+            return False
+
+
 # login class
 class LoginWindow:
 
@@ -225,7 +273,7 @@ class LoginWindow:
         return
 
 
-# ------------------------- initialization -----------------------------------------------------------------------------
+# ------------------------- initialization I ---------------------------------------------------------------------------
 logging.basicConfig(filename='running_' + str(datetime.now().date()) + '.log', filemode='a',
                     format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                     datefmt='%m/%d/%Y--%H:%M:%S', level=logging.DEBUG)
@@ -235,19 +283,6 @@ logging.info('Program starts.')
 while GetKeyState(VK_CAPITAL):
     pyautogui.press('capslock')
     logging.info('capslock released!')
-
-# deleting old log files
-clean_log_files()
-logging.warning('OLD LOG FILES DELETED!')
-
-# get standard farming list in to sf_list
-generate_farming_list('account_per.txt', 'acc_farm_list.pcl')
-sf_list = parse_farming_list_file('acc_farm_list.pcl')
-
-# get today's farming order from a user
-tf_list = get_and_parse_command(sf_list)
-# so far we have tf_list to start farming and sf_list for the next day.
-logging.info('standard_farming list and today_farming list all loaded!')
 
 
 # --------------------------variables------------------------------------------------
@@ -262,8 +297,38 @@ else:
     logging.warning('script running on other machine with an endless loop!')
 logging.info('All variables were loaded.')
 
+
+# -------------------------- initializaion II-----------------------------------------
+# deleting old log files
+clean_log_files()
+logging.warning('OLD LOG FILES DELETED!')
+
+#check version of hs
+# check_version()
+logging.warning('checking hs version completed.')
+
+# get standard farming list in to sf_list
+generate_farming_list('account_per.txt', 'acc_farm_list.pcl')
+sf_list = parse_farming_list_file('acc_farm_list.pcl')
+
+
+auto_start = wait_for_midnight()
+
+if not auto_start:
+    # get today's farming order from a user
+    tf_list = get_and_parse_command(sf_list)
+    # so far we have tf_list to start farming and sf_list for the next day.
+    logging.info('standard_farming list and today_farming list all loaded!')
+else:
+    tf_list = []
+
+print(tf_list)
 sys.exit()
+
 # --------------------------main loop starts here-----------------------------------------------------------------------
+
+
+
 while True:  # endless loop
     gold_miner_loop = True
     player_id = 0
@@ -271,53 +336,7 @@ while True:  # endless loop
     player_break = 0
 
 
-    # wait for the midnight
-    now = datetime.now()
-    t = time.time()
 
-    start_right_now = False
-    # just for logging purpose:
-    seconds_since_midnight = (datetime.now() - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
-    logging.info('shall wait for ' + str(int(86400 - seconds_since_midnight)) + ' seconds to start!')
-    logging.info(str(total_account) + 'accounts to mine')
-
-    # check hearthston folder   ------------ mono.dll and bnl_checkout_client.dll
-    mono_path = os.path.split(hs_target)[0] + '\\Hearthstone_Data\\mono'
-    target_mono_path = os.path.split(hs_target)[0] + '\\Hearthstone_Data\\mono\\etc'
-    plugin_path = os.path.split(hs_target)[0] + '\\Hearthstone_Data\\plugins'
-    # should be 2115520 not 2117056
-    if os.path.isfile(os.path.join(mono_path, 'mono.dll')) and \
-            os.path.getsize(os.path.join(mono_path, 'mono.dll')) != 2115520:
-        shutil.move(os.path.join(mono_path, 'mono.dll'), os.path.join(target_mono_path, 'mono.dll'))
-        print('move mono.dll to etc folder!')
-    if os.path.isfile(os.path.join(mono_path, 'MonoPosixHelper.dll')):
-        shutil.move(os.path.join(mono_path, 'MonoPosixHelper.dll'),
-                    os.path.join(target_mono_path, 'MonoPosixHelper.dll'))
-        print('move MonoPosixHelper.dll to etc folder!')
-    if not os.path.isfile(os.path.join(mono_path, 'mono.dll')):
-        shutil.copy(os.path.split(hs_target)[0] + '\\Hearthstone_Data\\mono.dll',
-                    os.path.join(mono_path, 'mono.dll'))
-        print('copy the 2066kb mono.dll to mono folder!')
-    if os.path.isfile(os.path.join(plugin_path, 'bnl_checkout_client.dll')):
-        shutil.move(os.path.join(plugin_path, 'bnl_checkout_client.dll'),
-                    os.path.join(target_mono_path, 'bnl_checkout_client.dll'))
-        print('move the bnl_checkout_client.dll to etc folder.')
-
-    while not start_right_now:
-        seconds_since_midnight = (datetime.now() - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
-        if seconds_since_midnight > 86400:
-            break
-        elif time.time() - t >= 10:
-                print("There are still " + str(int(86400 - seconds_since_midnight)) + ' seconds to start!')
-                print(str(total_account) + 'accounts to mine')
-                print('Or you might press SPACE to skip!')
-                t = time.time()
-        elif keyboard.is_pressed('space'):
-            winsound.Beep(500, 300)
-            print('"space" was pressed, skip counting!')
-            logging.info('"space" was pressed, skip counting!')
-            time.sleep(3)
-            start_right_now = True
 
     # main loop
     while gold_miner_loop:
