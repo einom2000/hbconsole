@@ -198,8 +198,8 @@ def wait_for_midnight():
             return True
         elif time.time() - t >= 10:
             print("There are still " + str(int(86400 - seconds_since_midnight)) + ' seconds to start!')
-            print(str(len(sf_list)) + 'accounts to mine')
-            print('Or you might press SPACE to skip!')
+            print(str(len(sf_list)) + ' accounts to farm.', file=sys.stderr)
+            print('Or you might press SPACE to skip!', file=sys.stderr)
             t = time.time()
         elif keyboard.is_pressed('space'):
             winsound.Beep(500, 300)
@@ -207,6 +207,79 @@ def wait_for_midnight():
             logging.info('"space" was pressed, skip waiting for midnight, direct to user command input.')
             time.sleep(3)
             return False
+
+
+# log in to bnet and check for size of the correct size of bnet window
+def log_in_hs(player_id):
+    logging.info('miner No.' + str(player_id) + ' player starts.')
+    # open in battle net login window
+    loginbt = LoginWindow(bn_target, '暴雪战网登录', sf_list[player_id]['acc'], sf_list[player_id]['psw'])
+    logged_in = False
+    logging_time = time.time()
+    bt_window = 0
+    while not logged_in:
+        loginbt.runbnet()
+        bn_hwnd = loginbt.findWindow()
+        loginbt.login()
+        # wait for the battle net window shows up
+        time_login = time.time()
+        while time.time() - time_login <= 30:
+            bt_window = win32gui.FindWindow(None, '暴雪战网')
+            if bt_window > 0:
+                logged_in = True
+                logging.info('logging No.' + str(player_id) + ' player succeeded!')
+                break
+        if not logged_in:
+            kill_process('Battle.net.exe', '暴雪战网登录')
+            logging.warning('log No.' + str(player_id) + ' player failed!')
+        if time.time() - logging_time >= 1200:
+            # after 10 minutes failure, terminate program
+            logging.warning('logging keeps failing, terminated!')
+            sys.exit()
+    # logged in Battle net!!!
+
+    # move bn window to 0,0
+    win32gui.SetForegroundWindow(bt_window)
+    bt_rec = win32gui.GetWindowRect(bt_window)
+    win32gui.MoveWindow(bt_window, 0, 0, bt_rec[2] - bt_rec[0], bt_rec[3] - bt_rec[1], 1)
+    time.sleep(1)
+
+    # looking for hs and click waiting for hs
+    hs_png = 'hs' + suffix + '.png'
+    while True:
+        found = pyautogui.locateCenterOnScreen(hs_png, region=(0, 0, bt_rec[2], bt_rec[3]),
+                                               grayscale=False, confidence=0.7)
+        if found is not None:
+            x = found[0]
+            y = found[1]
+            break
+
+    logging.info('hs logo found in (' + str(x) + ', ' + str(y) + ')!')
+    pyautogui.moveTo(x, y, 1,  pyautogui.easeInQuad)
+    pyautogui.click(x, y)
+    time.sleep(1)
+    login_png = 'login' + suffix + '.png'
+    while True:
+        found = pyautogui.locateCenterOnScreen(login_png, region=(0, 0, bt_rec[2], bt_rec[3]),
+                                               grayscale=False, confidence=0.7)
+        if found is not None:
+            x = found[0]
+            y = found[1]
+            logging.info('found the login button!')
+            break
+    pyautogui.moveTo(x, y, 1,  pyautogui.easeInQuad)
+    pyautogui.click(x, y)
+    logging.info('hs log in button was pressed!')
+    # waiting for hs running
+    hs_is_running = False
+    hs_window = 0
+    logging.info('waiting for hstone loaded...')
+    while not hs_is_running:
+        hs_window = win32gui.FindWindow(None, '炉石传说')
+        if hs_window > 0:
+            hs_is_running = True
+    logging.info('hstone loaded successfully!')
+    return hs_window
 
 
 # login class
@@ -304,7 +377,7 @@ clean_log_files()
 logging.warning('OLD LOG FILES DELETED!')
 
 #check version of hs
-# check_version()
+check_version()
 logging.warning('checking hs version completed.')
 
 # get standard farming list in to sf_list
@@ -322,106 +395,24 @@ if not auto_start:
 else:
     tf_list = []
 
-print(tf_list)
-sys.exit()
+# if it is an instant command, start to farm right now:
+if tf_list is None:
+    # instant farm
+    pass
 
-# --------------------------main loop starts here-----------------------------------------------------------------------
 
-
-
+# midnight farm loop
 while True:  # endless loop
+    total_account = len(sf_list)
     gold_miner_loop = True
     player_id = 0
     # in case break during one player's mining
     player_break = 0
-
-
-
-
     # main loop
     while gold_miner_loop:
-        logging.info('miner No.' + str(player_id) + ' player starts.')
+        # log in hs according to account id
+        hs_window = log_in_hs(player_id)
 
-        # open in battle net login window
-        loginbt = LoginWindow(bn_target, '暴雪战网登录', account_id[player_id], account_psd[player_id])
-        logged_in = False
-        logging_time = time.time()
-        bt_window = 0
-        while not logged_in:
-            loginbt.runbnet()
-            bn_hwnd = loginbt.findWindow()
-            loginbt.login()
-            # wait for the battle net window shows up
-            time_login = time.time()
-            while time.time() - time_login <= 30:
-                bt_window = win32gui.FindWindow(None, '暴雪战网')
-                if bt_window > 0:
-                    logged_in = True
-                    logging.info('logging No.' + str(player_id) + ' player succeeded!')
-                    break
-            if not logged_in:
-                kill_process('Battle.net.exe', '暴雪战网登录')
-                logging.warning('log No.' + str(player_id) + ' player failed!')
-            if time.time() - logging_time >= 6000:
-                # after 10 minutes failure, terminate program
-                logging.warning('logging keeps failing, terminated!')
-                sys.exit()
-
-        # logged in Battle net!!!
-        # move bn window to 0,0
-        win32gui.SetForegroundWindow(bt_window)
-        bt_rec = win32gui.GetWindowRect(bt_window)
-        if os.path.basename(__file__) == 'console_surface.py':
-            win32gui.MoveWindow(bt_window, 0, 0, 1280, 820, 1)
-            bt_rec = win32gui.GetWindowRect(bt_window)
-        else:
-            win32gui.MoveWindow(bt_window, 0, 0, bt_rec[2] - bt_rec[0], bt_rec[3] - bt_rec[1], 1)
-        time.sleep(1)
-
-        # looking for hs and click waiting for hs
-        hs_png = 'hs' + suffix + '.png'
-        while True:
-            if os.path.basename(__file__) == 'console_surface.py':
-                found = pyautogui.locateCenterOnScreen(hs_png, region=(10, 380, 300, 500),
-                                                       grayscale=False, confidence=0.7)
-            else:
-                found = pyautogui.locateCenterOnScreen(hs_png, region=(0, 0, bt_rec[2], bt_rec[3]),
-                                                       grayscale=False, confidence=0.7)
-            if found is not None:
-                x = found[0]
-                y = found[1]
-                break
-
-        logging.info('hs logo found in (' + str(x) + ', ' + str(y) + ')!')
-        pyautogui.moveTo(x, y, 1,  pyautogui.easeInQuad)
-        pyautogui.click(x, y)
-        time.sleep(1)
-        login_png = 'login' + suffix + '.png'
-        while True:
-            if os.path.basename(__file__) == 'console_surface.py':
-                found = pyautogui.locateCenterOnScreen(login_png, region=(450, 850, 880, 1000),
-                                                       grayscale=False, confidence=0.7)
-            else:
-                found = pyautogui.locateCenterOnScreen(login_png, region=(0, 0, bt_rec[2], bt_rec[3]),
-                                                       grayscale=False, confidence=0.7)
-            if found is not None:
-                x = found[0]
-                y = found[1]
-                logging.info('found the login button!')
-                break
-        pyautogui.moveTo(x, y, 1,  pyautogui.easeInQuad)
-        pyautogui.click(x, y)
-        logging.info('hs log in button was pressed!')
-
-        # waiting for hs running
-        hs_is_running = False
-        hs_window = 0
-        logging.info('waiting for hstone loaded...')
-        while not hs_is_running:
-            hs_window = win32gui.FindWindow(None,'炉石传说')
-            if hs_window > 0:
-                hs_is_running = True
-        logging.info('hstone loaded successfully!')
         time.sleep(3)
         win32gui.SetForegroundWindow(hs_window)
         hs_rec = win32gui.GetWindowRect(hs_window)
@@ -659,3 +650,8 @@ while True:  # endless loop
                     checking_continue = False
                     break
                 t = time.time()
+
+
+# --------------------------main loop starts here-----------------------------------------------------------------------
+
+
