@@ -282,6 +282,93 @@ def log_in_hs(player_id):
     return hs_window
 
 
+# adjust the hs window and click away the lost_game confirmation button
+# ***** select deck and style and mounting in future
+def initialize_hs_window():
+    win32gui.SetForegroundWindow(hs_window)
+    win32gui.MoveWindow(hs_window, 620, 0, 800, 600, 1)  # (90, 420)
+    re_x = 90
+    re_y = 420
+    t = time.time()
+    # (986, 355), (1055, 389)
+    pyautogui.moveTo(739 + re_x, 116 + re_y, 1, pyautogui.easeInQuad)
+    pyautogui.click()
+    time.sleep(10)
+    hs_rec = win32gui.GetWindowRect(hs_window)
+    print('found hs_window at %s!' % str(hs_rec), sys.stderr)
+    # if there is a lost game button, click it
+    while time.time() - t <= 20:
+        lost_confirm = pyautogui.locateCenterOnScreen('lost_confirmation_logo_new.png',
+                                                      region=(950 + re_x, 300 + re_y, 400, 200),
+                                                      grayscale=False, confidence=0.6)
+        if lost_confirm is not None:
+            pyautogui.moveTo(1000 + re_x, 375 + re_y, 1, pyautogui.easeInQuad)
+            pyautogui.click()
+            logging.warning('last game was lost! click to confirm!')
+            break
+
+    # here could add picking deck order and game style and farming or mounting in future
+    pyautogui.moveTo(850 + re_x, 200 + re_y, 1, pyautogui.easeInQuad)
+    pyautogui.click()
+
+    return re_x, re_y
+
+
+# load buddy
+def load_and_initiate_buddy():
+    # launching hb
+    logging.info('start to load buddy...')
+    win32api.WinExec('Hearthbuddy.exe')
+    while True:
+        config_window = win32gui.FindWindow(None, 'Configuration Window')
+        if config_window > 0:
+            win32gui.SetForegroundWindow(config_window)
+            logging.info('buddy configure shown up!')
+            time.sleep(2)
+            pyautogui.press('enter')
+            time.sleep(1)
+            break
+
+    # wait for buddy's main window
+    hb_is_running = False
+    hb_window = 0
+    while not hb_is_running:
+        hb_window = win32gui.FindWindow(None, 'Hearthbuddy[0.3.1446.417] 学习交流,免费使用,严禁贩卖!')
+        if hb_window > 0:
+            hb_is_running = True
+            logging.info('buddy main window shown up!')
+    time.sleep(2)
+    if suffix == "_sur":
+        hs_wd_height = 790 + 400
+    else:
+        hs_wd_height = 790
+    win32gui.MoveWindow(hb_window, 0, 0, 620, hs_wd_height, 1)
+    hb_rec = win32gui.GetWindowRect(hb_window)
+
+    # waiting and click start for buddy
+    time.sleep(15)
+    hb_png = 'hb_start' + suffix + '.png'
+    while True:
+        time.sleep(2)
+        found_hb_start = pyautogui.locateCenterOnScreen(hb_png, region=(0, 0, hb_rec[2], hb_rec[3]),
+                                                        grayscale=False, confidence=0.7)
+        if found_hb_start:
+            logging.info('buddy start button found, buddy ready!')
+            break
+    # start to set monitor
+    click_hb_btn(buddy_btn_dict['setting_btn'])
+    click_hb_btn(buddy_btn_dict['default_bot_btn'])
+    click_hb_btn(buddy_btn_dict['deck_btn'])
+    # uncheck 2 boxes for cache. It is a hard code!
+    pyautogui.moveTo(367, 445, 1, pyautogui.easeInQuad)
+    pyautogui.click()
+    time.sleep(2)
+    pyautogui.moveTo(371, 488, 1, pyautogui.easeInQuad)
+    pyautogui.click()
+    time.sleep(2)
+    logging.info('buddy was initiated!')
+
+
 # login class
 class LoginWindow:
 
@@ -370,13 +457,23 @@ else:
     logging.warning('script running on other machine with an endless loop!')
 logging.info('All variables were loaded.')
 
+# if suffix == "_sur":
+buddy_btn_dict = {'start_btn': (366, 180),
+                  'setting_btn': (175, 236),
+                  'default_bot_btn': (175, 279),
+                  'mode_btn': (477, 608),
+                  'rule_btn': (479, 653),
+                  'deck_btn': (354, 697),
+                  'stats_btn': (459, 278),
+                  'stats_reset_btn': (83, 456),
+                  'win_rec': [(84, 174), (116, 197)]}
 
 # -------------------------- initializaion II-----------------------------------------
 # deleting old log files
 clean_log_files()
 logging.warning('OLD LOG FILES DELETED!')
 
-#check version of hs
+# check version of hs
 check_version()
 logging.warning('checking hs version completed.')
 
@@ -413,108 +510,15 @@ while True:  # endless loop
         # log in hs according to account id
         hs_window = log_in_hs(player_id)
         time.sleep(3)
-        # adjust the hs window and dismiss the lost_game confirmation button
-        win32gui.SetForegroundWindow(hs_window)
-        hs_rec = win32gui.GetWindowRect(hs_window)
-        win32gui.MoveWindow(hs_window, 620, 0, 800, 600, 1)   # (90, 420)
-        re_x = 90
-        re_y = 420
-        t = time.time()
-        # (986, 355), (1055, 389)
-        pyautogui.moveTo(739 + re_x, 116 + re_y, 1, pyautogui.easeInQuad)
-        pyautogui.click()
+        re_x, re_y = initialize_hs_window()
 
-        time.sleep(10)
-        hs_rec = win32gui.GetWindowRect(hs_window)
-        print('found hs_windowshs_rec)
-
-        while time.time() - t <= 20:
-            lost_confirm = pyautogui.locateCenterOnScreen('lost_confirmation_logo_new.png',
-                                                          region=(950 + re_x, 300 + re_y, 400, 200),
-                                                         grayscale=False, confidence=0.6)
-            if lost_confirm is not None:
-                pyautogui.moveTo(1000 + re_x, 375 + re_y, 1, pyautogui.easeInQuad)
-                pyautogui.click()
-                break
-
-        # close bt window be set in comfigure of bn
+        # close bt window be set in configuration of bn / set in bt configuration file
         # kill_process('Battle.net.exe', '暴雪战网')
         time.sleep(15)
-        logging.info('battlenet window was shut!')
-        pyautogui.moveTo(850 + re_x, 200 + re_y, 1,  pyautogui.easeInQuad)
-        pyautogui.click()
-        # launching hb
-        logging.info('start to load buddy...')
-        win32api.WinExec('Hearthbuddy.exe')
-        while True:
-            config_window = win32gui.FindWindow(None, 'Configuration Window')
-            if config_window > 0:
-                win32gui.SetForegroundWindow(config_window)
-                logging.info('buddy configure shown up!')
-                time.sleep(2)
-                pyautogui.press('enter')
-                time.sleep(1)
-                break
+        logging.info('battle net window was auto_shut!')
 
-        # wait for buddy's main window
-        hb_is_running = False
-        hb_window = 0
-        while not hb_is_running:
-            hb_window = win32gui.FindWindow(None, 'Hearthbuddy[0.3.1446.417] 学习交流,免费使用,严禁贩卖!')
-            if hb_window > 0:
-                hb_is_running = True
-                logging.info('buddy main window shown up!')
-        time.sleep(2)
-        hb_rec = win32gui.GetWindowRect(hb_window)
-        if suffix == "_sur":
-            hs_wd_height = 790 + 400
-        else:
-            hs_wd_height = 790
-        win32gui.MoveWindow(hb_window, 0, 0, 620, hs_wd_height, 1)
-        hb_rec = win32gui.GetWindowRect(hb_window)
+        load_and_initiate_buddy()
 
-        # waiting and click start for buddy
-        time.sleep(15)
-        hb_png = 'hb_start' + suffix + '.png'
-        while True:
-            time.sleep(2)
-            found_hb_start = pyautogui.locateCenterOnScreen(hb_png, region=(0, 0, hb_rec[2], hb_rec[3]),
-                                                            grayscale=False, confidence=0.7)
-            if found_hb_start:
-                logging.info('buddy start button found, buddy ready!')
-                break
-        # start to set monitor
-
-        buddy_btn_dict = {'start_btn': found_hb_start,
-                          'setting_btn': (99, 137),
-                          'default_bot_btn': (99, 160),
-                          'mode_btn': (269, 344),
-                          'rule_btn': (270, 374),
-                          'deck_btn': (201, 400),
-                          'stats_btn': (267, 159),
-                          'stats_reset_btn': (49, 260),
-                          'win_rec': [(84, 174), (116, 197)]}
-        if suffix == "_sur":
-            buddy_btn_dict = {'start_btn': (366, 180),
-                              'setting_btn': (175, 236),
-                              'default_bot_btn': (175, 279),
-                              'mode_btn': (477, 608),
-                              'rule_btn': (479, 653),
-                              'deck_btn': (354, 697),
-                              'stats_btn': (459, 278),
-                              'stats_reset_btn': (83, 456),
-                              'win_rec': [(84, 174), (116, 197)]}
-
-        click_hb_btn(buddy_btn_dict['setting_btn'])
-        click_hb_btn(buddy_btn_dict['default_bot_btn'])
-        click_hb_btn(buddy_btn_dict['deck_btn'])
-        # uncheck 2 boxes for cache
-        pyautogui.moveTo(367, 445, 1, pyautogui.easeInQuad)
-        pyautogui.click()
-        time.sleep(2)
-        pyautogui.moveTo(371, 488, 1, pyautogui.easeInQuad)
-        pyautogui.click()
-        time.sleep(2)
         # FOR UPDATE FROM APRIL 5TH MONO.DLL WAS RE-ALLOCATED
         HS_BATTLE_SELECTION_BTN = (1017 + re_x, 218 + re_y)
         HS_BATTLE_START_BTN = (1239 + re_x, 487 + re_y)

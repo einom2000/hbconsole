@@ -24,5 +24,7 @@
 import time
 from datetime import datetime
 
-print(time.time())
-print(datetime.now())
+# print(time.time())
+# print(datetime.now())
+a = [(1,2), (2, 4)]
+print(str(a))
