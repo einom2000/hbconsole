@@ -412,11 +412,11 @@ while True:  # endless loop
     while gold_miner_loop:
         # log in hs according to account id
         hs_window = log_in_hs(player_id)
-
         time.sleep(3)
+        # adjust the hs window and dismiss the lost_game confirmation button
         win32gui.SetForegroundWindow(hs_window)
         hs_rec = win32gui.GetWindowRect(hs_window)
-        win32gui.MoveWindow(hs_window, 620, 0, 800, 600, 1) # (90, 420)
+        win32gui.MoveWindow(hs_window, 620, 0, 800, 600, 1)   # (90, 420)
         re_x = 90
         re_y = 420
         t = time.time()
@@ -426,7 +426,7 @@ while True:  # endless loop
 
         time.sleep(10)
         hs_rec = win32gui.GetWindowRect(hs_window)
-        print(hs_rec)
+        print('found hs_windowshs_rec)
 
         while time.time() - t <= 20:
             lost_confirm = pyautogui.locateCenterOnScreen('lost_confirmation_logo_new.png',
