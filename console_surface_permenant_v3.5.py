@@ -443,6 +443,8 @@ def checking_score(player_id, max_win, already_won, last_status):
     # read score
     with open("Settings\Default\Stats.json") as json_file:
         json_data = json.load(json_file)
+        print('jsondata = ')
+        print(json_data)
         logging.info('status shows: ' + str(json_data))
         win_count = json_data['Wins']
         lose_count = json_data['Losses']
@@ -528,6 +530,7 @@ def gold_miner_loop(acc):
 
         if time.time() - t >= checking_period - 10:
             last_status = checking_score(player_id, acc['max'] - acc['won'], already_won, last_status)
+            print(last_status)
             if last_status == (99, 99, 99):  # normal finished
                 player_id += 1
                 player_break = 0
