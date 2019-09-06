@@ -521,7 +521,7 @@ def gold_miner_loop(acc):
     load_and_initiate_buddy()
     start_hs_first_game_round()
 
-    # i don't know what is that click for
+    # click away the missions
     pyautogui.moveTo(850 + re_x, 200 + re_y, 1, pyautogui.easeInQuad)
     pyautogui.click()
     reset_status()
@@ -707,6 +707,7 @@ else:
 # if it is an instant command, start to farm right now:
 if tf_list is not None:
     print('temp_farming list as following..:', file=sys.stderr)
+    time.sleep(0.4)
     print(tf_list)
     player_id = 0
     player_break = 0
@@ -722,6 +723,7 @@ if tf_list is not None:
         acc = tf_list[player_id]
 
     print('temp farming ended!', file=sys.stderr)
+    time.sleep(0.4)
     auto_start = wait_for_midnight()
 
 # midnight farm loop
@@ -731,6 +733,7 @@ while True:
     already_won = 0
     acc = sf_list[player_id]
     print('standard_farming list as following..:', file=sys.stderr)
+    time.sleep(0.4)
     print(sf_list)
     while player_id <= total_account:
         print('current No. %s account detail: ' % str(player_id), end='')
