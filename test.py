@@ -38,7 +38,11 @@ from datetime import datetime
 #     pass
 # print('done')
 
-def a():
-    return 1,2,3
+a = [{}, 2, 3]
+b = a
 
-print(a())
+for i in a:
+    i = 0
+
+print(a)
+print(b)

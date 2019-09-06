@@ -20,6 +20,7 @@
 
 # while start program, key in number required: 0 for all accounts, 23 for 2nd and 3rd account,                   --check
 # 2 for 2nd account only, etc.                                                                                   --check
+# changing order fo the role for the farming list forever
 
 # --------------------------- v3.0 --------------------------------------
 import os, win32api, random, json, keyboard, pickle, random
@@ -100,12 +101,10 @@ def get_and_parse_command():
     for role in tf_list:
         role['max'] = role['won']
 
-    print('sf-list=!!!=', end='')
-    print(sf_list)
-
     # asking for a command line
     print('There are %d account(s) in list, how do you want farm:' % len(sf_list), file=sys.stderr)
     time.sleep(0.5)
+
     i = 1
     for role in tf_list:
         print(i, end='   :')
@@ -680,9 +679,6 @@ logging.warning('checking hs version completed.')
 generate_farming_list('account_per.txt', 'acc_farm_list.pcl')
 sf_list = parse_farming_list_file('acc_farm_list.pcl')
 
-print('sf-list==', end='')
-print(sf_list)
-
 total_account = len(sf_list)
 
 auto_start = wait_for_midnight()
@@ -690,9 +686,6 @@ auto_start = wait_for_midnight()
 if not auto_start:
     # get today's farming order from a user
     tf_list = get_and_parse_command()
-    print(tf_list)
-    print('sf-list')
-    print(sf_list)
     # so far we have tf_list to start farming and sf_list for the next day.
     logging.info('standard_farming list and today_farming list all loaded!')
 else:
