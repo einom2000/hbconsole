@@ -365,7 +365,7 @@ def load_and_initiate_buddy():
     logging.info('buddy was initiated!')
 
 
-# selec enter battle and select deck, if any
+# select enter battle and select deck, if any
 def start_hs_first_game_round():
     # FOR UPDATE FROM APRIL 5TH MONO.DLL WAS RE-ALLOCATED
     # *** if want to check the deck, add here
@@ -696,7 +696,6 @@ if tf_list is not None:
 
 
 # midnight farm loop
-
 while True:
     player_id = 0
     player_break = 0
