@@ -496,11 +496,9 @@ def checking_failure():
 #  gold_miner_loop for single acc:
 def gold_miner_loop(acc):
     global player_id, player_break, already_won, general_failure
-    print('id, break, already_won   :', end='')
-    print(player_id, player_break, already_won)
-    print(acc)
     if acc['max'] <= acc['won']:
-        print(acc['max'], acc['won'])
+        print('current_id should have max %s wins..' % str(acc['max']))
+        print('it has alread won %s times..' % str(acc['won']))
         player_id += 1
         player_break = 0
         already_won = 0
@@ -708,22 +706,22 @@ else:
 
 # if it is an instant command, start to farm right now:
 if tf_list is not None:
-    print('tf_list=', end='')
+    print('temp_farming list as following..:', file=sys.stderr)
     print(tf_list)
     player_id = 0
     player_break = 0
     already_won = 0
     acc = tf_list[player_id]
-    print('tf_acc = ', end='')
-    print(acc)
 
     while player_id <= total_account:
+        print('current No. %s account detail: ' % str(player_id), end='')
+        print(acc)
         farm_done = gold_miner_loop(acc)
         if farm_done:
             break
         acc = tf_list[player_id]
-        print('2nd ', acc)
 
+    print('temp farming ended!', file=sys.stderr)
     auto_start = wait_for_midnight()
 
 # midnight farm loop
@@ -732,14 +730,15 @@ while True:
     player_break = 0
     already_won = 0
     acc = sf_list[player_id]
-    print('sf-list=', end='')
+    print('standard_farming list as following..:', file=sys.stderr)
     print(sf_list)
     while player_id <= total_account:
+        print('current No. %s account detail: ' % str(player_id), end='')
+        print(acc)
         farm_done = gold_miner_loop(acc)
         if farm_done:
             break
-        acc = tf_list[player_id]
-        print('2nd ', acc)
+        acc = sf_list[player_id]
 
     auto_start = wait_for_midnight()
 
