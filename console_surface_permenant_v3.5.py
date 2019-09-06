@@ -126,7 +126,7 @@ def get_and_parse_command(tf_list):
                     if cmds[0].replace(' ', '').isdigit() and int(cmds[0]) <= len(tf_list) \
                                                           and cmds[1].replace(' ', '').isdigit() and int(cmds[1]) < 31:
 
-                        tf_list[int(cmds[0]) - 1]['won'] = 31 - int(cmds[1])
+                        tf_list[int(cmds[0]) - 1]['won'] = 32 - int(cmds[1])
                         wrong_cmd = False
                     else:
                         wrong_cmd = True
@@ -676,6 +676,8 @@ total_account = len(sf_list)
 auto_start = wait_for_midnight()
 
 if not auto_start:
+    print('sf-list')
+    print(sf_list)
     # get today's farming order from a user
     tf_list = get_and_parse_command(sf_list)
     # so far we have tf_list to start farming and sf_list for the next day.
@@ -686,6 +688,7 @@ else:
 
 # if it is an instant command, start to farm right now:
 if tf_list is not None:
+    print(tf_list)
     player_id = 0
     player_break = 0
     already_won = 0
@@ -693,14 +696,14 @@ if tf_list is not None:
     while gold_miner_loop(acc):
         acc = tf_list[player_id]
 
-
-
 # midnight farm loop
 while True:
     player_id = 0
     player_break = 0
     already_won = 0
     acc = sf_list[player_id]
+    print('sf-list')
+    print(sf_list)
     while gold_miner_loop(acc):
         acc = sf_list[player_id]
 
