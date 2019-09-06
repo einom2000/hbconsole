@@ -734,8 +734,12 @@ while True:
     acc = sf_list[player_id]
     print('sf-list=', end='')
     print(sf_list)
-    while gold_miner_loop(acc):
-        acc = sf_list[player_id]
+    while player_id <= total_account:
+        farm_done = gold_miner_loop(acc)
+        if farm_done:
+            break
+        acc = tf_list[player_id]
+        print('2nd ', acc)
 
     auto_start = wait_for_midnight()
 
