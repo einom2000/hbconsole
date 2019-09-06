@@ -210,10 +210,10 @@ def wait_for_midnight():
 
 
 # log in to bnet and check for size of the correct size of bnet window
-def log_in_hs(player_id):
+def log_in_hs(acc):
     logging.info('miner No.' + str(player_id) + ' player starts.')
     # open in battle net login window
-    loginbt = LoginWindow(bn_target, '暴雪战网登录', sf_list[player_id]['acc'], sf_list[player_id]['psw'])
+    loginbt = LoginWindow(bn_target, '暴雪战网登录', acc['acc'], acc['psw'])
     logged_in = False
     logging_time = time.time()
     bt_window = 0
@@ -287,8 +287,6 @@ def log_in_hs(player_id):
 def initialize_hs_window():
     win32gui.SetForegroundWindow(hs_window)
     win32gui.MoveWindow(hs_window, 620, 0, 800, 600, 1)  # (90, 420)
-    re_x = 90
-    re_y = 420
     t = time.time()
     # (986, 355), (1055, 389)
     pyautogui.moveTo(739 + re_x, 116 + re_y, 1, pyautogui.easeInQuad)
@@ -310,8 +308,6 @@ def initialize_hs_window():
     # here could add picking deck order and game style and farming or mounting in future
     pyautogui.moveTo(850 + re_x, 200 + re_y, 1, pyautogui.easeInQuad)
     pyautogui.click()
-
-    return re_x, re_y
 
 
 # load buddy
@@ -367,6 +363,125 @@ def load_and_initiate_buddy():
     pyautogui.click()
     time.sleep(2)
     logging.info('buddy was initiated!')
+
+
+# selec enter battle and select deck, if any
+def start_hs_first_game_round():
+    # FOR UPDATE FROM APRIL 5TH MONO.DLL WAS RE-ALLOCATED
+    # *** if want to check the deck, add here
+    while True:
+        time.sleep(random.randint(1000, 2000) / 1000)
+        pyautogui.moveTo(HS_BATTLE_SELECTION_BTN[0], HS_BATTLE_SELECTION_BTN[1], 1, pyautogui.easeInQuad)
+        time.sleep(random.randint(1000, 2000) / 1000)
+        pyautogui.click()
+        if start_new_round():
+            return
+
+
+# start a new round
+def start_new_round():
+    found_it = pyautogui.locateCenterOnScreen('START_NEW.png', region=HS_START_BTN_REGION,
+                                              grayscale=False, confidence=0.7)
+    if found_it is not None:
+        print('found START button as %s' % str(found_it))
+
+        # check if the buddy is still starting
+        if buddy_status:
+            start_buddy_round()
+
+        # if you want to check the wild / standard, check it here
+        pyautogui.moveTo(HS_BATTLE_START_BTN[0], HS_BATTLE_START_BTN[1], 1, pyautogui.easeInQuad)
+        pyautogui.click()
+        time.sleep(random.randint(1000, 2000) / 1000)
+        t = time.time()
+        while time.time() - t <= 30:
+            time.sleep(2)
+            if pyautogui.locateCenterOnScreen('searching_new.png', region=SEARCHING_BOX,
+                                              grayscale=False, confidence=0.7) is not None:
+                if not buddy_status:
+                    start_buddy_round()
+                return True
+    return False
+
+
+# start a new buddy round
+def start_buddy_round():
+    global buddy_status
+    click_hb_btn(buddy_btn_dict['start_btn'])
+    if buddy_status:
+        logging.info('stop the buddy.')
+    if not buddy_status:
+        logging.info('start the buddy.')
+    time.sleep(3)
+    buddy_status = not buddy_status
+
+    # **** should check the stop button shows up
+
+
+# reset buddy status
+def reset_status():
+    # if it is a new player start mining, reset counter
+    click_hb_btn(buddy_btn_dict['stats_btn'])
+    time.sleep(1)
+    click_hb_btn(buddy_btn_dict['stats_reset_btn'])
+    logging.info('status info reset!')
+
+
+# checking score():
+def checking_score(player_id, max_win, already_won, last_status):
+    last_win = last_status[0]
+    last_losses = last_status[1]
+    last_concedes = last_status[2]
+    logging.info('start to check the score...')
+    # read score
+    with open("Settings\Default\Stats.json") as json_file:
+        json_data = json.load(json_file)
+        logging.info('status shows: ' + str(json_data))
+        win_count = json_data['Wins']
+        lose_count = json_data['Losses']
+        concede_count = json_data['Concedes']
+        if int(win_count) >= (max_win - already_won):
+            logging.warning('player No.' + str(player_id) + ' got ' + str(win_count + already_won) + ' wins!')
+            logging.info('close hstone program.....')
+            kill_process('Hearthstone.exe', '炉石传说')
+            return 99, 99, 99
+        if int(win_count) == last_win and int(lose_count) == last_losses and \
+                int(concede_count) == last_concedes:
+            print('here is no changed score during last 15 minutes, restarting....')
+            return 999, 999, 999
+        else:
+            return int(win_count), int(lose_count), int(concede_count)
+
+
+# checking failure
+def checking_failure():
+    global checking_continue, already_won, player_break
+    # (1231, 33)(1267, 69) check failure
+    failure_found_1 = pyautogui.locateCenterOnScreen(close_logo_png, region=close_logo_rgn,
+                                                     grayscale=False, confidence=0.7)
+    failure_found_2 = None  # disable break1 png
+    failure_found_3 = pyautogui.locateCenterOnScreen(break2_png, region=break2_rgn,
+                                                     grayscale=False, confidence=0.7)
+    failure_found_4 = pyautogui.locateCenterOnScreen(break3_png, region=break3_rgn,
+                                                     grayscale=False, confidence=0.7)
+    if failure_found_1 is not None or general_failure == 'STALK' \
+            or failure_found_3 is not None or failure_found_4 is not None:
+        print(failure_found_1, failure_found_2, failure_found_3, failure_found_4, general_failure)
+        logging.warning('game disconnected.....')
+        with open("Settings\Default\Stats.json") as json_file:
+            json_data = json.load(json_file)
+            logging.info('status shows: ' + str(json_data))
+            win_count = json_data['Wins']
+            already_won += int(win_count)
+        logging.warning(acc['acc'] + ' fails ' + str(player_break) + ' times!')
+        logging.warning('Player won ' + str(already_won) + ' games before broken!')
+        time.sleep(60)
+        logging.warning('close hstone program.....')
+        kill_process('Hearthstone.exe', '炉石传说')
+        player_break += 1
+        logging.info('adding one more failure...')
+        checking_continue = False
+
 
 
 # login class
@@ -467,6 +582,28 @@ buddy_btn_dict = {'start_btn': (366, 180),
                   'stats_btn': (459, 278),
                   'stats_reset_btn': (83, 456),
                   'win_rec': [(84, 174), (116, 197)]}
+# revised x and y
+re_x = 90
+re_y = 420
+buddy_status = False
+general_failure = 'NORMAL'
+loop_step = True
+
+HS_BATTLE_SELECTION_BTN = (1017 + re_x, 218 + re_y)
+HS_BATTLE_START_BTN = (1239 + re_x, 487 + re_y)
+HS_START_BTN_REGION = (1000 + re_x, 300 + re_y, 500, 500)
+SEARCHING_BOX = (900 + re_x, 100 + re_y, 400, 300)
+
+wild_logo_png = 'wild_logo' + suffix + '.png'
+wild_logo_rgn = (1220 + re_x, 45 + re_y, 1270, 90)
+close_logo_png = 'close_logo' + suffix + '.png'
+close_logo_rgn = (900 + re_x, 200 + re_y, 1300, 500)
+break1_png = 'broke1' + suffix + '.png'
+break2_png = 'broke2' + suffix + '.png'
+break3_png = 'broke3' + suffix + '.png'
+break1_rgn = (750 + re_x, 260 + re_y, 840, 350)
+break2_rgn = (890 + re_x, 240 + re_y, 1160, 400)
+break3_rgn = (890 + re_x, 240 + re_y, 1160, 400)
 
 # -------------------------- initializaion II-----------------------------------------
 # deleting old log files
@@ -499,18 +636,20 @@ if tf_list is None:
 
 
 # midnight farm loop
-while True:  # endless loop
+while True:
+    player_id = 0
     total_account = len(sf_list)
     gold_miner_loop = True
-    player_id = 0
     # in case break during one player's mining
     player_break = 0
+    already_won = 0
+    acc = sf_list[player_id]
     # main loop
     while gold_miner_loop:
         # log in hs according to account id
-        hs_window = log_in_hs(player_id)
+        hs_window = log_in_hs(acc)
         time.sleep(3)
-        re_x, re_y = initialize_hs_window()
+        initialize_hs_window()
 
         # close bt window be set in configuration of bn / set in bt configuration file
         # kill_process('Battle.net.exe', '暴雪战网')
@@ -518,143 +657,46 @@ while True:  # endless loop
         logging.info('battle net window was auto_shut!')
 
         load_and_initiate_buddy()
+        start_hs_first_game_round()
 
-        # FOR UPDATE FROM APRIL 5TH MONO.DLL WAS RE-ALLOCATED
-        HS_BATTLE_SELECTION_BTN = (1017 + re_x, 218 + re_y)
-        HS_BATTLE_START_BTN = (1239 + re_x, 487 + re_y)
-        HS_START_BTN_REGION = (1000 + re_x, 300 + re_y, 500, 500)
-        SEARCHING_BOX = (900 + re_x, 100 + re_y, 400, 300)
-        while True:
-            time.sleep(random.randint(1000, 2000) / 1000)
-            pyautogui.moveTo(HS_BATTLE_SELECTION_BTN[0], HS_BATTLE_SELECTION_BTN[1], 1, pyautogui.easeInQuad)
-            time.sleep(random.randint(1000, 2000) / 1000)
-            pyautogui.click()
-            found_it = pyautogui.locateCenterOnScreen('START_NEW.png', region=HS_START_BTN_REGION,
-                                                      grayscale=False, confidence=0.7)
-            if found_it is not None:
-                print(found_it)
-                pyautogui.moveTo(HS_BATTLE_START_BTN[0], HS_BATTLE_START_BTN[1], 1, pyautogui.easeInQuad)
-                pyautogui.click()
-                time.sleep(random.randint(1000, 2000) / 1000)
-                if pyautogui.locateCenterOnScreen('searching_new.png', region=SEARCHING_BOX,
-                                                  grayscale=False, confidence=0.7) is not None:
-                    break
-        pyautogui.moveTo(850 + re_x, 200 + re_y, 1,  pyautogui.easeInQuad)
+        # i don't know what is that click for
+        pyautogui.moveTo(850 + re_x, 200 + re_y, 1, pyautogui.easeInQuad)
         pyautogui.click()
-        click_hb_btn(buddy_btn_dict['start_btn'])
-        logging.info('start the buddy.')
-        time.sleep(1)
-        click_hb_btn(buddy_btn_dict['stats_btn'])
-        time.sleep(1)
+        reset_status()
+        last_status = (0, 0, 0) # last_win , last_losses, last_concedes = 0, 0, 0
 
-        # if it is a new player start mining, reset counter
-        click_hb_btn(buddy_btn_dict['stats_reset_btn'])
-        logging.info('status info reset!')
-        t = time.time()
-        check_bug_start = True
-        wild_logo_png = 'wild_logo' + suffix + '.png'
-        wild_logo_rgn = (1231 + re_x, 33 + re_y, 1267, 69)
-        if suffix == "_sur":
-            wild_logo_rgn = (1220 + re_x, 45 + re_y, 1270, 90)
         t = time.time()
         checking_continue = True
-        close_logo_png = 'close_logo' + suffix + '.png'
-        close_logo_rgn = (900 + re_x, 100 + re_y, 1300, 500)
-        break1_png = 'broke1' + suffix + '.png'
-        break2_png = 'broke2' + suffix + '.png'
-        break3_png = 'broke3' + suffix + '.png'
-        break1_rgn = (750 + re_x, 260 + re_y, 840, 350)
-        break2_rgn = (890 + re_x, 240 + re_y, 1160, 400)
-        break3_rgn = (890 + re_x, 240 + re_y, 1160, 400)
-        if suffix == '_sur':
-            close_logo_rgn = (900 + re_x, 200 + re_y, 1300, 500)
-        checking_period = 1000
-        last_win = 0
-        last_losses = 0
-        last_concedes = 0
+        checking_period = 1000  # check in every 15 minutes
         general_failure = None
+
         while checking_continue:
             time.sleep(3)
-
-            found_start = pyautogui.locateCenterOnScreen('START_NEW.png', region=HS_START_BTN_REGION,
-                                                      grayscale=False, confidence=0.7)
-            print(found_start)
-            if found_start is not None:
-                click_hb_btn(buddy_btn_dict['start_btn'])
-                time.sleep(2)
-                pyautogui.moveTo(HS_BATTLE_START_BTN[0], HS_BATTLE_START_BTN[1], 1, pyautogui.easeInQuad)
-                pyautogui.click()
-                time.sleep(random.randint(1000, 2000) / 1000)
-                while True:
-                    time.sleep(2)
-                    if pyautogui.locateCenterOnScreen('searching_new.png', region=SEARCHING_BOX,
-                                                  grayscale=False, confidence=0.7) is not None:
-                        click_hb_btn(buddy_btn_dict['start_btn'])
-                        break
+            # check if the round is ended, if yes start a new one
+            while not start_new_round():
+                pass
 
             if time.time() - t >= checking_period - 10:
-                logging.info('start to check the score...')
-                # read score
-                with open("Settings\Default\Stats.json") as json_file:
-                    json_data = json.load(json_file)
-                    logging.info('status shows: ' + str(json_data))
-                    win_count = json_data['Wins']
-                    lose_count = json_data['Losses']
-                    concede_count = json_data['Concedes']
-                    if int(win_count) >= (max_wins[player_id] - already_won):
-                        logging.warning('player No.' + str(player_id) + ' got ' + str(win_count + already_won) + ' wins!')
-                        logging.info('close hstone program.....')
-                        kill_process('Hearthstone.exe', '炉石传说')
-                        player_id += 1
-                        already_won = 0
-                        logging.info('shift to the next player...')
-                        player_break = 0
-                        checking_continue = False
-                        if player_id >= total_account:
-                            logging.warning('maxium players has been played....terminating...')
-                            kill_process('Hearthstone.exe', '炉石传说')
-                            gold_miner_loop = False
-                            checking_continue = False
-                            check_bug_start = False
-                        # time.sleep(30)
-                        break
-                    if int(win_count) == last_win and int(lose_count) == last_losses and \
-                            int(concede_count) == last_concedes:
-                        general_failure = 'Not None"'
-                    else:
-                        last_win = int(win_count)
-                        last_losses = int(lose_count)
-                        last_concedes = int(concede_count)
-
-                # (1231, 33)(1267, 69) check failure
-
-                failure_found_1 = pyautogui.locateCenterOnScreen(close_logo_png, region=close_logo_rgn,
-                                                                 grayscale=False, confidence=0.7)
-                failure_found_2 = None  # disable break1 png
-                failure_found_3 = pyautogui.locateCenterOnScreen(break2_png, region=break2_rgn,
-                                                                 grayscale=False, confidence=0.7)
-                failure_found_4 = pyautogui.locateCenterOnScreen(break3_png, region=break3_rgn,
-                                                                 grayscale=False, confidence=0.7)
-                if failure_found_1 is not None or general_failure is not None\
-                        or failure_found_3 is not None or failure_found_4 is not None:
-                    print(failure_found_1, failure_found_2, failure_found_3, failure_found_4, general_failure)
-                    logging.warning('game disconnected.....')
-                    with open("Settings\Default\Stats.json") as json_file:
-                        json_data = json.load(json_file)
-                        logging.info('status shows: ' + str(json_data))
-                        win_count = json_data['Wins']
-                        already_won += int(win_count)
-                    logging.info(str((account_id[player_id]) + ' fails ' + str(player_break) + ' times!'))
-                    logging.info('Player won ' + str(already_won) + ' games before broken')
-                    time.sleep(60)
-                    logging.info('close hstone program.....')
-                    kill_process('Hearthstone.exe', '炉石传说')
-                    player_break += 1
-                    logging.info('adding one more failure...')
+                last_status = checking_score(player_id, acc['max'] - acc['won'], already_won ,last_status)
+                if last_status == (99, 99, 99): # normal finished
+                    player_id += 1
+                    player_break = 0
+                    already_won = 0
                     checking_continue = False
+                    logging.info('shift to the next player...')
+                    if player_id >= total_account:
+                        logging.warning('maxium players has been played....terminating...')
+                        kill_process('Hearthstone.exe', '炉石传说')
+                        gold_miner_loop = False
+                        checking_continue = False
                     break
+                elif last_status == (999, 999, 999):
+                    general_failure = 'STALK!'
+                    player_break += 1
+                checking_failure()
                 t = time.time()
 
+    auto_start = wait_for_midnight()
 
 # --------------------------main loop starts here-----------------------------------------------------------------------
 

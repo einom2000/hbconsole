@@ -26,5 +26,19 @@ from datetime import datetime
 
 # print(time.time())
 # print(datetime.now())
-a = [(1,2), (2, 4)]
-print(str(a))
+# def aaa():
+#     global a
+#     a += 1
+#     if a == 200:
+#         return True
+#     return False
+#
+# a = 1
+# while not aaa():
+#     pass
+# print('done')
+
+def a():
+    return 1,2,3
+
+print(a())
