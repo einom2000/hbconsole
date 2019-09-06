@@ -90,16 +90,24 @@ def clean_log_files():
 
 
 # get command for today's farming from a user
-def get_and_parse_command(tf_list):
+def get_and_parse_command():
     # set all accounts won to max
+    tf_list = []
+    for role in sf_list:
+        new_role = role.copy()
+        tf_list.append(new_role)
+
     for role in tf_list:
-        role['won'] = role['max']
+        role['max'] = role['won']
+
+    print('sf-list=!!!=', end='')
+    print(sf_list)
 
     # asking for a command line
     print('There are %d account(s) in list, how do you want farm:' % len(sf_list), file=sys.stderr)
     time.sleep(0.5)
     i = 1
-    for role in sf_list:
+    for role in tf_list:
         print(i, end='   :')
         print(role['acc'])
         i += 1
@@ -671,15 +679,20 @@ logging.warning('checking hs version completed.')
 # get standard farming list in to sf_list
 generate_farming_list('account_per.txt', 'acc_farm_list.pcl')
 sf_list = parse_farming_list_file('acc_farm_list.pcl')
+
+print('sf-list==', end='')
+print(sf_list)
+
 total_account = len(sf_list)
 
 auto_start = wait_for_midnight()
 
 if not auto_start:
+    # get today's farming order from a user
+    tf_list = get_and_parse_command()
+    print(tf_list)
     print('sf-list')
     print(sf_list)
-    # get today's farming order from a user
-    tf_list = get_and_parse_command(sf_list)
     # so far we have tf_list to start farming and sf_list for the next day.
     logging.info('standard_farming list and today_farming list all loaded!')
 else:
