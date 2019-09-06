@@ -37,12 +37,10 @@ from datetime import datetime
 # while not aaa():
 #     pass
 # print('done')
+import copy
+a = [{'a': 1, 'b':2}, 2, 3]
+b = [11,22]
 
-a = [{}, 2, 3]
-b = a
 
-for i in a:
-    i = 0
-
-print(a)
-print(b)
+a= 'abc'
+print(a.isalpha())

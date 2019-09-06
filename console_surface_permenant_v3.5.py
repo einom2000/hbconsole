@@ -94,6 +94,7 @@ def clean_log_files():
 def get_and_parse_command():
     # set all accounts won to max
     tf_list = []
+    tmp_list = []
     for role in sf_list:
         new_role = role.copy()
         tf_list.append(new_role)
@@ -101,52 +102,64 @@ def get_and_parse_command():
     for role in tf_list:
         role['won'] = role['max']
 
-    # asking for a command line
-    print('There are %d account(s) in list, how do you want farm:' % len(sf_list), file=sys.stderr)
-    time.sleep(0.5)
+    while True:
+        # asking for a command line
+        print('There are %d account(s) in list, how do you want farm:' % len(sf_list), file=sys.stderr)
+        time.sleep(0.5)
 
-    i = 1
-    for role in tf_list:
-        print(i, end='   :')
-        print(role['acc'])
-        i += 1
-    print('sample: 0 == farming all with default max win')
-    print('        1 == farming 1st.acc with default max win')
-    print('        2,3 == farming 2nd & 3rd with default max win')
-    print('        1-20,3-10 == farming 1st.with 20wins, 3rd with 10wins')
-    print('        0-20 == farming all with 20 wins')
-    wrong_cmd = True
-    # parse command, to win = max - won
-    while wrong_cmd:
-        commands = input('plsease give a command: ').split(',')
-        if len(commands) == 1 and commands[0] == '0':
-            for role in tf_list:
-                role['won'] = 0
-            wrong_cmd = False
-        else:
-            for cmd in commands:
-                if cmd.replace(' ', '').isdigit() and int(cmd) <= len(tf_list):
-                    tf_list[int(cmd) - 1]['won'] = 0
-                    wrong_cmd = False
-                elif cmd.count('-') == 1:
-                    cmds = cmd.split('-')
-                    if cmds[0].replace(' ', '').isdigit() and int(cmds[0]) <= len(tf_list) \
-                                                          and cmds[1].replace(' ', '').isdigit() and int(cmds[1]) < 31:
+        i = 1
+        for role in tf_list:
+            print(i, end='   :')
+            print(role['acc'])
+            i += 1
+        print('sample: 0 == farming all with default max win')
+        print('        1 == farming 1st.acc with default max win')
+        print('        3,2 == farming 3rd & 2nd with default max win in the temp order')
+        print('        3-10, 1-20 == farming 3rd with 10wins, 1st.with 20wins in the temp order')
+        print('        B,C,A,20 == CHANGE CONFIG PERMANENTLY IN THAT ORDER 2,3,1 WITH MAX 20 WINS')
 
-                        tf_list[int(cmds[0]) - 1]['won'] = 32 - int(cmds[1])
+        wrong_cmd = True
+        # parse command, to win = max - won
+        while wrong_cmd:
+            commands = input('please give a command: ').split(',')
+            if len(commands) == 1 and commands[0] == '0':
+                for role in tf_list:
+                    role['won'] = 0
+                wrong_cmd = False
+            else:
+                for cmd in commands:
+                    if cmd.replace(' ', '').isdigit() and int(cmd) <= len(tf_list):
+                        tf_list[int(cmd) - 1]['won'] = 0
+                        tmp_list.append(tf_list[int(cmd) - 1].copy())
                         wrong_cmd = False
+                    elif cmd.count('-') == 1:
+                        cmds = cmd.split('-')
+                        if cmds[0].replace(' ', '').isdigit() and int(cmds[0]) <= len(tf_list) \
+                                                              and cmds[1].replace(' ', '').isdigit() and int(cmds[1]) < 31:
+                            tf_list[int(cmds[0]) - 1]['won'] = 32 - int(cmds[1])
+                            dic = tf_list[int(cmds[0]) - 1].copy()
+                            tmp_list.append(dic)
+                            wrong_cmd = False
+                        else:
+                            wrong_cmd = True
+                            break
+                    if cmd.isalpa() and len(cmd) == 1 and ord(cmd.upper()) - ord('A') <= len(tf_list):
+                        pass
+
                     else:
                         wrong_cmd = True
                         break
-                else:
-                    wrong_cmd = True
-                    break
-        if not wrong_cmd:
-            return tf_list
+            if not wrong_cmd:
+                if tmp_list is not None:
+                    tf_list = tmp_list
+                return tf_list
 
         print('wrong command, try again', file=sys.stderr)
         time.sleep(0.3)
 
+    print('**************************************************')
+    print('configure file revised! please give an order again')
+    print('**************************************************')
 
 # click buddy's btn, a btn_name list with x, y should be given
 def click_hb_btn(btn_name):
@@ -684,7 +697,7 @@ clean_log_files()
 logging.warning('OLD LOG FILES DELETED!')
 
 # check version of hs
-check_version()
+# check_version()
 logging.warning('checking hs version completed.')
 
 # get standard farming list in to sf_list
@@ -697,7 +710,11 @@ auto_start = wait_for_midnight()
 
 if not auto_start:
     # get today's farming order from a user
-    tf_list = get_and_parse_command()
+    while True:
+        tf_list = get_and_parse_command()
+        for i in tf_list:
+            print(i)
+        time.sleep(1)
     # so far we have tf_list to start farming and sf_list for the next day.
     logging.info('standard_farming list and today_farming list all loaded!')
 else:
@@ -713,7 +730,7 @@ if tf_list is not None:
     player_break = 0
     already_won = 0
     acc = tf_list[player_id]
-
+    total_account = len(tf_list)
     while player_id <= total_account:
         print('current No. %s account detail: ' % str(player_id), end='')
         print(acc)
@@ -727,6 +744,7 @@ if tf_list is not None:
     auto_start = wait_for_midnight()
 
 # midnight farm loop
+total_account = len(sf_list)
 while True:
     player_id = 0
     player_break = 0
