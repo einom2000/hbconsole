@@ -496,8 +496,19 @@ def checking_failure():
 #  gold_miner_loop for single acc:
 def gold_miner_loop(acc):
     global player_id, player_break, already_won, general_failure
-
+    print('id, break, already_won   :', end='')
+    print(player_id, player_break, already_won)
+    print(acc)
     if acc['max'] <= acc['won']:
+        print(acc['max'], acc['won'])
+        player_id += 1
+        player_break = 0
+        already_won = 0
+        logging.info('shift to the next player...')
+        if player_id >= total_account:
+            logging.warning('maxium players has been played....terminating...')
+            kill_process('Hearthstone.exe', '炉石传说')
+            return True
         return False
     # log in hs according to account id
     hs_window = log_in_hs(acc)
@@ -539,13 +550,13 @@ def gold_miner_loop(acc):
                 if player_id >= total_account:
                     logging.warning('maxium players has been played....terminating...')
                     kill_process('Hearthstone.exe', '炉石传说')
-                    return False
+                    return True
                 break
             elif last_status == (999, 999, 999):
                 general_failure = 'STALK!'
             checking_continue = not checking_failure()
             t = time.time()
-    return True
+    return False
 
 
 # login class
@@ -703,8 +714,17 @@ if tf_list is not None:
     player_break = 0
     already_won = 0
     acc = tf_list[player_id]
-    while gold_miner_loop(acc):
+    print('tf_acc = ', end='')
+    print(acc)
+
+    while player_id <= total_account:
+        farm_done = gold_miner_loop(acc)
+        if farm_done:
+            break
         acc = tf_list[player_id]
+        print('2nd ', acc)
+
+    auto_start = wait_for_midnight()
 
 # midnight farm loop
 while True:
