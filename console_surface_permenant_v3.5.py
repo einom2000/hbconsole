@@ -99,7 +99,7 @@ def get_and_parse_command():
         tf_list.append(new_role)
 
     for role in tf_list:
-        role['max'] = role['won']
+        role['won'] = role['max']
 
     # asking for a command line
     print('There are %d account(s) in list, how do you want farm:' % len(sf_list), file=sys.stderr)
@@ -518,7 +518,7 @@ def gold_miner_loop(acc):
 
     t = time.time()
     checking_continue = True
-    checking_period = 1000  # check in every 15 minutes
+    checking_period = 10 ##00  # check in every 15 minutes
 
     while checking_continue:
         time.sleep(3)
@@ -694,6 +694,7 @@ else:
 
 # if it is an instant command, start to farm right now:
 if tf_list is not None:
+    print('tf_list=', end='')
     print(tf_list)
     player_id = 0
     player_break = 0
@@ -708,7 +709,7 @@ while True:
     player_break = 0
     already_won = 0
     acc = sf_list[player_id]
-    print('sf-list')
+    print('sf-list=', end='')
     print(sf_list)
     while gold_miner_loop(acc):
         acc = sf_list[player_id]
