@@ -9,7 +9,7 @@
 # /bin/keys_here.json keys of local private, server public, and local public, all non-encrypted
 # /bin/server_ip.json store non-encrypted server address and port
 
-# deleting all logging files which are 3 days ago
+# deleting all logging files which are 3 days ago                                                                --check
 # to check size ration of the login window of btnet. Normal 4, other 5 tabs added, before key in.
 # auto check midnight time to restart
 
@@ -18,8 +18,8 @@
 # command 'cease' for stopping farming and wait for next day loop
 # command 'quit' for quiting farming program.
 
-# while start program, key in number required: 0 for all accounts, 23 for 2nd and 3rd account,
-# 2 for 2nd account only, etc.
+# while start program, key in number required: 0 for all accounts, 23 for 2nd and 3rd account,                   --check
+# 2 for 2nd account only, etc.                                                                                   --check
 
 # --------------------------- v3.0 --------------------------------------
 import os, win32api, random, json, keyboard, pickle, random
@@ -284,7 +284,7 @@ def log_in_hs(acc):
 
 # adjust the hs window and click away the lost_game confirmation button
 # ***** select deck and style and mounting in future
-def initialize_hs_window():
+def initialize_hs_window(hs_window):
     win32gui.SetForegroundWindow(hs_window)
     win32gui.MoveWindow(hs_window, 620, 0, 800, 600, 1)  # (90, 420)
     t = time.time()
@@ -455,7 +455,7 @@ def checking_score(player_id, max_win, already_won, last_status):
 
 # checking failure
 def checking_failure():
-    global checking_continue, already_won, player_break
+    global already_won, player_break,general_failure
     # (1231, 33)(1267, 69) check failure
     failure_found_1 = pyautogui.locateCenterOnScreen(close_logo_png, region=close_logo_rgn,
                                                      grayscale=False, confidence=0.7)
@@ -480,8 +480,62 @@ def checking_failure():
         kill_process('Hearthstone.exe', '炉石传说')
         player_break += 1
         logging.info('adding one more failure...')
-        checking_continue = False
+        return True
+    return False
 
+
+#  gold_miner_loop for single acc:
+def gold_miner_loop(acc):
+    global player_id, player_break, already_won, general_failure
+
+    if acc['max'] <= acc['won']:
+        return False
+    # log in hs according to account id
+    hs_window = log_in_hs(acc)
+    time.sleep(3)
+    initialize_hs_window(hs_window)
+
+    # close bt window be set in configuration of bn / set in bt configuration file
+    # kill_process('Battle.net.exe', '暴雪战网')
+    time.sleep(15)
+    logging.info('battle net window was auto_shut!')
+
+    load_and_initiate_buddy()
+    start_hs_first_game_round()
+
+    # i don't know what is that click for
+    pyautogui.moveTo(850 + re_x, 200 + re_y, 1, pyautogui.easeInQuad)
+    pyautogui.click()
+    reset_status()
+    last_status = (0, 0, 0)  # last_win , last_losses, last_concedes = 0, 0, 0
+
+    t = time.time()
+    checking_continue = True
+    checking_period = 1000  # check in every 15 minutes
+
+    while checking_continue:
+        time.sleep(3)
+        # check if the round is ended, if yes start a new one
+        while not start_new_round():
+            pass
+
+        if time.time() - t >= checking_period - 10:
+            last_status = checking_score(player_id, acc['max'] - acc['won'], already_won, last_status)
+            if last_status == (99, 99, 99):  # normal finished
+                player_id += 1
+                player_break = 0
+                already_won = 0
+                logging.info('shift to the next player...')
+                if player_id >= total_account:
+                    logging.warning('maxium players has been played....terminating...')
+                    kill_process('Hearthstone.exe', '炉石传说')
+                    return False
+                break
+            elif last_status == (999, 999, 999):
+                general_failure = 'STALK!'
+            checking_continue = not checking_failure()
+            t = time.time()
+    return True
 
 
 # login class
@@ -617,7 +671,7 @@ logging.warning('checking hs version completed.')
 # get standard farming list in to sf_list
 generate_farming_list('account_per.txt', 'acc_farm_list.pcl')
 sf_list = parse_farming_list_file('acc_farm_list.pcl')
-
+total_account = len(sf_list)
 
 auto_start = wait_for_midnight()
 
@@ -629,72 +683,27 @@ if not auto_start:
 else:
     tf_list = []
 
+
 # if it is an instant command, start to farm right now:
-if tf_list is None:
-    # instant farm
-    pass
+if tf_list is not None:
+    player_id = 0
+    player_break = 0
+    already_won = 0
+    acc = tf_list[player_id]
+    while gold_miner_loop(acc):
+        acc = tf_list[player_id]
+
 
 
 # midnight farm loop
+
 while True:
     player_id = 0
-    total_account = len(sf_list)
-    gold_miner_loop = True
-    # in case break during one player's mining
     player_break = 0
     already_won = 0
     acc = sf_list[player_id]
-    # main loop
-    while gold_miner_loop:
-        # log in hs according to account id
-        hs_window = log_in_hs(acc)
-        time.sleep(3)
-        initialize_hs_window()
-
-        # close bt window be set in configuration of bn / set in bt configuration file
-        # kill_process('Battle.net.exe', '暴雪战网')
-        time.sleep(15)
-        logging.info('battle net window was auto_shut!')
-
-        load_and_initiate_buddy()
-        start_hs_first_game_round()
-
-        # i don't know what is that click for
-        pyautogui.moveTo(850 + re_x, 200 + re_y, 1, pyautogui.easeInQuad)
-        pyautogui.click()
-        reset_status()
-        last_status = (0, 0, 0) # last_win , last_losses, last_concedes = 0, 0, 0
-
-        t = time.time()
-        checking_continue = True
-        checking_period = 1000  # check in every 15 minutes
-        general_failure = None
-
-        while checking_continue:
-            time.sleep(3)
-            # check if the round is ended, if yes start a new one
-            while not start_new_round():
-                pass
-
-            if time.time() - t >= checking_period - 10:
-                last_status = checking_score(player_id, acc['max'] - acc['won'], already_won ,last_status)
-                if last_status == (99, 99, 99): # normal finished
-                    player_id += 1
-                    player_break = 0
-                    already_won = 0
-                    checking_continue = False
-                    logging.info('shift to the next player...')
-                    if player_id >= total_account:
-                        logging.warning('maxium players has been played....terminating...')
-                        kill_process('Hearthstone.exe', '炉石传说')
-                        gold_miner_loop = False
-                        checking_continue = False
-                    break
-                elif last_status == (999, 999, 999):
-                    general_failure = 'STALK!'
-                    player_break += 1
-                checking_failure()
-                t = time.time()
+    while gold_miner_loop(acc):
+        acc = sf_list[player_id]
 
     auto_start = wait_for_midnight()
 
