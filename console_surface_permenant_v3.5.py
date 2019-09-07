@@ -94,7 +94,6 @@ def clean_log_files():
 def get_and_parse_command():
     # set all accounts won to max
     tf_list = []
-    tmp_list = []
     for role in sf_list:
         new_role = role.copy()
         tf_list.append(new_role)
@@ -103,6 +102,7 @@ def get_and_parse_command():
         role['won'] = role['max']
 
     while True:
+        tmp_list = []
         flag = 0  # 0 for temp command # 1 for change configure permanently
         permanent_changes = []
         # asking for a command line
@@ -127,17 +127,18 @@ def get_and_parse_command():
             if len(commands) == 1 and commands[0] == '0':
                 for role in tf_list:
                     role['won'] = 0
-                wrong_cmd = False
+                return tf_list
             else:
                 for cmd in commands:
-                    if cmd.replace(' ', '').isdigit() and int(cmd) <= len(tf_list) and not flag:
+                    cmd = cmd.replace(' ', '')
+                    if cmd.isdigit() and int(cmd) <= len(tf_list) and not flag:
                         tf_list[int(cmd) - 1]['won'] = 0
                         tmp_list.append(tf_list[int(cmd) - 1].copy())
                         wrong_cmd = False
                     elif cmd.count('-') == 1 and not flag:
                         cmds = cmd.split('-')
-                        if cmds[0].replace(' ', '').isdigit() and int(cmds[0]) <= len(tf_list) \
-                                                              and cmds[1].replace(' ', '').isdigit() and int(cmds[1]) < 31:
+                        if cmds[0].isdigit() and int(cmds[0]) <= len(tf_list) \
+                                and cmds[1].isdigit() and int(cmds[1]) < 31:
                             tf_list[int(cmds[0]) - 1]['won'] = 32 - int(cmds[1])
                             dic = tf_list[int(cmds[0]) - 1].copy()
                             tmp_list.append(dic)
@@ -145,24 +146,33 @@ def get_and_parse_command():
                         else:
                             wrong_cmd = True
                             break
-                    if cmd.isalpha() and len(cmd) == 1 and ord(cmd.upper()) - ord('A') <= len(tf_list):
-                        flag = 1
+                    elif cmd.isalpha() and len(cmd) == 1 and ord(cmd.upper()) - ord('A') <= len(tf_list):
+                        flag = 2
+                        print(ord(cmd.upper()) - ord('A'))
                         permanent_changes.append(ord(cmd.upper()) - ord('A'))
-
+                    elif flag == 2 and cmd.isdigit() and 0 <= int(cmd) <= 35:
+                        print(int(cmd))
+                        permanent_changes.append(int(cmd))
+                        wrong_cmd = False
+                        flag = 1
                     else:
                         wrong_cmd = True
                         break
-            if not wrong_cmd:
+            if not wrong_cmd and flag == 0:
                 if tmp_list is not None:
                     tf_list = tmp_list
                 return tf_list
+            elif not wrong_cmd and flag == 1:
+                break
+            else:
+                print('wrong command, try again', file=sys.stderr)
+                time.sleep(0.3)
 
-        print('wrong command, try again', file=sys.stderr)
+        print(permanent_changes)
+        print('**************************************************', file=sys.stderr)
+        print('configure file revised! please give an order again', file=sys.stderr)
+        print('**************************************************', file=sys.stderr)
         time.sleep(0.3)
-
-    print('**************************************************')
-    print('configure file revised! please give an order again')
-    print('**************************************************')
 
 # click buddy's btn, a btn_name list with x, y should be given
 def click_hb_btn(btn_name):
