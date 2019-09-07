@@ -11,7 +11,7 @@
 
 # deleting all logging files which are 3 days ago                                                                --check
 # to check size ration of the login window of btnet. Normal 4, other 5 tabs added, before key in.
-# auto check midnight time to restart
+# auto check midnight time to restart                                                                            --check
 
 # command 'pause' for quit and game and record the wins, and waiting for command'activated'
 # command 'activated' resume the farming
@@ -247,16 +247,23 @@ def check_version():
         print('move the bnl_checkout_client.dll to etc folder.', file=sys.stderr)
 
 
+def is_not_midnight():
+    now = datetime.now()
+    seconds_since_midnight = (
+            datetime.now() - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
+    if seconds_since_midnight > 86400:
+        time.sleep(random.uniform(120, 600))
+        return False
+    else:
+        return seconds_since_midnight
+
 # wait for midnight
 def wait_for_midnight():
-    now = datetime.now()
     t = time.time()
     logging.info('start to wait for the midnight or for the user to start to command.')
     while True:
-        seconds_since_midnight = (
-                    datetime.now() - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
-        if seconds_since_midnight > 86400:
-            time.sleep(random.uniform(120, 600))
+        seconds_since_midnight = is_not_midnight()
+        if not seconds_since_midnight:
             return True
         elif time.time() - t >= 10:
             print("There are still " + str(int(86400 - seconds_since_midnight)) + ' seconds to start!')
@@ -563,6 +570,14 @@ def gold_miner_loop(acc):
             kill_process('Hearthstone.exe', '炉石传说')
             return True
         return False
+
+    if (not is_not_midnight() and not auto_start) or \
+            (is_not_midnight() >= 80000 and not auto_start):
+        logging.warning('midnight is coming, start the standard farming')
+        kill_process('Hearthstone.exe', '炉石传说')
+        time.sleep(600)  # in case relog in the same round
+        return True
+
     # log in hs according to account id
     hs_window = log_in_hs(acc)
     time.sleep(3)
@@ -593,6 +608,12 @@ def gold_miner_loop(acc):
             pass
 
         if time.time() - t >= checking_period - 10:
+            if (not is_not_midnight() and not auto_start) or \
+                    (is_not_midnight() >= 80000 and not auto_start):
+                logging.warning('midnight is coming, start the standard farming')
+                kill_process('Hearthstone.exe', '炉石传说')
+                time.sleep(600)  # in case relog in the same round
+                return True
             last_status = checking_score(player_id, acc['max'] - acc['won'], already_won, last_status)
             print(last_status)
             if last_status == (99, 99, 99):  # normal finished
@@ -715,7 +736,6 @@ re_x = 90
 re_y = 420
 buddy_status = False
 general_failure = 'NORMAL'
-loop_step = True
 
 HS_BATTLE_SELECTION_BTN = (1017 + re_x, 218 + re_y)
 HS_BATTLE_START_BTN = (1239 + re_x, 487 + re_y)
@@ -756,7 +776,6 @@ if not auto_start:
     for i in tf_list:
         print(i)
     time.sleep(1)
-    sys.exit()
     # so far we have tf_list to start farming and sf_list for the next day.
     logging.info('standard_farming list and today_farming list all loaded!')
 else:
@@ -787,6 +806,8 @@ if tf_list is not None:
 
 # midnight farm loop
 total_account = len(sf_list)
+auto_start = True
+
 while True:
     player_id = 0
     player_break = 0
