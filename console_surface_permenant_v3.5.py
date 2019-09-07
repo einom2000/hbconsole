@@ -544,7 +544,7 @@ def checking_failure():
             logging.info('status shows: ' + str(json_data))
             win_count = json_data['Wins']
             already_won += int(win_count)
-        logging.warning(acc['acc'] + ' fails ' + str(player_break) + ' times!')
+        logging.warning(str(acc['acc']) + ' fails ' + str(player_break) + ' times!')
         logging.warning('Player won ' + str(already_won) + ' games before broken!')
         time.sleep(60)
         logging.warning('close hstone program.....')
