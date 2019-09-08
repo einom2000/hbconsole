@@ -451,6 +451,7 @@ def start_hs_first_game_round():
 
     # select the casual farming
     move_and_click(HS_CASUAL_FARMING_BUTTON_AFTER_REVISED)
+    print('starting first game round..')
     while True:
         move_and_click(HS_BATTLE_SELECTION_BTN, ta=1.0, tb=2.0)
         if start_new_round():
@@ -459,12 +460,14 @@ def start_hs_first_game_round():
 
 # start a new round
 def start_new_round():
+    global buddy_status
     found_it = pyautogui.locateCenterOnScreen('START_NEW.png', region=HS_START_BTN_REGION,
                                               grayscale=False, confidence=0.7)
     if found_it is not None:
         print('found START button as %s' % str(found_it))
 
         # check if the buddy is still starting
+        buddy_status = check_buddystatus()
         if buddy_status:
             start_buddy_round()
 
@@ -489,26 +492,11 @@ def start_new_round():
     return False
 
 
-def correct_buddy(bs):
-    if bs == False:
-        t = 10
-        while not pyautogui.locateCenterOnScreen(hb_yellow_start_png,
-                                                 region=buddy_btn_dict['start_btn_region'],
-                                                 grayscale=False, confidence=0.8):
-            time.sleep(t)
-            click_hb_btn(buddy_btn_dict['start_btn'])
-            t = t + 2
-        print('buddy is stopped now')
+def check_buddystatus():
+    if pyautogui.locateCenterOnScreen(hb_yellow_start_png, region=buddy_btn_dict['start_btn'],
+                                                  grayscale=False, confidence=0.8):
         return False
-    if bs == True:
-        t = 10
-        while not pyautogui.locateCenterOnScreen(hb_yellow_stop_png,
-                                                 region=buddy_btn_dict['start_btn_region'],
-                                                 grayscale=False, confidence=0.8):
-            time.sleep(t)
-            click_hb_btn(buddy_btn_dict['start_btn'])
-            t = t + 2
-        print('buddy is on!')
+    else:
         return True
 
 
@@ -516,13 +504,11 @@ def correct_buddy(bs):
 def start_buddy_round():
     global buddy_status
     # make sure the buddy_status is correct
-
-    correct_buddy(buddy_status)
     click_hb_btn(buddy_btn_dict['start_btn'])
     time.sleep(3)
-    if buddy_status and correct_buddy(not buddy_status):
+    if buddy_status:
         logging.info('stop the buddy.')
-    if not buddy_status and correct_buddy(not buddy_status):
+    if not buddy_status:
         logging.info('start the buddy.')
     time.sleep(3)
     buddy_status = not buddy_status
@@ -532,6 +518,7 @@ def start_buddy_round():
 
 # reset buddy status
 def reset_status():
+    time.sleep(1)
     click_hb_btn(buddy_btn_dict['stats_btn'])
     time.sleep(1)
     click_hb_btn(buddy_btn_dict['stats_reset_btn'])
