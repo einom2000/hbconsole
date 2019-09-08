@@ -203,12 +203,10 @@ def get_and_parse_command():
         else:
             pass
 
+
 # click buddy's btn, a btn_name list with x, y should be given
 def click_hb_btn(btn_name):
-    time.sleep(0.3)
-    pyautogui.moveTo(btn_name[0], btn_name[1], 0.5)
-    time.sleep(0.2)
-    pyautogui.click()
+    move_and_click((btn_name[0], btn_name[1]))
 
 
 # kill certain process, process's name and window's name should be given
@@ -358,8 +356,7 @@ def initialize_hs_window(hs_window):
     win32gui.MoveWindow(hs_window, 620, 0, 800, 600, 1)  # (90, 420)
     t = time.time()
     # (986, 355), (1055, 389)
-    pyautogui.moveTo(739 + re_x, 116 + re_y, 1, pyautogui.easeInQuad)
-    pyautogui.click()
+    move_and_click((739 + re_x, 116 + re_y))
     time.sleep(10)
     hs_rec = win32gui.GetWindowRect(hs_window)
     print('found hs_window at %s!' % str(hs_rec), sys.stderr)
@@ -369,14 +366,13 @@ def initialize_hs_window(hs_window):
                                                       region=(950 + re_x, 300 + re_y, 400, 200),
                                                       grayscale=False, confidence=0.6)
         if lost_confirm is not None:
-            pyautogui.moveTo(1000 + re_x, 375 + re_y, 1, pyautogui.easeInQuad)
-            pyautogui.click()
+
+            move_and_click((1000 + re_x, 375 + re_y))
             logging.warning('last game was lost! click to confirm!')
             break
 
     # here could add picking deck order and game style and farming or mounting in future
-    pyautogui.moveTo(850 + re_x, 200 + re_y, 1, pyautogui.easeInQuad)
-    pyautogui.click()
+    move_and_click((850 + re_x, 200 + re_y))
 
 
 # load buddy
@@ -425,11 +421,9 @@ def load_and_initiate_buddy():
     click_hb_btn(buddy_btn_dict['default_bot_btn'])
     click_hb_btn(buddy_btn_dict['deck_btn'])
     # uncheck 2 boxes for cache. It is a hard code!
-    pyautogui.moveTo(367, 445, 1, pyautogui.easeInQuad)
-    pyautogui.click()
+    move_and_click((367, 445))
     time.sleep(2)
-    pyautogui.moveTo(371, 488, 1, pyautogui.easeInQuad)
-    pyautogui.click()
+    move_and_click((371, 488))
     time.sleep(2)
     logging.info('buddy was initiated!')
 
@@ -439,10 +433,7 @@ def start_hs_first_game_round():
     # FOR UPDATE FROM APRIL 5TH MONO.DLL WAS RE-ALLOCATED
     # *** if want to check the deck, add here
     while True:
-        time.sleep(random.randint(1000, 2000) / 1000)
-        pyautogui.moveTo(HS_BATTLE_SELECTION_BTN[0], HS_BATTLE_SELECTION_BTN[1], 1, pyautogui.easeInQuad)
-        time.sleep(random.randint(1000, 2000) / 1000)
-        pyautogui.click()
+        move_and_click(HS_BATTLE_SELECTION_BTN, ta=1.0, tb=2.0)
         if start_new_round():
             return
 
@@ -458,9 +449,15 @@ def start_new_round():
         if buddy_status:
             start_buddy_round()
 
+        print('checking if it is in wild mode?')
+        found_wild = pyautogui.locateCenterOnScreen(wild_logo_png, region=HS_WILD_BOX_AFTER_REVISED,
+                                                  grayscale=False, confidence=0.8)
+        if found_wild:
+            move_and_click(HS_WILD_BOX_CLICK_AFTER_REVISED)
+            time.sleep(1)
+
         # if you want to check the wild / standard, check it here
-        pyautogui.moveTo(HS_BATTLE_START_BTN[0], HS_BATTLE_START_BTN[1], 1, pyautogui.easeInQuad)
-        pyautogui.click()
+        move_and_click(HS_BATTLE_START_BTN)
         time.sleep(random.randint(1000, 2000) / 1000)
         t = time.time()
         while time.time() - t <= 30:
@@ -473,13 +470,37 @@ def start_new_round():
     return False
 
 
+def correct_buddy(bs):
+    if bs == False:
+        t = 10
+        while not pyautogui.locateCenterOnScreen(hb_yellow_start_png,
+                                                 region=buddy_btn_dict['start_btn_region'],
+                                                 grayscale=False, confidence=0.8):
+            time.sleep(t)
+            click_hb_btn(buddy_btn_dict['start_btn'])
+            t = t + 2
+        return False
+    if bs == True:
+        t = 10
+        while not pyautogui.locateCenterOnScreen(hb_yellow_stop_png,
+                                                 region=buddy_btn_dict['start_btn_region'],
+                                                 grayscale=False, confidence=0.8):
+            time.sleep(t)
+            click_hb_btn(buddy_btn_dict['start_btn'])
+            t = t + 2
+        return True
+
 # start a new buddy round
 def start_buddy_round():
     global buddy_status
+    # make sure the buddy_status is correct
+
+    correct_buddy(buddy_status)
     click_hb_btn(buddy_btn_dict['start_btn'])
-    if buddy_status:
+    time.sleep(3)
+    if buddy_status and correct_buddy(not buddy_status):
         logging.info('stop the buddy.')
-    if not buddy_status:
+    if not buddy_status and correct_buddy(not buddy_status):
         logging.info('start the buddy.')
     time.sleep(3)
     buddy_status = not buddy_status
@@ -555,6 +576,13 @@ def checking_failure():
     return False
 
 
+def move_and_click(position, ta=0.4, tb=0.6):
+    time.sleep(random.uniform(ta, tb))
+    pyautogui.moveTo(position[0], position[1], 1, pyautogui.easeInQuad)
+    time.sleep(random.uniform(ta, tb))
+    pyautogui.click()
+
+
 #  gold_miner_loop for single acc:
 def gold_miner_loop(acc):
     global player_id, player_break, already_won, general_failure
@@ -592,8 +620,14 @@ def gold_miner_loop(acc):
     start_hs_first_game_round()
 
     # click away the missions
-    pyautogui.moveTo(850 + re_x, 200 + re_y, 1, pyautogui.easeInQuad)
-    pyautogui.click()
+    move_and_click((850 + re_x, 200 + re_y))
+
+    # select the deck
+    move_and_click(HS_ROW1_COLUMN1_DECK_BUTTON_AFTER_REVISED)
+
+    # select the casual farming
+    move_and_click(HS_CASUAL_FARMING_BUTTON_AFTER_REVISED)
+
     reset_status()
     last_status = (0, 0, 0)  # last_win , last_losses, last_concedes = 0, 0, 0
 
@@ -643,6 +677,7 @@ class LoginWindow:
         self.windowName = windowname
         self.userName = username
         self.userPwd = userpwd
+        self.normalSize = True
 
     # load btnet
     def runbnet(self):
@@ -659,6 +694,15 @@ class LoginWindow:
                 continue
             else:
                 win32gui.MoveWindow(hwndbnt, 100, 100, 365, 541, True)
+                # check the abnormal size of login window
+                rec = win32gui.GetWindowRect(hwndbnt)
+                if len(rec) > 3:
+                    w = rec[2] - rec[0]
+                    h = rec[3] - rec[1]
+                    if w > STANDARD_BNT_SIZE_SUR[0] and h > STANDARD_BNT_SIZE_SUR[1]:
+                        self.normalSize = False
+                    else:
+                        self.normalSize = True
                 break
         win32gui.SetForegroundWindow(hwndbnt)
         time.sleep(0.5)
@@ -670,7 +714,7 @@ class LoginWindow:
         # should check size ration of the login window of btnet. Normal 4, other 5  ********************
         tabs = 4
         # if the size ratio of the login window of btnet is in normal range?
-        if False:
+        if not self.normalSize:
             tabs = 5
         for i in range(tabs):
             pyautogui.press('tab')
@@ -730,7 +774,8 @@ buddy_btn_dict = {'start_btn': (366, 180),
                   'deck_btn': (354, 697),
                   'stats_btn': (459, 278),
                   'stats_reset_btn': (83, 456),
-                  'win_rec': [(84, 174), (116, 197)]}
+                  'win_rec': [(84, 174), (116, 197)],
+                  'start_btn_region': (320, 160, 90, 40)}
 # revised x and y
 re_x = 90
 re_y = 420
@@ -742,7 +787,18 @@ HS_BATTLE_START_BTN = (1239 + re_x, 487 + re_y)
 HS_START_BTN_REGION = (1000 + re_x, 300 + re_y, 500, 500)
 SEARCHING_BOX = (900 + re_x, 100 + re_y, 400, 300)
 
+# version 3.5 and above new checking position
+STANDARD_BNT_SIZE_SUR = (370, 550)
+HS_WILD_BOX_AFTER_REVISED = (1280, 470, 60, 50)
+HS_WILD_BOX_CLICK_AFTER_REVISED = (1310, 495)
+HS_ROW1_COLUMN1_DECK_BUTTON_AFTER_REVISED = (1080, 610)
+HS_CASUAL_FARMING_BUTTON_AFTER_REVISED = (1250, 570)
 wild_logo_png = 'wild_logo' + suffix + '.png'
+hb_dart_start_png = 'hb_dark_start_sur.png'
+hb_yellow_start_png = 'hb_yellow_start_sur.png'
+hb_yellow_stop_png = 'hb_yellow_stop_sur.png'
+#----new variables end here
+
 wild_logo_rgn = (1220 + re_x, 45 + re_y, 1270, 90)
 close_logo_png = 'close_logo' + suffix + '.png'
 close_logo_rgn = (900 + re_x, 200 + re_y, 1300, 500)
