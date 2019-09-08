@@ -532,6 +532,7 @@ def start_buddy_round():
 
 # reset buddy status
 def reset_status():
+    click_hb_btn(buddy_btn_dict['stats_btn'])
     time.sleep(1)
     click_hb_btn(buddy_btn_dict['stats_reset_btn'])
     logging.info('status info reset!')
