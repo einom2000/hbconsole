@@ -494,8 +494,8 @@ def start_new_round():
 
 
 def check_buddystatus():
-    if pyautogui.locateCenterOnScreen(hb_yellow_start_png, region=buddy_btn_dict['start_btn'],
-                                                  grayscale=False, confidence=0.8):
+    if pyautogui.locateCenterOnScreen(hb_yellow_start_png, region=buddy_btn_dict['start_btn_region'],
+                                      grayscale=False, confidence=0.7):
         return False
     else:
         return True
@@ -636,7 +636,7 @@ def gold_miner_loop(acc):
 
     t = time.time()
     checking_continue = True
-    checking_period = 10 ##00  # check in every 15 minutes
+    checking_period = 1000  # check in every 15 minutes
 
     while checking_continue:
         time.sleep(3)
