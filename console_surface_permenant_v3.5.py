@@ -486,6 +486,7 @@ def start_new_round():
             time.sleep(2)
             if pyautogui.locateCenterOnScreen('searching_new.png', region=SEARCHING_BOX,
                                               grayscale=False, confidence=0.7) is not None:
+                buddy_status = check_buddystatus()
                 if not buddy_status:
                     start_buddy_round()
                 return True
