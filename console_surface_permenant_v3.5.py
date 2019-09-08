@@ -255,6 +255,7 @@ def is_not_midnight():
     else:
         return seconds_since_midnight
 
+
 # wait for midnight
 def wait_for_midnight():
     t = time.time()
@@ -372,7 +373,17 @@ def initialize_hs_window(hs_window):
             break
 
     # here could add picking deck order and game style and farming or mounting in future
-    move_and_click((850 + re_x, 200 + re_y))
+    t = time.time()
+    while time.time() - t <= 20:
+        found_btn = pyautogui.locateCenterOnScreen(start_battle_button_png,
+                                                   region=HS_START_BATTLE_BTN_REGION,
+                                                   grayscale=False, confidence=0.7)
+        if found_btn is not None:
+
+            move_and_click((HS_START_BATTLE_BTN_REGION[0] + 100, HS_START_BATTLE_BTN_REGION[1] + 30))
+            logging.warning('into battle mode!')
+            break
+
 
 
 # load buddy
@@ -485,6 +496,7 @@ def correct_buddy(bs):
             time.sleep(t)
             click_hb_btn(buddy_btn_dict['start_btn'])
             t = t + 2
+        print('buddy is stopped now')
         return False
     if bs == True:
         t = 10
@@ -494,7 +506,9 @@ def correct_buddy(bs):
             time.sleep(t)
             click_hb_btn(buddy_btn_dict['start_btn'])
             t = t + 2
+        print('buddy is on!')
         return True
+
 
 # start a new buddy round
 def start_buddy_round():
@@ -793,10 +807,12 @@ HS_WILD_BOX_AFTER_REVISED = (1280, 470, 60, 50)
 HS_WILD_BOX_CLICK_AFTER_REVISED = (1310, 495)
 HS_ROW1_COLUMN1_DECK_BUTTON_AFTER_REVISED = (1080, 610)
 HS_CASUAL_FARMING_BUTTON_AFTER_REVISED = (1250, 570)
+HS_START_BATTLE_BTN_REGION = (1000, 600, 200, 60)
 wild_logo_png = 'wild_logo' + suffix + '.png'
 hb_dart_start_png = 'hb_dark_start_sur.png'
 hb_yellow_start_png = 'hb_yellow_start_sur.png'
 hb_yellow_stop_png = 'hb_yellow_stop_sur.png'
+start_battle_button_png = 'hs_start_btn_sur.png'
 #----new variables end here
 
 wild_logo_rgn = (1220 + re_x, 45 + re_y, 1270, 90)
