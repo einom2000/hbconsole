@@ -530,8 +530,12 @@ def start_buddy_round():
 
 # reset buddy status
 def reset_status():
+    global buddy_status
     # if it is a new player start mining, reset counter
-    click_hb_btn(buddy_btn_dict['stats_btn'])
+    if not buddy_status and correct_buddy(buddy_status):
+        click_hb_btn(buddy_btn_dict['stats_btn'])
+        correct_buddy(not buddy_status)
+
     time.sleep(1)
     click_hb_btn(buddy_btn_dict['stats_reset_btn'])
     logging.info('status info reset!')
