@@ -432,6 +432,12 @@ def load_and_initiate_buddy():
 def start_hs_first_game_round():
     # FOR UPDATE FROM APRIL 5TH MONO.DLL WAS RE-ALLOCATED
     # *** if want to check the deck, add here
+
+    # select the deck
+    move_and_click(HS_ROW1_COLUMN1_DECK_BUTTON_AFTER_REVISED)
+
+    # select the casual farming
+    move_and_click(HS_CASUAL_FARMING_BUTTON_AFTER_REVISED)
     while True:
         move_and_click(HS_BATTLE_SELECTION_BTN, ta=1.0, tb=2.0)
         if start_new_round():
@@ -619,14 +625,8 @@ def gold_miner_loop(acc):
     load_and_initiate_buddy()
     start_hs_first_game_round()
 
-    # click away the missions
+    # just click to focus the hs window
     move_and_click((850 + re_x, 200 + re_y))
-
-    # select the deck
-    move_and_click(HS_ROW1_COLUMN1_DECK_BUTTON_AFTER_REVISED)
-
-    # select the casual farming
-    move_and_click(HS_CASUAL_FARMING_BUTTON_AFTER_REVISED)
 
     reset_status()
     last_status = (0, 0, 0)  # last_win , last_losses, last_concedes = 0, 0, 0
