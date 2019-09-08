@@ -249,10 +249,10 @@ def is_not_midnight():
     now = datetime.now()
     seconds_since_midnight = (
             datetime.now() - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
-    if seconds_since_midnight > 86400:
-        time.sleep(random.uniform(120, 600))
+    if seconds_since_midnight > 86380 or seconds_since_midnight < 20:
         return False
     else:
+        time.sleep(random.uniform(120, 500))
         return seconds_since_midnight
 
 
@@ -263,6 +263,7 @@ def wait_for_midnight():
     while True:
         seconds_since_midnight = is_not_midnight()
         if not seconds_since_midnight:
+            time.sleep(20)
             return True
         elif time.time() - t >= 10:
             print("There are still " + str(int(86400 - seconds_since_midnight)) + ' seconds to start!')
