@@ -566,8 +566,12 @@ def checking_failure():
                                                      grayscale=False, confidence=0.7)
     failure_found_4 = pyautogui.locateCenterOnScreen(break3_png, region=break3_rgn,
                                                      grayscale=False, confidence=0.7)
+
+    failure_found_5 = pyautogui.locateCenterOnScreen(break4_png, region=break4_rgn,
+                                                     grayscale=False, confidence=0.7)
     if failure_found_1 is not None or general_failure == 'STALK' \
-            or failure_found_3 is not None or failure_found_4 is not None or failure_found_2 is not None:
+            or failure_found_3 is not None or failure_found_4 is not None or failure_found_2 is not None or \
+            failure_found_5 is not None:
         print(failure_found_1, failure_found_2, failure_found_3, failure_found_4, general_failure)
         logging.warning('game disconnected.....')
         with open("Settings\Default\Stats.json") as json_file:
@@ -805,7 +809,8 @@ hb_yellow_start_png = 'hb_yellow_start_sur.png'
 hb_yellow_stop_png = 'hb_yellow_stop_sur.png'
 start_battle_button_png = 'hs_start_btn_sur.png'
 shut_down_png = 'hs_shut_sur.png'
-
+break4_rgn = (900, 690, 100, 100)
+break4_png = 'shock_mark_sur.png'
 #----new variables end here
 
 wild_logo_rgn = (1220 + re_x, 45 + re_y, 1270, 90)
