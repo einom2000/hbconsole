@@ -556,37 +556,28 @@ def checking_score(player_id, max_win, already_won, last_status):
 
 # checking failure
 def checking_failure():
-    global already_won, player_break,general_failure
-    # (1231, 33)(1267, 69) check failure
-    failure_found_1 = pyautogui.locateCenterOnScreen(close_logo_png, region=close_logo_rgn,
-                                                     grayscale=False, confidence=0.7)
-    failure_found_2 = pyautogui.locateCenterOnScreen(shut_down_png, region=HS_SHUT_REGION,
-                                                     grayscale=False, confidence=0.7)
-    failure_found_3 = pyautogui.locateCenterOnScreen(break2_png, region=break2_rgn,
-                                                     grayscale=False, confidence=0.7)
-    failure_found_4 = pyautogui.locateCenterOnScreen(break3_png, region=break3_rgn,
-                                                     grayscale=False, confidence=0.7)
+    global already_won, player_break, general_failure
 
-    failure_found_5 = pyautogui.locateCenterOnScreen(break4_png, region=break4_rgn,
-                                                     grayscale=False, confidence=0.7)
-    if failure_found_1 is not None or general_failure == 'STALK' \
-            or failure_found_3 is not None or failure_found_4 is not None or failure_found_2 is not None or \
-            failure_found_5 is not None:
-        print(failure_found_1, failure_found_2, failure_found_3, failure_found_4, general_failure)
-        logging.warning('game disconnected.....')
-        with open("Settings\Default\Stats.json") as json_file:
-            json_data = json.load(json_file)
-            logging.info('status shows: ' + str(json_data))
-            win_count = json_data['Wins']
-            already_won += int(win_count)
-        logging.warning(str(acc['acc']) + ' fails ' + str(player_break) + ' times!')
-        logging.warning('Player won ' + str(already_won) + ' games before broken!')
-        time.sleep(60)
-        logging.warning('close hstone program.....')
-        kill_process('Hearthstone.exe', '炉石传说')
-        player_break += 1
-        logging.info('adding one more failure...')
-        return True
+    for failure in failure_checking_list:
+        failure_found = pyautogui.locateCenterOnScreen(failure[0], region=failure[1],
+                                                       grayscale=False, confidence=0.7)
+        if failure_found is not None or general_failure == 'STALK':
+            print('failure found !' + str(failure))
+            logging.warning('failure found' + str(failure))
+            logging.warning('game disconnected.....')
+            with open("Settings\Default\Stats.json") as json_file:
+                json_data = json.load(json_file)
+                logging.info('status shows: ' + str(json_data))
+                win_count = json_data['Wins']
+                already_won += int(win_count)
+            logging.warning(str(acc['acc']) + ' fails ' + str(player_break) + ' times!')
+            logging.warning('Player won ' + str(already_won) + ' games before broken!')
+            time.sleep(60)
+            logging.warning('close hstone program.....')
+            kill_process('Hearthstone.exe', '炉石传说')
+            player_break += 1
+            logging.info('adding one more failure...')
+            return True
     return False
 
 
@@ -811,6 +802,7 @@ start_battle_button_png = 'hs_start_btn_sur.png'
 shut_down_png = 'hs_shut_sur.png'
 break4_rgn = (900, 690, 100, 100)
 break4_png = 'shock_mark_sur.png'
+
 #----new variables end here
 
 wild_logo_rgn = (1220 + re_x, 45 + re_y, 1270, 90)
@@ -822,6 +814,12 @@ break3_png = 'broke3' + suffix + '.png'
 break1_rgn = (750 + re_x, 260 + re_y, 840, 350)
 break2_rgn = (890 + re_x, 240 + re_y, 1160, 400)
 break3_rgn = (890 + re_x, 240 + re_y, 1160, 400)
+
+failure_checking_list = [(close_logo_png, close_logo_rgn),
+                         (shut_down_png, HS_SHUT_REGION),
+                         (break2_png, break2_rgn),
+                         (break3_png, break3_rgn),
+                         (break4_png, break4_rgn)]
 
 # -------------------------- initializaion II-----------------------------------------
 # deleting old log files
