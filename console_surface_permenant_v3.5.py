@@ -560,13 +560,14 @@ def checking_failure():
     # (1231, 33)(1267, 69) check failure
     failure_found_1 = pyautogui.locateCenterOnScreen(close_logo_png, region=close_logo_rgn,
                                                      grayscale=False, confidence=0.7)
-    failure_found_2 = None  # disable break1 png
+    failure_found_2 = pyautogui.locateCenterOnScreen(shut_down_png, region=HS_SHUT_REGION,
+                                                     grayscale=False, confidence=0.7)
     failure_found_3 = pyautogui.locateCenterOnScreen(break2_png, region=break2_rgn,
                                                      grayscale=False, confidence=0.7)
     failure_found_4 = pyautogui.locateCenterOnScreen(break3_png, region=break3_rgn,
                                                      grayscale=False, confidence=0.7)
     if failure_found_1 is not None or general_failure == 'STALK' \
-            or failure_found_3 is not None or failure_found_4 is not None:
+            or failure_found_3 is not None or failure_found_4 is not None or failure_found_2 is not None:
         print(failure_found_1, failure_found_2, failure_found_3, failure_found_4, general_failure)
         logging.warning('game disconnected.....')
         with open("Settings\Default\Stats.json") as json_file:
@@ -797,11 +798,14 @@ HS_WILD_BOX_CLICK_AFTER_REVISED = (1310, 495)
 HS_ROW1_COLUMN1_DECK_BUTTON_AFTER_REVISED = (1080, 610)
 HS_CASUAL_FARMING_BUTTON_AFTER_REVISED = (1250, 570)
 HS_START_BATTLE_BTN_REGION = (1000, 600, 200, 60)
+HS_SHUT_REGION =(970, 670, 200, 100)
 wild_logo_png = 'wild_logo' + suffix + '.png'
 hb_dart_start_png = 'hb_dark_start_sur.png'
 hb_yellow_start_png = 'hb_yellow_start_sur.png'
 hb_yellow_stop_png = 'hb_yellow_stop_sur.png'
 start_battle_button_png = 'hs_start_btn_sur.png'
+shut_down_png = 'hs_shut_sur.png'
+
 #----new variables end here
 
 wild_logo_rgn = (1220 + re_x, 45 + re_y, 1270, 90)
