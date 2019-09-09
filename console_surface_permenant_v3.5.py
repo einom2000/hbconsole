@@ -252,7 +252,6 @@ def is_not_midnight():
     if seconds_since_midnight > 86380 or seconds_since_midnight < 20:
         return False
     else:
-        time.sleep(random.uniform(120, 500))
         return seconds_since_midnight
 
 
