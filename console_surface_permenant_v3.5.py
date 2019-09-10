@@ -850,9 +850,8 @@ if not auto_start:
 else:
     tf_list = []
 
-
 # if it is an instant command, start to farm right now:
-if tf_list is not None:
+if tf_list != []:
     print('temp_farming list as following..:', file=sys.stderr)
     time.sleep(0.4)
     print(tf_list)
