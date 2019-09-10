@@ -490,6 +490,7 @@ def start_new_round():
                 if not buddy_status:
                     start_buddy_round()
                 return True
+        return True
     return False
 
 
