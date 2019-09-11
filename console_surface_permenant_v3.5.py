@@ -639,7 +639,10 @@ def gold_miner_loop(acc):
     while checking_continue:
         time.sleep(3)
         # check if the round is ended, if yes start a new one
+        ct = time.time()
         while not start_new_round():
+            if time.time() - ct >= 60:
+                break
             pass
 
         if time.time() - t >= checking_period - 10:
