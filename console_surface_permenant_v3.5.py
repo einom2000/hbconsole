@@ -700,6 +700,13 @@ class LoginWindow:
                 win32gui.MoveWindow(hwndbnt, 100, 100, 365, 541, True)
                 # check the abnormal size of login window
                 rec = win32gui.GetWindowRect(hwndbnt)
+                time.sleep(10)
+                ct = time.time()
+                while time.time() - ct <= 30:
+                    if pyautogui.locateCenterOnScreen(bt_maintain_logo, region=BNT_MAINTAIN_LOGO_REGION,
+                                                      grayscale=False, confidence=0.8) is not None:
+                        self.normalSize = False
+                        break
                 if len(rec) > 3:
                     w = rec[2] - rec[0]
                     h = rec[3] - rec[1]
@@ -807,7 +814,8 @@ start_battle_button_png = 'hs_start_btn_sur.png'
 shut_down_png = 'hs_shut_sur.png'
 break4_rgn = (900, 690, 100, 100)
 break4_png = 'shock_mark_sur.png'
-
+BNT_MAINTAIN_LOGO_REGION = (110, 110, 250, 200)
+bt_maintain_logo = 'bt_maintain_logo_sur.png'
 #----new variables end here
 
 wild_logo_rgn = (1220 + re_x, 45 + re_y, 1270, 90)
