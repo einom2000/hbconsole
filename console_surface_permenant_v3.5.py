@@ -560,6 +560,7 @@ def checking_failure():
     global already_won, player_break, general_failure
 
     for failure in failure_checking_list:
+        print('checking failure..' + str(failure))
         failure_found = pyautogui.locateCenterOnScreen(failure[0], region=failure[1],
                                                        grayscale=False, confidence=0.7)
         if failure_found is not None or general_failure == 'STALK':
@@ -633,7 +634,7 @@ def gold_miner_loop(acc):
 
     t = time.time()
     checking_continue = True
-    checking_period = 1000  # check in every 15 minutes
+    checking_period = 180  # check in every 15 minutes
 
     while checking_continue:
         time.sleep(3)
