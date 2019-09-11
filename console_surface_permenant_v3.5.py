@@ -681,7 +681,6 @@ class LoginWindow:
         self.windowName = windowname
         self.userName = username
         self.userPwd = userpwd
-        self.normalSize = True
 
     # load btnet
     def runbnet(self):
@@ -698,15 +697,7 @@ class LoginWindow:
                 continue
             else:
                 win32gui.MoveWindow(hwndbnt, 100, 100, 365, 541, True)
-                # check the abnormal size of login window
-                rec = win32gui.GetWindowRect(hwndbnt)
-                if len(rec) > 3:
-                    w = rec[2] - rec[0]
-                    h = rec[3] - rec[1]
-                    if w > STANDARD_BNT_SIZE_SUR[0] and h > STANDARD_BNT_SIZE_SUR[1]:
-                        self.normalSize = False
-                    else:
-                        self.normalSize = True
+                time.sleep(2)
                 break
         win32gui.SetForegroundWindow(hwndbnt)
         time.sleep(0.5)
