@@ -828,7 +828,7 @@ clean_log_files()
 logging.warning('OLD LOG FILES DELETED!')
 
 # check version of hs
-# check_version()
+check_version()
 logging.warning('checking hs version completed.')
 
 # get standard farming list in to sf_list
