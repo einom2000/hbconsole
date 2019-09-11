@@ -700,13 +700,6 @@ class LoginWindow:
                 win32gui.MoveWindow(hwndbnt, 100, 100, 365, 541, True)
                 # check the abnormal size of login window
                 rec = win32gui.GetWindowRect(hwndbnt)
-                time.sleep(10)
-                ct = time.time()
-                while time.time() - ct <= 30:
-                    if pyautogui.locateCenterOnScreen(bt_maintain_logo, region=BNT_MAINTAIN_LOGO_REGION,
-                                                      grayscale=False, confidence=0.8) is not None:
-                        self.normalSize = False
-                        break
                 if len(rec) > 3:
                     w = rec[2] - rec[0]
                     h = rec[3] - rec[1]
@@ -723,13 +716,12 @@ class LoginWindow:
     def login(self):
         # to log in id
         # should check size ration of the login window of btnet. Normal 4, other 5  ********************
-        tabs = 4
-        # if the size ratio of the login window of btnet is in normal range?
-        if not self.normalSize:
-            tabs = 5
-        for i in range(tabs):
-            pyautogui.press('tab')
-            time.sleep(random.uniform(3.0, 5.0) / 10)
+        pyautogui.keyDown('shift')
+        time.sleep(0.2)
+        pyautogui.press('tab')
+        time.sleep(0.2)
+        pyautogui.keyUp('shift')
+        time.sleep(random.uniform(3.0, 5.0) / 10)
         # clear box
         pyautogui.press('backspace')
         time.sleep(random.uniform(3.0, 5.0) / 10)
