@@ -646,6 +646,7 @@ def gold_miner_loop(acc):
             pass
 
         if time.time() - t >= checking_period - 10:
+            move_and_click((850 + re_x, 200 + re_y))
             if (not is_not_midnight() and not auto_start) or \
                     (is_not_midnight() >= 80000 and not auto_start):
                 logging.warning('midnight is coming, start the standard farming')
