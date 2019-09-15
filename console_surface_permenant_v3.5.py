@@ -579,6 +579,7 @@ def checking_failure():
             kill_process('Hearthstone.exe', '炉石传说')
             player_break += 1
             logging.info('adding one more failure...')
+            general_failure = 'NORMAL'
             return True
     return False
 
