@@ -542,6 +542,10 @@ def checking_score(player_id, max_win, already_won, last_status):
         win_count = json_data['Wins']
         lose_count = json_data['Losses']
         concede_count = json_data['Concedes']
+        print('last status = ', end='')
+        print(last_win, last_losses, last_concedes)
+        print('json_file = ', end='')
+        print(win_count, lose_count, concede_count)
         if int(win_count) >= (max_win - already_won):
             logging.warning('player No.' + str(player_id) + ' got ' + str(win_count + already_won) + ' wins!')
             logging.info('close hstone program.....')
