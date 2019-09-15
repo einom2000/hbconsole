@@ -536,26 +536,25 @@ def checking_score(player_id, max_win, already_won, last_status):
     # read score
     with open("Settings\Default\Stats.json") as json_file:
         json_data = json.load(json_file)
-        print('jsondata = ')
-        print(json_data)
         logging.info('status shows: ' + str(json_data))
         win_count = json_data['Wins']
         lose_count = json_data['Losses']
         concede_count = json_data['Concedes']
-        print('last status = ', end='')
-        print(last_win, last_losses, last_concedes)
-        print('json_file = ', end='')
-        print(win_count, lose_count, concede_count)
+
         if int(win_count) >= (max_win - already_won):
             logging.warning('player No.' + str(player_id) + ' got ' + str(win_count + already_won) + ' wins!')
             logging.info('close hstone program.....')
             kill_process('Hearthstone.exe', '炉石传说')
             return 99, 99, 99
-        if int(win_count) == last_win and int(lose_count) == last_losses and \
-                int(concede_count) == last_concedes:
+        if int(win_count) == int(last_win) and int(lose_count) == int(last_losses) and \
+                int(concede_count) == int(last_concedes):
             print('here is no changed score during last 15 minutes, restarting....')
             return 999, 999, 999
         else:
+            print('last status = ', end='')
+            print(last_win, last_losses, last_concedes)
+            print('json_file = ', end='')
+            print(win_count, lose_count, concede_count)
             return int(win_count), int(lose_count), int(concede_count)
 
 
@@ -639,7 +638,7 @@ def gold_miner_loop(acc):
 
     t = time.time()
     checking_continue = True
-    checking_period = 180  # check in every 15 minutes
+    checking_period = 600  # check in every 10 minutes
 
     while checking_continue:
         time.sleep(3)
