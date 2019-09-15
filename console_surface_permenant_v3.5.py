@@ -566,7 +566,7 @@ def checking_failure():
         print('checking failure..' + str(failure))
         failure_found = pyautogui.locateCenterOnScreen(failure[0], region=failure[1],
                                                        grayscale=False, confidence=0.7)
-        if failure_found is not None or general_failure == 'STALK':
+        if failure_found is not None or general_failure == 'STALK!':
             print('failure found !' + str(failure))
             logging.warning('failure found' + str(failure))
             logging.warning('game disconnected.....')
