@@ -1,26 +1,5 @@
-# check json twice to compare the failure
-# use the list to locate in center
-# ---------------above is v3.0 -------------------------------------------
-
-# -----------------v3.5 version ------------------------------------------
-# real_time checking online command
-# /bin/command.json   not encrypted dictionary for command
-# /bin/en.bin  encrypted dictionary with server public key, ready for sending
-# /bin/keys_here.json keys of local private, server public, and local public, all non-encrypted
-# /bin/server_ip.json store non-encrypted server address and port
-
-# deleting all logging files which are 3 days ago                                                                --check
-# to check size ration of the login window of btnet. Normal 4, other 5 tabs added, before key in.
-# auto check midnight time to restart                                                                            --check
-
-# command 'pause' for quit and game and record the wins, and waiting for command'activated'
-# command 'activated' resume the farming
-# command 'cease' for stopping farming and wait for next day loop
-# command 'quit' for quiting farming program.
-
-# while start program, key in number required: 0 for all accounts, 23 for 2nd and 3rd account,                   --check
-# 2 for 2nd account only, etc.                                                                                   --check
-# changing order fo the role for the farming list forever                                                        --check
+# -- 32 wins switcher for ranger
+# other set is for ranger
 
 # --------------------------- v3.0 --------------------------------------
 import os, win32api, random, json, keyboard, pickle, random
@@ -39,6 +18,9 @@ from win32con import VK_CAPITAL
 import rsa_encrypto
 import communication
 import client_sending
+
+import win32process
+
 
 
 # farming_acc list from txt file, and save to pickle file
@@ -81,7 +63,7 @@ def clean_log_files():
     valid_date = datetime.now() + timedelta(days=-3)
     for root, dirs, files in os.walk(os.getcwd()):
         for file in files:
-            if file.endswith(".log") and file.startswith("running_2"):
+            if file.endswith(".log") and file.startswith("ranger_running_2"):
                 log_date = datetime.strptime(file[-14: -4], "%Y-%m-%d")
                 if log_date < valid_date:
                     filename = os.path.join(root, file)
@@ -221,30 +203,6 @@ def kill_process(process_name, wd_name):
     return
 
 
-# check hs folder   ------------ mono.dll and bnl_checkout_client.dll
-def check_version():
-    mono_path = os.path.split(hs_target)[0] + '\\Hearthstone_Data\\mono'
-    target_mono_path = os.path.split(hs_target)[0] + '\\Hearthstone_Data\\mono\\etc'
-    plugin_path = os.path.split(hs_target)[0] + '\\Hearthstone_Data\\plugins'
-    # should be 2115520 not 2117056
-    if os.path.isfile(os.path.join(mono_path, 'mono.dll')) and \
-            os.path.getsize(os.path.join(mono_path, 'mono.dll')) != 2115520:
-        shutil.move(os.path.join(mono_path, 'mono.dll'), os.path.join(target_mono_path, 'mono.dll'))
-        print('move mono.dll to etc folder!', file=sys.stderr)
-    if os.path.isfile(os.path.join(mono_path, 'MonoPosixHelper.dll')):
-        shutil.move(os.path.join(mono_path, 'MonoPosixHelper.dll'),
-                    os.path.join(target_mono_path, 'MonoPosixHelper.dll'))
-        print('move MonoPosixHelper.dll to etc folder!', file=sys.stderr)
-    if not os.path.isfile(os.path.join(mono_path, 'mono.dll')):
-        shutil.copy(os.path.split(hs_target)[0] + '\\Hearthstone_Data\\mono.dll',
-                    os.path.join(mono_path, 'mono.dll'))
-        print('copy the 2066kb mono.dll to mono folder!', file=sys.stderr)
-    if os.path.isfile(os.path.join(plugin_path, 'bnl_checkout_client.dll')):
-        shutil.move(os.path.join(plugin_path, 'bnl_checkout_client.dll'),
-                    os.path.join(target_mono_path, 'bnl_checkout_client.dll'))
-        print('move the bnl_checkout_client.dll to etc folder.', file=sys.stderr)
-
-
 def is_not_midnight():
     now = datetime.now()
     seconds_since_midnight = (
@@ -313,7 +271,7 @@ def log_in_hs(acc):
     time.sleep(1)
 
     # looking for hs and click waiting for hs
-    hs_png = 'hs' + suffix + '.png'
+    hs_png = 'hs_sur.png'
     while True:
         found = pyautogui.locateCenterOnScreen(hs_png, region=(0, 0, bt_rec[2], bt_rec[3]),
                                                grayscale=False, confidence=0.7)
@@ -326,7 +284,7 @@ def log_in_hs(acc):
     pyautogui.moveTo(x, y, 1,  pyautogui.easeInQuad)
     pyautogui.click(x, y)
     time.sleep(1)
-    login_png = 'login' + suffix + '.png'
+    login_png = 'login_sur.png'
     while True:
         found = pyautogui.locateCenterOnScreen(login_png, region=(0, 0, bt_rec[2], bt_rec[3]),
                                                grayscale=False, confidence=0.7)
@@ -385,7 +343,6 @@ def initialize_hs_window(hs_window):
             move_and_click((HS_START_BATTLE_BTN_REGION[0] + 100, HS_START_BATTLE_BTN_REGION[1] + 30))
             logging.warning('into battle mode!')
             break
-
 
 
 # load buddy
@@ -741,7 +698,7 @@ class LoginWindow:
 
 
 # ------------------------- initialization I ---------------------------------------------------------------------------
-logging.basicConfig(filename='running_' + str(datetime.now().date()) + '.log', filemode='a',
+logging.basicConfig(filename='ranger_running_' + str(datetime.now().date()) + '.log', filemode='a',
                     format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                     datefmt='%m/%d/%Y--%H:%M:%S', level=logging.DEBUG)
 logging.info('Program starts.')
@@ -751,148 +708,129 @@ while GetKeyState(VK_CAPITAL):
     pyautogui.press('capslock')
     logging.info('capslock released!')
 
-
 # --------------------------variables------------------------------------------------
 bn_target = winshell.shortcut(os.path.join(winshell.desktop(), "暴雪战网.lnk")).path
 hs_target = winshell.shortcut(os.path.join(winshell.desktop(), "炉石传说.lnk")).path
 
-if os.path.basename(__file__) == 'console_surface_permenant_v3.5.py':
-    logging.warning('script running on surface with an endless loop!')
-    suffix = '_sur'
-else:
-    suffix = ''
-    logging.warning('script running on other machine with an endless loop!')
-logging.info('All variables were loaded.')
+logging.warning('ranger switcher running!')
 
-# if suffix == "_sur":
-buddy_btn_dict = {'start_btn': (366, 180),
-                  'setting_btn': (175, 236),
-                  'default_bot_btn': (175, 279),
-                  'mode_btn': (477, 608),
-                  'rule_btn': (479, 653),
-                  'deck_btn': (354, 697),
-                  'stats_btn': (459, 278),
-                  'stats_reset_btn': (83, 456),
-                  'win_rec': [(84, 174), (116, 197)],
-                  'start_btn_region': (320, 160, 90, 40)}
-# revised x and y
-re_x = 90
-re_y = 420
-buddy_status = False
-general_failure = 'NORMAL'
 
-HS_BATTLE_SELECTION_BTN = (1017 + re_x, 218 + re_y)
-HS_BATTLE_START_BTN = (1239 + re_x, 487 + re_y)
-HS_START_BTN_REGION = (1000 + re_x, 300 + re_y, 500, 500)
-SEARCHING_BOX = (900 + re_x, 100 + re_y, 400, 300)
-
-# version 3.5 and above new checking position
-STANDARD_BNT_SIZE_SUR = (370, 550)
-HS_WILD_BOX_AFTER_REVISED = (1280, 470, 60, 50)
-HS_WILD_BOX_CLICK_AFTER_REVISED = (1310, 495)
-HS_ROW1_COLUMN1_DECK_BUTTON_AFTER_REVISED = (1080, 610)
-HS_CASUAL_FARMING_BUTTON_AFTER_REVISED = (1250, 570)
-HS_START_BATTLE_BTN_REGION = (1000, 600, 200, 60)
-HS_SHUT_REGION =(970, 670, 200, 100)
-wild_logo_png = 'wild_logo' + suffix + '.png'
-hb_dart_start_png = 'hb_dark_start_sur.png'
-hb_yellow_start_png = 'hb_yellow_start_sur.png'
-hb_yellow_stop_png = 'hb_yellow_stop_sur.png'
-start_battle_button_png = 'hs_start_btn_sur.png'
-shut_down_png = 'hs_shut_sur.png'
-break4_rgn = (900, 690, 100, 100)
-break4_png = 'shock_mark_sur.png'
-BNT_MAINTAIN_LOGO_REGION = (110, 110, 250, 200)
-bt_maintain_logo = 'bt_maintain_logo_sur.png'
-#----new variables end here
-
-wild_logo_rgn = (1220 + re_x, 45 + re_y, 1270, 90)
-close_logo_png = 'close_logo' + suffix + '.png'
-close_logo_rgn = (900 + re_x, 200 + re_y, 1300, 500)
-break1_png = 'broke1' + suffix + '.png'
-break2_png = 'broke2' + suffix + '.png'
-break3_png = 'broke3' + suffix + '.png'
-break1_rgn = (750 + re_x, 260 + re_y, 840, 350)
-break2_rgn = (890 + re_x, 240 + re_y, 1160, 400)
-break3_rgn = (890 + re_x, 240 + re_y, 1160, 400)
-
-failure_checking_list = [(close_logo_png, close_logo_rgn),
-                         (shut_down_png, HS_SHUT_REGION),
-                         (break2_png, break2_rgn),
-                         (break3_png, break3_rgn),
-                         (break4_png, break4_rgn)]
-
-# -------------------------- initializaion II-----------------------------------------
+# # if suffix == "_sur":
+# ranger_btn_dict = {'start_btn': (366, 180)}
+# # revised x and y
+# re_x = 90
+# re_y = 420
+# buddy_status = False
+# general_failure = 'NORMAL'
+#
+# HS_BATTLE_SELECTION_BTN = (1017 + re_x, 218 + re_y)
+# HS_BATTLE_START_BTN = (1239 + re_x, 487 + re_y)
+# HS_START_BTN_REGION = (1000 + re_x, 300 + re_y, 500, 500)
+# SEARCHING_BOX = (900 + re_x, 100 + re_y, 400, 300)
+#
+# # version 3.5 and above new checking position
+# STANDARD_BNT_SIZE_SUR = (370, 550)
+# HS_WILD_BOX_AFTER_REVISED = (1280, 470, 60, 50)
+# HS_WILD_BOX_CLICK_AFTER_REVISED = (1310, 495)
+# HS_ROW1_COLUMN1_DECK_BUTTON_AFTER_REVISED = (1080, 610)
+# HS_CASUAL_FARMING_BUTTON_AFTER_REVISED = (1250, 570)
+# HS_START_BATTLE_BTN_REGION = (1000, 600, 200, 60)
+# HS_SHUT_REGION =(970, 670, 200, 100)
+# wild_logo_png = 'wild_logo' + suffix + '.png'
+# hb_dart_start_png = 'hb_dark_start_sur.png'
+# hb_yellow_start_png = 'hb_yellow_start_sur.png'
+# hb_yellow_stop_png = 'hb_yellow_stop_sur.png'
+# start_battle_button_png = 'hs_start_btn_sur.png'
+# shut_down_png = 'hs_shut_sur.png'
+# break4_rgn = (900, 690, 100, 100)
+# break4_png = 'shock_mark_sur.png'
+# BNT_MAINTAIN_LOGO_REGION = (110, 110, 250, 200)
+# bt_maintain_logo = 'bt_maintain_logo_sur.png'
+# #----new variables end here
+#
+# wild_logo_rgn = (1220 + re_x, 45 + re_y, 1270, 90)
+# close_logo_png = 'close_logo' + suffix + '.png'
+# close_logo_rgn = (900 + re_x, 200 + re_y, 1300, 500)
+# break1_png = 'broke1' + suffix + '.png'
+# break2_png = 'broke2' + suffix + '.png'
+# break3_png = 'broke3' + suffix + '.png'
+# break1_rgn = (750 + re_x, 260 + re_y, 840, 350)
+# break2_rgn = (890 + re_x, 240 + re_y, 1160, 400)
+# break3_rgn = (890 + re_x, 240 + re_y, 1160, 400)
+#
+# failure_checking_list = [(close_logo_png, close_logo_rgn),
+#                          (shut_down_png, HS_SHUT_REGION),
+#                          (break2_png, break2_rgn),
+#                          (break3_png, break3_rgn),
+#                          (break4_png, break4_rgn)]
+#
+# # -------------------------- initializaion II-----------------------------------------
 # deleting old log files
 clean_log_files()
 logging.warning('OLD LOG FILES DELETED!')
-
-# check version of hs
-check_version()
-logging.warning('checking hs version completed.')
-
-# get standard farming list in to sf_list
-generate_farming_list('account_per.txt', 'acc_farm_list.pcl')
-sf_list = parse_farming_list_file('acc_farm_list.pcl')
-
-total_account = len(sf_list)
-
-auto_start = wait_for_midnight()
-
-if not auto_start:
-    # get today's farming order from a user
-    tf_list = get_and_parse_command()
-    for i in tf_list:
-        print(i)
-    time.sleep(1)
-    # so far we have tf_list to start farming and sf_list for the next day.
-    logging.info('standard_farming list and today_farming list all loaded!')
-else:
-    tf_list = []
-
-# if it is an instant command, start to farm right now:
-if tf_list != []:
-    print('temp_farming list as following..:', file=sys.stderr)
-    time.sleep(0.4)
-    print(tf_list)
-    player_id = 0
-    player_break = 0
-    already_won = 0
-    acc = tf_list[player_id]
-    total_account = len(tf_list)
-    while player_id <= total_account:
-        print('current No. %s account detail: ' % str(player_id), end='')
-        print(acc)
-        farm_done = gold_miner_loop(acc)
-        if farm_done:
-            break
-        acc = tf_list[player_id]
-
-    print('temp farming ended!', file=sys.stderr)
-    time.sleep(0.4)
-    auto_start = wait_for_midnight()
-
-# midnight farm loop
-total_account = len(sf_list)
-auto_start = True
-
-while True:
-    player_id = 0
-    player_break = 0
-    already_won = 0
-    acc = sf_list[player_id]
-    print('standard_farming list as following..:', file=sys.stderr)
-    time.sleep(0.4)
-    print(sf_list)
-    while player_id <= total_account:
-        print('current No. %s account detail: ' % str(player_id), end='')
-        print(acc)
-        farm_done = gold_miner_loop(acc)
-        if farm_done:
-            break
-        acc = sf_list[player_id]
-
-    auto_start = wait_for_midnight()
+#
+# # get standard farming list in to sf_list
+# generate_farming_list('account_per.txt', 'acc_farm_list.pcl')
+# sf_list = parse_farming_list_file('acc_farm_list.pcl')
+#
+# total_account = len(sf_list)
+#
+# auto_start = wait_for_midnight()
+#
+# if not auto_start:
+#     # get today's farming order from a user
+#     tf_list = get_and_parse_command()
+#     for i in tf_list:
+#         print(i)
+#     time.sleep(1)
+#     # so far we have tf_list to start farming and sf_list for the next day.
+#     logging.info('standard_farming list and today_farming list all loaded!')
+# else:
+#     tf_list = []
+#
+# # if it is an instant command, start to farm right now:
+# if tf_list != []:
+#     print('temp_farming list as following..:', file=sys.stderr)
+#     time.sleep(0.4)
+#     print(tf_list)
+#     player_id = 0
+#     player_break = 0
+#     already_won = 0
+#     acc = tf_list[player_id]
+#     total_account = len(tf_list)
+#     while player_id <= total_account:
+#         print('current No. %s account detail: ' % str(player_id), end='')
+#         print(acc)
+#         farm_done = gold_miner_loop(acc)
+#         if farm_done:
+#             break
+#         acc = tf_list[player_id]
+#
+#     print('temp farming ended!', file=sys.stderr)
+#     time.sleep(0.4)
+#     auto_start = wait_for_midnight()
+#
+# # midnight farm loop
+# total_account = len(sf_list)
+# auto_start = True
+#
+# while True:
+#     player_id = 0
+#     player_break = 0
+#     already_won = 0
+#     acc = sf_list[player_id]
+#     print('standard_farming list as following..:', file=sys.stderr)
+#     time.sleep(0.4)
+#     print(sf_list)
+#     while player_id <= total_account:
+#         print('current No. %s account detail: ' % str(player_id), end='')
+#         print(acc)
+#         farm_done = gold_miner_loop(acc)
+#         if farm_done:
+#             break
+#         acc = sf_list[player_id]
+#
+#     auto_start = wait_for_midnight()
 
 # --------------------------main loop starts here-----------------------------------------------------------------------
 
