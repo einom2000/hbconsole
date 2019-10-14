@@ -6,6 +6,14 @@ import pyautogui
 import time
 import os
 import glob
+from datetime import datetime
+
+
+def time_differ(time1, time2):
+    duration_seconds_in_total = (time1 - time2).total_seconds()
+    duration_hours = duration_seconds_in_total // 3600
+    duration_minutes = (duration_seconds_in_total % 3600) // 60
+    return duration_hours, duration_hours
 
 
 def enumHandler(hwnd, lParam):
@@ -37,14 +45,66 @@ if ranger_txt is not '':
 
 
 ranger_start_button = (368, 267)
-
-
 pyautogui.moveTo(ranger_start_button[0], ranger_start_button[1])
 
 
-newest = max(glob.iglob('c:\\HearthRanger\\HearthRanger\\task_log\\*.log'), key=os.path.getctime)
+# ============= find the last normal exit ================= 'Bot stopped'==========
+# as well as find the last abnormal stop
+def check_bot_stopped(file, last_checking_time=datetime.today().date()):
+    format = '%H:%M:%S'
+    print(last_checking_time)
+    newest_stop_log = max(glob.iglob(file), key=os.path.getctime)   #'c:\\HearthRanger\\task_log\\test\\*.log'
 
-print(newest)
+    last_normal_stop = ''
+    previous_line = ''
+    last_abnormal_stop = ''
+    last_pause = ''
 
-for line in reversed(open(newest).readlines()):
-    print(line.rstrip())
+    for line in reversed(open(newest_stop_log, encoding='utf-8').readlines()):
+        if line.find('Bot stopped.') >= 0:
+            previous_line = 'Bot stopped.'
+        elif previous_line == 'Bot stopped.' and \
+                line.find('Game client closed by CloseGameAfterAutoStopped settings.') >= 0 and \
+                last_normal_stop == '':
+                    last_normal_stop = line.strip()[0:line.find('INFO') - 1]
+                    if last_abnormal_stop != '':
+                        break
+        elif previous_line == 'Bot stopped.' and \
+                line.find('Game client closed by CloseGameAfterAutoStopped settings.') < 0  and \
+                last_abnormal_stop == '':
+                    last_abnormal_stop = line.strip()[0:line.find('INFO') - 1]
+                    if last_normal_stop != '':
+                        break
+        else:
+            previous_line = ''
+    if last_normal_stop != '':
+        last_normal_stop_time = datetime.combine(datetime.now().date(),
+                                                 datetime.strptime(last_normal_stop, format).time())
+        print('Game client closed by CloseGameAfterAutoStopped settings.:', end=" ")
+        print(last_normal_stop_time)
+    else:
+        last_normal_stop_time = 0
+    if last_abnormal_stop != '':
+        last_abnormal_stop_time = datetime.combine(datetime.now().date(),
+                                                   datetime.strptime(last_abnormal_stop, format).time())
+        print('Game client last abnormal stoped at :', end='')
+        print(last_abnormal_stop_time)
+    else:
+        last_abnormal_stop_time = 0
+
+    # return checking result
+    if last_normal_stop_time >= last_abnormal_stop_time:
+        return 1
+
+
+
+log_file = 'c:\\HearthRanger\\task_log\\test\\*.log'
+normal, abnormal = check_bot_stopped(log_file)
+if abnormal > normal:
+    print('abnormal is bigger')
+else:
+    print('normal is bigger')
+print(normal - abnormal)
+# ================================= check the last bot abnormal stopped ===
+
+
