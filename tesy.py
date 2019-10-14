@@ -94,17 +94,15 @@ def check_bot_stopped(file, last_checking_time=datetime.today().date()):
 
     # return checking result
     if last_normal_stop_time >= last_abnormal_stop_time:
-        return 1
+        return 'Normal_stop', datetime.now()
 
 
 
-log_file = 'c:\\HearthRanger\\task_log\\test\\*.log'
-normal, abnormal = check_bot_stopped(log_file)
-if abnormal > normal:
-    print('abnormal is bigger')
-else:
-    print('normal is bigger')
-print(normal - abnormal)
+
+# log_file = 'c:\\HearthRanger\\task_log\\test\\*.log'
+log_file = '*.log'
+result, last_check_time = check_bot_stopped(log_file)
+print('%s at last checking time of %s' %(str(result), str(last_check_time)))
 # ================================= check the last bot abnormal stopped ===
 
 
