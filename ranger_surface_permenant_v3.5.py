@@ -101,6 +101,7 @@ def get_and_parse_command():
         print('        3,2 == farming 3rd & 2nd with default max win in the temp order')
         print('        3-10, 1-20 == farming 3rd with 10wins, 1st.with 20wins in the temp order')
         print('        B,C,A,20 == CHANGE CONFIG PERMANENTLY IN THAT ORDER 2,3,1 WITH MAX 20 WINS')
+        print('        If you are using ranger the wins counts are set by ranger\'s default!!!')
 
         wrong_cmd = True
         # parse command, to win = max - won
