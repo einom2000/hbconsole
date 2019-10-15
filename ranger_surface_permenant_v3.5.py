@@ -352,23 +352,11 @@ def load_and_initiate_ranger():
     logging.info('ranger start button found, ranger is ready!')
 
 
-# start a new round
-
-
-def check_buddystatus():
-    if pyautogui.locateCenterOnScreen(hb_yellow_start_png, region=buddy_btn_dict['start_btn_region'],
-                                      grayscale=False, confidence=0.7):
-        return False
-    else:
-        return True
-
-
 # start a new buddy round
 def start_ranger():
     # make sure the buddy_status is correct
     click_hb_btn(ranger_btn_dict['start_btn'])
     time.sleep(3)
-
 
 
 # reset ranger win counter
