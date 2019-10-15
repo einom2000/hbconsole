@@ -13,6 +13,8 @@ from datetime import timedelta
 import logging
 from win32api import GetKeyState
 from win32con import VK_CAPITAL
+import re, glob
+
 
 # ----------------------communication related------------------------------
 import rsa_encrypto
@@ -194,14 +196,12 @@ def click_hb_btn(btn_name):
 
 # kill certain process, process's name and window's name should be given
 def kill_process(process_name, wd_name):
-    for proc in psutil.process_iter():
-        # check whether the process name matches
-        if proc.name() == process_name:
-            proc.kill()
-            break
     while win32gui.FindWindow(None, wd_name):
-        pass
-    return
+        for proc in psutil.process_iter():
+            # check whether the process name matches
+            if proc.name() == process_name:
+                proc.kill()
+                break
 
 
 def is_not_midnight():
@@ -309,147 +309,50 @@ def log_in_hs(acc):
     return hs_window
 
 
+# enumlater for locate random name of the ranger window
+def enumHandler1(hwnd, lParam):
+    global ranger_txt, ranger_hwnd
+    keywords = ['ycharm', '炉石', '暴雪', '设置', 'Program',
+                'Microsoft', 'MainWindow', 'Chrome']
+    if win32gui.IsWindowVisible(hwnd):
+        wintitle = win32gui.GetWindowText(hwnd)
+        if len(wintitle) <= 0 or any(key in wintitle for key in keywords):
+            pass
+        elif re.match("^[a-z0-9+]*$", wintitle):
+            print(win32gui.GetWindowText(hwnd), end=' ----->  ')
+            _, found_pid = win32process.GetWindowThreadProcessId(hwnd)
+            print(r'pid = %s' % str(found_pid))
+            print(r'hwnd= %s' % str(hwnd))
+            ranger_txt = wintitle
+            ranger_hwnd = hwnd
+
 # adjust the hs window and click away the lost_game confirmation button
 # ***** select deck and style and mounting in future
 def initialize_hs_window(hs_window):
     win32gui.SetForegroundWindow(hs_window)
-    win32gui.MoveWindow(hs_window, 620, 0, 800, 600, 1)  # (90, 420)
-    t = time.time()
-    # (986, 355), (1055, 389)
-    move_and_click((739 + re_x, 116 + re_y))
     time.sleep(10)
     hs_rec = win32gui.GetWindowRect(hs_window)
     print('found hs_window at %s!' % str(hs_rec), sys.stderr)
-    # if there is a lost game button, click it
-    while time.time() - t <= 20:
-        lost_confirm = pyautogui.locateCenterOnScreen('lost_confirmation_logo_new.png',
-                                                      region=(950 + re_x, 300 + re_y, 400, 200),
-                                                      grayscale=False, confidence=0.6)
-        if lost_confirm is not None:
-
-            move_and_click((1000 + re_x, 375 + re_y))
-            logging.warning('last game was lost! click to confirm!')
-            break
-
-    # click away the mission panels
-    move_and_click((739 + re_x, 116 + re_y))
-    # here could add picking deck order and game style and farming or mounting in future
-    t = time.time()
-    while time.time() - t <= 20:
-        found_btn = pyautogui.locateCenterOnScreen(start_battle_button_png,
-                                                   region=HS_START_BATTLE_BTN_REGION,
-                                                   grayscale=False, confidence=0.7)
-        if found_btn is not None:
-
-            move_and_click((HS_START_BATTLE_BTN_REGION[0] + 100, HS_START_BATTLE_BTN_REGION[1] + 30))
-            logging.warning('into battle mode!')
-            break
 
 
-# load buddy
-def load_and_initiate_buddy():
-    # launching hb
-    logging.info('start to load buddy...')
-    win32api.WinExec('Hearthbuddy.exe')
-    while True:
-        config_window = win32gui.FindWindow(None, 'Configuration Window')
-        if config_window > 0:
-            win32gui.SetForegroundWindow(config_window)
-            logging.info('buddy configure shown up!')
-            time.sleep(2)
-            pyautogui.press('enter')
-            time.sleep(1)
-            break
+# load ranger...(ranger alway runs and click stay on top button off
+def load_and_initiate_ranger():
+    # looking for  ranger
+    global ranger_txt, ranger_hwnd
+    logging.info('start to look for ranger windows...')
+    win32gui.EnumWindows(enumHandler1, None)
+    if ranger_txt is not '':
+        print(r'here is the window title %s!' % ranger_txt)
+        print(r'here is the handler of that window %d !' % ranger_hwnd)
+        width = win32gui.GetWindowRect(ranger_hwnd)[2]
+        win32gui.MoveWindow(ranger_hwnd, 0, 0, width, 700, True)
+        win32gui.SetForegroundWindow(ranger_hwnd)
 
-    # wait for buddy's main window
-    hb_is_running = False
-    hb_window = 0
-    while not hb_is_running:
-        hb_window = win32gui.FindWindow(None, 'Hearthbuddy[0.3.1446.417] 学习交流,免费使用,严禁贩卖!')
-        if hb_window > 0:
-            hb_is_running = True
-            logging.info('buddy main window shown up!')
-    time.sleep(2)
-    if suffix == "_sur":
-        hs_wd_height = 790 + 400
-    else:
-        hs_wd_height = 790
-    win32gui.MoveWindow(hb_window, 0, 0, 620, hs_wd_height, 1)
-    hb_rec = win32gui.GetWindowRect(hb_window)
-
-    # waiting and click start for buddy
-    time.sleep(15)
-    hb_png = 'hb_start' + suffix + '.png'
-    while True:
-        time.sleep(2)
-        found_hb_start = pyautogui.locateCenterOnScreen(hb_png, region=(0, 0, hb_rec[2], hb_rec[3]),
-                                                        grayscale=False, confidence=0.7)
-        if found_hb_start:
-            logging.info('buddy start button found, buddy ready!')
-            break
-    # start to set monitor
-    click_hb_btn(buddy_btn_dict['setting_btn'])
-    click_hb_btn(buddy_btn_dict['default_bot_btn'])
-    click_hb_btn(buddy_btn_dict['deck_btn'])
-    # uncheck 2 boxes for cache. It is a hard code!
-    move_and_click((367, 445))
-    time.sleep(2)
-    move_and_click((371, 488))
-    time.sleep(2)
-    logging.info('buddy was initiated!')
-
-
-# select enter battle and select deck, if any
-def start_hs_first_game_round():
-    # FOR UPDATE FROM APRIL 5TH MONO.DLL WAS RE-ALLOCATED
-    # *** if want to check the deck, add here
-
-    # select the deck
-    move_and_click(HS_ROW1_COLUMN1_DECK_BUTTON_AFTER_REVISED)
-
-    # select the casual farming
-    move_and_click(HS_CASUAL_FARMING_BUTTON_AFTER_REVISED)
-    print('starting first game round..')
-    while True:
-        move_and_click(HS_BATTLE_SELECTION_BTN, ta=1.0, tb=2.0)
-        if start_new_round():
-            return
+    pyautogui.moveTo(ranger_btn_dict['start_btn'][0], ranger_btn_dict['start_btn'][1],  1,  pyautogui.easeInQuad)
+    logging.info('ranger start button found, ranger is ready!')
 
 
 # start a new round
-def start_new_round():
-    global buddy_status
-    found_it = pyautogui.locateCenterOnScreen('START_NEW.png', region=HS_START_BTN_REGION,
-                                              grayscale=False, confidence=0.7)
-    if found_it is not None:
-        print('found START button as %s' % str(found_it))
-
-        # check if the buddy is still starting
-        buddy_status = check_buddystatus()
-        if buddy_status:
-            start_buddy_round()
-
-        print('checking if it is in wild mode?')
-        found_wild = pyautogui.locateCenterOnScreen(wild_logo_png, region=HS_WILD_BOX_AFTER_REVISED,
-                                                  grayscale=False, confidence=0.8)
-        if found_wild:
-            move_and_click(HS_WILD_BOX_CLICK_AFTER_REVISED)
-            time.sleep(1)
-
-        # if you want to check the wild / standard, check it here
-        move_and_click(HS_BATTLE_START_BTN)
-        time.sleep(random.randint(1000, 2000) / 1000)
-        t = time.time()
-        while time.time() - t <= 30:
-            time.sleep(2)
-            if pyautogui.locateCenterOnScreen('searching_new.png', region=SEARCHING_BOX,
-                                              grayscale=False, confidence=0.7) is not None:
-                buddy_status = check_buddystatus()
-                if not buddy_status:
-                    start_buddy_round()
-                return True
-        return True
-    return False
 
 
 def check_buddystatus():
@@ -461,87 +364,166 @@ def check_buddystatus():
 
 
 # start a new buddy round
-def start_buddy_round():
-    global buddy_status
+def start_ranger():
     # make sure the buddy_status is correct
-    click_hb_btn(buddy_btn_dict['start_btn'])
+    click_hb_btn(ranger_btn_dict['start_btn'])
     time.sleep(3)
-    if buddy_status:
-        logging.info('stop the buddy.')
-    if not buddy_status:
-        logging.info('start the buddy.')
-    time.sleep(3)
-    buddy_status = not buddy_status
-
-    # **** should check the stop button shows up
 
 
-# reset buddy status
+
+# reset ranger win counter
 def reset_status():
-    time.sleep(1)
-    click_hb_btn(buddy_btn_dict['stats_btn'])
-    time.sleep(1)
-    click_hb_btn(buddy_btn_dict['stats_reset_btn'])
-    logging.info('status info reset!')
+    time.sleep(2)
+    click_hb_btn(ranger_btn_dict['config_btn'])
+    time.sleep(5)
+    click_hb_btn(ranger_btn_dict['auto_stop_sheet'])
+    time.sleep(2)
+    click_hb_btn(ranger_btn_dict['reset_win_counter_btn'])
+    time.sleep(2)
+    click_hb_btn(ranger_btn_dict['save_config_btn'])
+    logging.info('ranger win counter reseted!')
+
+
+# ============= find the last normal exit ================= 'Bot stopped'==========
+# as well as find the last abnormal stop
+def check_bot_stopped(file, default_start_time, last_check_time):
+    format = '%H:%M:%S'
+    newest_stop_log = max(glob.iglob(file), key=os.path.getctime)   #'c:\\HearthRanger\\task_log\\test\\*.log'
+
+    last_normal_stop = ''
+    previous_line = ''
+    last_abnormal_stop = ''
+    last_pause = ''
+
+    for line in reversed(open(newest_stop_log, encoding='utf-8').readlines()):
+        if line.lower().find('bot pause') >= 0 and last_pause == '':
+            last_pause = line.strip()[0:8]
+        elif line.find('Bot stopped.') >= 0:
+            previous_line = 'Bot stopped.'
+        elif previous_line == 'Bot stopped.' and \
+                line.find('Game client closed by CloseGameAfterAutoStopped settings.') >= 0 and \
+                last_normal_stop == '':
+                    last_normal_stop = line.strip()[0:8]
+                    if last_abnormal_stop != '':
+                        break
+        elif previous_line == 'Bot stopped.' and \
+                line.find('Game client closed by CloseGameAfterAutoStopped settings.') < 0  and \
+                last_abnormal_stop == '':
+                    last_abnormal_stop = line.strip()[0:8]
+                    if last_normal_stop != '':
+                        break
+        else:
+            previous_line = ''
+
+    if last_normal_stop != '':
+        last_normal_stop_time = datetime.combine(datetime.now().date(),
+                                                 datetime.strptime(last_normal_stop, format).time())
+        print('Game client closed by CloseGameAfterAutoStopped settings.:', end=" ")
+        print(last_normal_stop_time)
+    else:
+        last_normal_stop_time = default_start_time
+    if last_abnormal_stop != '':
+        last_abnormal_stop_time = datetime.combine(datetime.now().date(),
+                                                   datetime.strptime(last_abnormal_stop, format).time())
+        print('Game client last abnormal stoped at :', end='')
+        print(last_abnormal_stop_time)
+    else:
+        last_abnormal_stop_time = default_start_time
+    if last_pause != '':
+        last_pause_time = datetime.combine(datetime.now().date(),
+                                           datetime.strptime(last_pause, format).time())
+
+        print('Game last pause at: ', end='')
+        print(last_pause_time)
+    else:
+        last_pause_time = default_start_time
+
+    # return checking result
+    if last_normal_stop_time > last_abnormal_stop_time and \
+            last_normal_stop_time > last_pause_time and \
+            last_normal_stop_time != default_start_time and \
+            last_normal_stop_time > last_check_time:
+        return 'Normal_stop', datetime.now()
+    elif last_abnormal_stop_time > last_normal_stop_time and \
+            last_abnormal_stop_time > last_pause_time and \
+            last_abnormal_stop_time != default_start_time and \
+            last_abnormal_stop_time > last_check_time:
+        return 'Abnormal_stop', datetime.now()
+    elif last_pause_time > last_normal_stop_time and \
+            last_pause_time > last_abnormal_stop_time and \
+            last_pause_time != default_start_time and \
+            last_pause_time > last_check_time:
+        return 'Pause_stop', datetime.now()
+
+    else:
+        return 'Null', datetime.now()
+
+
+def enumHandler2(hwnd, lParam):
+    global LOOKUP_WINDOW_HWND
+    if win32gui.IsWindowVisible(hwnd):
+        wintitle = win32gui.GetWindowText(hwnd)
+        if wintitle.find(LOOKUP_WINDOW_TEXT) >= 0:
+            print(wintitle)
+            LOOKUP_WINDOW_HWND = hwnd
 
 
 # checking score():
 def checking_score(player_id, max_win, already_won, last_status):
+    global default_start_time, last_time, LOOKUP_WINDOW_TEXT, LOOKUP_WINDOW_HWND
     last_win = last_status[0]
     last_losses = last_status[1]
     last_concedes = last_status[2]
-    logging.info('start to check the score...')
-    # read score
-    with open("Settings\Default\Stats.json") as json_file:
-        json_data = json.load(json_file)
-        logging.info('status shows: ' + str(json_data))
-        win_count = json_data['Wins']
-        lose_count = json_data['Losses']
-        concede_count = json_data['Concedes']
+    logging.info('start to check the failure')
 
-        if int(win_count) >= (max_win - already_won):
-            logging.warning('player No.' + str(player_id) + ' got ' + str(win_count + already_won) + ' wins!')
-            logging.info('close hstone program.....')
-            kill_process('Hearthstone.exe', '炉石传说')
-            return 99, 99, 99
-        if int(win_count) == int(last_win) and int(lose_count) == int(last_losses) and \
-                int(concede_count) == int(last_concedes):
-            print('here is no changed score during last 15 minutes, restarting....')
-            return 999, 999, 999
-        else:
-            print('last status = ', end='')
-            print(last_win, last_losses, last_concedes)
-            print('json_file = ', end='')
-            print(win_count, lose_count, concede_count)
-            return int(win_count), int(lose_count), int(concede_count)
+    # first the check if the hearth still there
+    LOOKUP_WINDOW_TEXT = '炉石传说'
+    LOOKUP_WINDOW_HWND = 0
+    win32gui.EnumWindows(enumHandler2, None)
+    if LOOKUP_WINDOW_HWND == 0:
+        logging.warning('player No.' + str(player_id) + ' crashed! -- not hearthstone window found!')
+        print('game crashed, no hearthstone windows found!')
+        return 999, 999, 999
+
+    # checking if bot stopped
+    default_start_time = datetime.combine(datetime.today().date(), datetime.min.time())
+    result, last_time = check_bot_stopped(log_file, default_start_time, last_time)
+
+    if result == 'Normal_stop':
+        logging.warning('player No.' + str(player_id) + ' got 32 wins!')
+        logging.info('close hstone program.....')
+        kill_process('Hearthstone.exe', '炉石传说')
+        kill_process('Battle.net.exe', '暴雪战网')
+        return 99, 99, 99
+    elif result == 'Abnormal_stop':
+        logging.warning('player No.' + str(player_id) + ' crashed!')
+        print('%s at last checking time of %s' % (str(result), str(last_time)))
+        return 999, 999, 999
+    elif result == 'Pause_stop':
+        print('%s at last checking time of %s' % (str(result), str(last_time)))
+        logging.warning('player No.' + str(player_id) + ' paused')
+        return 88, 88, 88
+    else:
+        last_losses += 1
+        return last_win, last_losses, last_concedes
+
 
 
 # checking failure
 def checking_failure():
     global already_won, player_break, general_failure
 
-    for failure in failure_checking_list:
-        print('checking failure..' + str(failure))
-        failure_found = pyautogui.locateCenterOnScreen(failure[0], region=failure[1],
-                                                       grayscale=False, confidence=0.7)
-        if failure_found is not None or general_failure == 'STALK!':
-            print('failure found !' + str(failure))
-            logging.warning('failure found' + str(failure))
-            logging.warning('game disconnected.....')
-            with open("Settings\Default\Stats.json") as json_file:
-                json_data = json.load(json_file)
-                logging.info('status shows: ' + str(json_data))
-                win_count = json_data['Wins']
-                already_won += int(win_count)
-            logging.warning(str(acc['acc']) + ' fails ' + str(player_break) + ' times!')
-            logging.warning('Player won ' + str(already_won) + ' games before broken!')
-            time.sleep(60)
-            logging.warning('close hstone program.....')
-            kill_process('Hearthstone.exe', '炉石传说')
-            player_break += 1
-            logging.info('adding one more failure...')
-            general_failure = 'NORMAL'
-            return True
+    if general_failure == 'STALK!':
+        print('failure found !')
+        logging.warning('failure found')
+        logging.warning('game disconnected.....')
+        logging.warning('close hstone program.....')
+        kill_process('Hearthstone.exe', '炉石传说')
+        kill_process('Battle.net.exe', '暴雪战网')
+        player_break += 1
+        logging.info('adding one more failure...')
+        general_failure = 'NORMAL'
+        return True
     return False
 
 
@@ -554,7 +536,7 @@ def move_and_click(position, ta=0.4, tb=0.6):
 
 #  gold_miner_loop for single acc:
 def gold_miner_loop(acc):
-    global player_id, player_break, already_won, general_failure
+    global player_id, player_break, already_won, general_failure, need_to_reset_counter, last_status
     if acc['max'] <= acc['won']:
         print('current_id should have max %s wins..' % str(acc['max']))
         print('it has alread won %s times..' % str(acc['won']))
@@ -565,6 +547,7 @@ def gold_miner_loop(acc):
         if player_id >= total_account:
             logging.warning('maxium players has been played....terminating...')
             kill_process('Hearthstone.exe', '炉石传说')
+            kill_process('Battle.net.exe', '暴雪战网')
             return True
         return False
 
@@ -572,6 +555,7 @@ def gold_miner_loop(acc):
             (is_not_midnight() >= 80000 and not auto_start):
         logging.warning('midnight is coming, start the standard farming')
         kill_process('Hearthstone.exe', '炉石传说')
+        kill_process('Battle.net.exe', '暴雪战网')
         time.sleep(600)  # in case relog in the same round
         return True
 
@@ -581,38 +565,30 @@ def gold_miner_loop(acc):
     initialize_hs_window(hs_window)
 
     # close bt window be set in configuration of bn / set in bt configuration file
-    # kill_process('Battle.net.exe', '暴雪战网')
+    kill_process('Battle.net.exe', '暴雪战网')
     time.sleep(15)
     logging.info('battle net window was auto_shut!')
 
-    load_and_initiate_buddy()
-    start_hs_first_game_round()
+    load_and_initiate_ranger()
 
-    # just click to focus the hs window
-    move_and_click((850 + re_x, 200 + re_y))
+    if need_to_reset_counter:
+        reset_status()
+        need_to_reset_counter = False
 
-    reset_status()
-    last_status = (0, 0, 0)  # last_win , last_losses, last_concedes = 0, 0, 0
-
+    start_ranger()
     t = time.time()
     checking_continue = True
-    checking_period = 600  # check in every 10 minutes
+    checking_period = 180  # check in every 10 minutes
 
     while checking_continue:
         time.sleep(3)
-        # check if the round is ended, if yes start a new one
-        ct = time.time()
-        while not start_new_round():
-            if time.time() - ct >= 60:
-                break
-            pass
 
         if time.time() - t >= checking_period - 10:
-            move_and_click((850 + re_x, 200 + re_y))
             if (not is_not_midnight() and not auto_start) or \
                     (is_not_midnight() >= 80000 and not auto_start):
                 logging.warning('midnight is coming, start the standard farming')
                 kill_process('Hearthstone.exe', '炉石传说')
+                kill_process('Battle.net.exe', '暴雪战网')
                 time.sleep(600)  # in case relog in the same round
                 return True
             last_status = checking_score(player_id, acc['max'] - acc['won'], already_won, last_status)
@@ -621,14 +597,20 @@ def gold_miner_loop(acc):
                 player_id += 1
                 player_break = 0
                 already_won = 0
+                need_to_reset_counter = True
                 logging.info('shift to the next player...')
                 if player_id >= total_account:
                     logging.warning('maxium players has been played....terminating...')
                     kill_process('Hearthstone.exe', '炉石传说')
+                    kill_process('Battle.net.exe', '暴雪战网')
                     return True
                 break
             elif last_status == (999, 999, 999):
                 general_failure = 'STALK!'
+            elif last_status == (88, 88, 88):
+                start_ranger()
+                last_status = (0, 0, 0)
+                pass
             checking_continue = not checking_failure()
             t = time.time()
     return False
@@ -716,122 +698,95 @@ hs_target = winshell.shortcut(os.path.join(winshell.desktop(), "炉石传说.lnk
 logging.warning('ranger switcher running!')
 
 
-# # if suffix == "_sur":
-# ranger_btn_dict = {'start_btn': (366, 180)}
-# # revised x and y
-# re_x = 90
-# re_y = 420
-# buddy_status = False
-# general_failure = 'NORMAL'
-#
-# HS_BATTLE_SELECTION_BTN = (1017 + re_x, 218 + re_y)
-# HS_BATTLE_START_BTN = (1239 + re_x, 487 + re_y)
-# HS_START_BTN_REGION = (1000 + re_x, 300 + re_y, 500, 500)
-# SEARCHING_BOX = (900 + re_x, 100 + re_y, 400, 300)
-#
-# # version 3.5 and above new checking position
-# STANDARD_BNT_SIZE_SUR = (370, 550)
-# HS_WILD_BOX_AFTER_REVISED = (1280, 470, 60, 50)
-# HS_WILD_BOX_CLICK_AFTER_REVISED = (1310, 495)
-# HS_ROW1_COLUMN1_DECK_BUTTON_AFTER_REVISED = (1080, 610)
-# HS_CASUAL_FARMING_BUTTON_AFTER_REVISED = (1250, 570)
-# HS_START_BATTLE_BTN_REGION = (1000, 600, 200, 60)
-# HS_SHUT_REGION =(970, 670, 200, 100)
-# wild_logo_png = 'wild_logo' + suffix + '.png'
-# hb_dart_start_png = 'hb_dark_start_sur.png'
-# hb_yellow_start_png = 'hb_yellow_start_sur.png'
-# hb_yellow_stop_png = 'hb_yellow_stop_sur.png'
-# start_battle_button_png = 'hs_start_btn_sur.png'
-# shut_down_png = 'hs_shut_sur.png'
-# break4_rgn = (900, 690, 100, 100)
-# break4_png = 'shock_mark_sur.png'
-# BNT_MAINTAIN_LOGO_REGION = (110, 110, 250, 200)
-# bt_maintain_logo = 'bt_maintain_logo_sur.png'
-# #----new variables end here
-#
-# wild_logo_rgn = (1220 + re_x, 45 + re_y, 1270, 90)
-# close_logo_png = 'close_logo' + suffix + '.png'
-# close_logo_rgn = (900 + re_x, 200 + re_y, 1300, 500)
-# break1_png = 'broke1' + suffix + '.png'
-# break2_png = 'broke2' + suffix + '.png'
-# break3_png = 'broke3' + suffix + '.png'
-# break1_rgn = (750 + re_x, 260 + re_y, 840, 350)
-# break2_rgn = (890 + re_x, 240 + re_y, 1160, 400)
-# break3_rgn = (890 + re_x, 240 + re_y, 1160, 400)
-#
-# failure_checking_list = [(close_logo_png, close_logo_rgn),
-#                          (shut_down_png, HS_SHUT_REGION),
-#                          (break2_png, break2_rgn),
-#                          (break3_png, break3_rgn),
-#                          (break4_png, break4_rgn)]
-#
+ranger_btn_dict = {'start_btn': (368, 267),
+                   'config_btn': (100, 260),
+                   'auto_stop_sheet': (1300, 115),
+                   'reset_win_counter_btn': (945, 370),
+                   'save_config_btn': (1250, 1035)}
+
+ranger_txt = ''
+ranger_hwnd = 0
+last_status = (0, 0, 0)
+# log_file = 'c:\\HearthRanger\\task_log\\test\\*.log'
+log_file = '*.log'
+LOOKUP_WINDOW_TEXT = '炉石传说'
+LOOKUP_WINDOW_HWND = 0
+default_start_time = datetime.combine(datetime.today().date(), datetime.min.time())
+last_time = default_start_time
+general_failure = 'NORMAL'  # NORMAL means no failure
+
 # # -------------------------- initializaion II-----------------------------------------
 # deleting old log files
 clean_log_files()
 logging.warning('OLD LOG FILES DELETED!')
-#
-# # get standard farming list in to sf_list
-# generate_farming_list('account_per.txt', 'acc_farm_list.pcl')
-# sf_list = parse_farming_list_file('acc_farm_list.pcl')
-#
-# total_account = len(sf_list)
-#
-# auto_start = wait_for_midnight()
-#
-# if not auto_start:
-#     # get today's farming order from a user
-#     tf_list = get_and_parse_command()
-#     for i in tf_list:
-#         print(i)
-#     time.sleep(1)
-#     # so far we have tf_list to start farming and sf_list for the next day.
-#     logging.info('standard_farming list and today_farming list all loaded!')
-# else:
-#     tf_list = []
-#
-# # if it is an instant command, start to farm right now:
-# if tf_list != []:
-#     print('temp_farming list as following..:', file=sys.stderr)
-#     time.sleep(0.4)
-#     print(tf_list)
-#     player_id = 0
-#     player_break = 0
-#     already_won = 0
-#     acc = tf_list[player_id]
-#     total_account = len(tf_list)
-#     while player_id <= total_account:
-#         print('current No. %s account detail: ' % str(player_id), end='')
-#         print(acc)
-#         farm_done = gold_miner_loop(acc)
-#         if farm_done:
-#             break
-#         acc = tf_list[player_id]
-#
-#     print('temp farming ended!', file=sys.stderr)
-#     time.sleep(0.4)
-#     auto_start = wait_for_midnight()
-#
-# # midnight farm loop
-# total_account = len(sf_list)
-# auto_start = True
-#
-# while True:
-#     player_id = 0
-#     player_break = 0
-#     already_won = 0
-#     acc = sf_list[player_id]
-#     print('standard_farming list as following..:', file=sys.stderr)
-#     time.sleep(0.4)
-#     print(sf_list)
-#     while player_id <= total_account:
-#         print('current No. %s account detail: ' % str(player_id), end='')
-#         print(acc)
-#         farm_done = gold_miner_loop(acc)
-#         if farm_done:
-#             break
-#         acc = sf_list[player_id]
-#
-#     auto_start = wait_for_midnight()
+
+# get standard farming list in to sf_list
+generate_farming_list('account_per.txt', 'acc_farm_list.pcl')
+sf_list = parse_farming_list_file('acc_farm_list.pcl')
+
+# sf_list format as following:
+# [{'acc': account_id[i], 'psw': account_psd[i], 'max': max_wins[i], 'won': already_won[i], 'dck': deck_list[0]}, ..]
+
+total_account = len(sf_list)
+
+auto_start = wait_for_midnight()
+
+if not auto_start:
+    # get today's farming order from a user
+    tf_list = get_and_parse_command()
+    for i in tf_list:
+        print(i)
+    time.sleep(1)
+    # so far we have tf_list to start farming and sf_list for the next day.
+    logging.info('standard_farming list and today_farming list all loaded!')
+else:
+    tf_list = []
+
+# if it is an instant command, start to farm right now:
+if tf_list != []:
+    print('temp_farming list as following..:', file=sys.stderr)
+    time.sleep(0.4)
+    print(tf_list)
+    player_id = 0
+    player_break = 0
+    need_to_reset_counter = True
+    already_won = 0
+    acc = tf_list[player_id]
+    total_account = len(tf_list)
+    while player_id <= total_account:
+        print('current No. %s account detail: ' % str(player_id), end='')
+        print(acc)
+        farm_done = gold_miner_loop(acc)
+        if farm_done:
+            break
+        acc = tf_list[player_id]
+
+    print('temp farming ended!', file=sys.stderr)
+    time.sleep(0.4)
+    auto_start = wait_for_midnight()
+
+# midnight farm loop
+total_account = len(sf_list)
+auto_start = True
+
+while True:
+    player_id = 0
+    player_break = 0
+    already_won = 0
+    need_to_reset_counter = True
+    acc = sf_list[player_id]
+    print('standard_farming list as following..:', file=sys.stderr)
+    time.sleep(0.4)
+    print(sf_list)
+    while player_id <= total_account:
+        print('current No. %s account detail: ' % str(player_id), end='')
+        print(acc)
+        farm_done = gold_miner_loop(acc)
+        if farm_done:
+            break
+        acc = sf_list[player_id]
+
+    auto_start = wait_for_midnight()
 
 # --------------------------main loop starts here-----------------------------------------------------------------------
 

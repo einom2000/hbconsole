@@ -7,6 +7,7 @@ import time
 import os
 import glob
 from datetime import datetime
+import psutil
 
 
 def time_differ(time1, time2):
@@ -24,7 +25,7 @@ def enumHandler2(hwnd, lParam):
             print(wintitle)
             LOOKUP_WINDOW_HWND = hwnd
 
-def enumHandler(hwnd, lParam):
+def enumHandler1(hwnd, lParam):
     global ranger_txt, ranger_hwnd
     keywords = ['ycharm', '炉石', '暴雪', '设置', 'Program',
                 'Microsoft', 'MainWindow','Chrome']
@@ -41,15 +42,25 @@ def enumHandler(hwnd, lParam):
             ranger_hwnd = hwnd
 
 
-LOOKUP_WINDOW_TEXT = 'Microsoftddd'
+def kill_process(process_name, wd_name):
+    while win32gui.FindWindow(None, wd_name):
+        for proc in psutil.process_iter():
+            # check whether the process name matches
+            if proc.name() == process_name:
+                proc.kill()
+                break
+
+LOOKUP_WINDOW_TEXT = '暴雪'
 LOOKUP_WINDOW_HWND = 0
 win32gui.EnumWindows(enumHandler2, None)
 print(LOOKUP_WINDOW_HWND)
 print(win32gui.GetWindowText(LOOKUP_WINDOW_HWND))
+kill_process('Battle.net.exe', '暴雪战网')
+
 
 ranger_txt = ''
 ranger_hwnd = 0
-win32gui.EnumWindows(enumHandler, None)
+win32gui.EnumWindows(enumHandler1, None)
 if ranger_txt is not '':
     print(r'here is the window title %s!' % ranger_txt)
     print(r'here is the handler of that window %d !' % ranger_hwnd)
@@ -147,6 +158,12 @@ for _ in range(2):
     print('%s at last checking time of %s' % (str(result), str(last_time)))
     time.sleep(2)
 
+
+
+while True:
+    if keyboard.is_pressed(' '):
+        print(pyautogui.position())
+        time.sleep(2)
 # ================================= check the last bot abnormal stopped ===
 
 
