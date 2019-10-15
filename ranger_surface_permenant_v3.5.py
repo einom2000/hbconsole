@@ -90,6 +90,8 @@ def get_and_parse_command():
         flag = 0  # 0 for temp command # 1 for change configure permanently
         permanent_changes = []
         # asking for a command line
+        print('MAKE SURE YOU START RANGER FIRST!!!', file=sys.stdout)
+        time.sleep(0.6)
         print('There are %d account(s) in list, how do you want farm:' % len(sf_list), file=sys.stderr)
         time.sleep(0.5)
 
