@@ -308,6 +308,8 @@ def log_in_hs(acc):
         if hs_window > 0:
             hs_is_running = True
     logging.info('hstone loaded successfully!')
+    win32gui.SetForegroundWindow(hs_window)
+    win32gui.MoveWindow(hs_window, 620, 0, 800, 600, 1)
     return hs_window
 
 
@@ -388,18 +390,24 @@ def check_bot_stopped(file, default_start_time, last_check_time):
     for line in reversed(open(newest_stop_log, encoding='utf-8').readlines()):
         if line.lower().find('bot pause') >= 0 and last_pause == '':
             last_pause = line.strip()[0:8]
+            if last_pause[-1] == ':':
+                last_pause = last_pause[:-1]
         elif line.find('Bot stopped.') >= 0:
             previous_line = 'Bot stopped.'
         elif previous_line == 'Bot stopped.' and \
                 line.find('Game client closed by CloseGameAfterAutoStopped settings.') >= 0 and \
                 last_normal_stop == '':
                     last_normal_stop = line.strip()[0:8]
+                    if last_normal_stop[-1] == '-1':
+                        last_normal_stop = last_normal_stop[:-1]
                     if last_abnormal_stop != '':
                         break
         elif previous_line == 'Bot stopped.' and \
                 line.find('Game client closed by CloseGameAfterAutoStopped settings.') < 0  and \
                 last_abnormal_stop == '':
                     last_abnormal_stop = line.strip()[0:8]
+                    if last_abnormal_stop[-1] == ':':
+                        last_abnormal_stop = last_abnormal_stop[:-1]
                     if last_normal_stop != '':
                         break
         else:
@@ -432,17 +440,20 @@ def check_bot_stopped(file, default_start_time, last_check_time):
     if last_normal_stop_time > last_abnormal_stop_time and \
             last_normal_stop_time > last_pause_time and \
             last_normal_stop_time != default_start_time and \
-            last_normal_stop_time > last_check_time:
+            last_normal_stop_time > last_check_time and \
+            (last_normal_stop_time - last_check_time).total_seconds() < 600:
         return 'Normal_stop', datetime.now()
     elif last_abnormal_stop_time > last_normal_stop_time and \
             last_abnormal_stop_time > last_pause_time and \
             last_abnormal_stop_time != default_start_time and \
-            last_abnormal_stop_time > last_check_time:
+            last_abnormal_stop_time > last_check_time and \
+            (last_abnormal_stop_time - last_check_time).total_seconds() < 600:
         return 'Abnormal_stop', datetime.now()
     elif last_pause_time > last_normal_stop_time and \
             last_pause_time > last_abnormal_stop_time and \
             last_pause_time != default_start_time and \
-            last_pause_time > last_check_time:
+            last_pause_time > last_check_time and \
+            (last_pause_time - last_check_time).total_seconds() < 600:
         return 'Pause_stop', datetime.now()
 
     else:
@@ -478,7 +489,7 @@ def checking_score(player_id, max_win, already_won, last_status):
     # checking if bot stopped
     default_start_time = datetime.combine(datetime.today().date(), datetime.min.time())
     result, last_time = check_bot_stopped(log_file, default_start_time, last_time)
-
+    print('%s at last checking time of %s' % (str(result), str(last_time)))
     if result == 'Normal_stop':
         logging.warning('player No.' + str(player_id) + ' got 32 wins!')
         logging.info('close hstone program.....')
@@ -527,6 +538,7 @@ def move_and_click(position, ta=0.4, tb=0.6):
 #  gold_miner_loop for single acc:
 def gold_miner_loop(acc):
     global player_id, player_break, already_won, general_failure, need_to_reset_counter, last_status
+    global last_time
     if acc['max'] <= acc['won']:
         print('current_id should have max %s wins..' % str(acc['max']))
         print('it has alread won %s times..' % str(acc['won']))
@@ -588,6 +600,7 @@ def gold_miner_loop(acc):
                 player_break = 0
                 already_won = 0
                 need_to_reset_counter = True
+                last_time = datetime.now()
                 logging.info('shift to the next player...')
                 if player_id >= total_account:
                     logging.warning('maxium players has been played....terminating...')
@@ -697,12 +710,12 @@ ranger_btn_dict = {'start_btn': (368, 267),
 ranger_txt = ''
 ranger_hwnd = 0
 last_status = (0, 0, 0)
-# log_file = 'c:\\HearthRanger\\task_log\\test\\*.log'
-log_file = '*.log'
+log_file = 'c:\\HearthRanger\\task_log\\*.log'
+# log_file = '*.log'
 LOOKUP_WINDOW_TEXT = '炉石传说'
 LOOKUP_WINDOW_HWND = 0
 default_start_time = datetime.combine(datetime.today().date(), datetime.min.time())
-last_time = default_start_time
+last_time = datetime.now()
 general_failure = 'NORMAL'  # NORMAL means no failure
 
 # # -------------------------- initializaion II-----------------------------------------

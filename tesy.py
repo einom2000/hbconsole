@@ -88,18 +88,24 @@ def check_bot_stopped(file, last_check_time=
     for line in reversed(open(newest_stop_log, encoding='utf-8').readlines()):
         if line.lower().find('bot pause') >= 0 and last_pause == '':
             last_pause = line.strip()[0:8]
+            if last_pause[-1] == ':':
+                last_pause = last_pause[:-1]
         elif line.find('Bot stopped.') >= 0:
             previous_line = 'Bot stopped.'
         elif previous_line == 'Bot stopped.' and \
                 line.find('Game client closed by CloseGameAfterAutoStopped settings.') >= 0 and \
                 last_normal_stop == '':
                     last_normal_stop = line.strip()[0:8]
+                    if last_normal_stop[-1] == '-1':
+                        last_normal_stop = last_normal_stop[:-1]
                     if last_abnormal_stop != '':
                         break
         elif previous_line == 'Bot stopped.' and \
                 line.find('Game client closed by CloseGameAfterAutoStopped settings.') < 0  and \
                 last_abnormal_stop == '':
                     last_abnormal_stop = line.strip()[0:8]
+                    if last_abnormal_stop[-1] == ':':
+                        last_abnormal_stop = last_abnormal_stop[:-1]
                     if last_normal_stop != '':
                         break
         else:
@@ -132,17 +138,20 @@ def check_bot_stopped(file, last_check_time=
     if last_normal_stop_time > last_abnormal_stop_time and \
             last_normal_stop_time > last_pause_time and \
             last_normal_stop_time != default_start_time and \
-            last_normal_stop_time > last_check_time:
+            last_normal_stop_time > last_check_time and \
+            (last_normal_stop_time - last_check_time).total_seconds() < 600:
         return 'Normal_stop', datetime.now()
     elif last_abnormal_stop_time > last_normal_stop_time and \
             last_abnormal_stop_time > last_pause_time and \
             last_abnormal_stop_time != default_start_time and \
-            last_abnormal_stop_time > last_check_time:
+            last_abnormal_stop_time > last_check_time and \
+            (last_abnormal_stop_time - last_check_time).total_seconds() < 600:
         return 'Abnormal_stop', datetime.now()
     elif last_pause_time > last_normal_stop_time and \
             last_pause_time > last_abnormal_stop_time and \
             last_pause_time != default_start_time and \
-            last_pause_time > last_check_time:
+            last_pause_time > last_check_time and \
+            (last_pause_time - last_check_time).total_seconds() < 600:
         return 'Pause_stop', datetime.now()
 
     else:
@@ -150,8 +159,8 @@ def check_bot_stopped(file, last_check_time=
 
 
 default_start_time = datetime.combine(datetime.today().date(), datetime.min.time())
-# log_file = 'c:\\HearthRanger\\task_log\\test\\*.log'
-log_file = '*.log'
+log_file = 'c:\\HearthRanger\\task_log\\*.log'
+# log_file = '*.log'
 last_time = default_start_time
 for _ in range(2):
     result, last_time = check_bot_stopped(log_file, last_time)
@@ -160,10 +169,10 @@ for _ in range(2):
 
 
 
-while True:
-    if keyboard.is_pressed(' '):
-        print(pyautogui.position())
-        time.sleep(2)
+# while True:
+#     if keyboard.is_pressed(' '):
+#         print(pyautogui.position())
+#         time.sleep(2)
 # ================================= check the last bot abnormal stopped ===
 
 
