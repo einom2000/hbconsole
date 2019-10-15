@@ -106,7 +106,7 @@ def get_and_parse_command():
         print('        3-10, 1-20 == farming 3rd with 10wins, 1st.with 20wins in the temp order')
         print('        B,C,A,20 == CHANGE CONFIG PERMANENTLY IN THAT ORDER 2,3,1 WITH MAX 20 WINS')
         print('        If you are using ranger the wins counts are set by ranger\'s default!!!')
-
+        print('        1-1  means not to reset counter')
         wrong_cmd = True
         # parse command, to win = max - won
         while wrong_cmd:
@@ -361,7 +361,7 @@ def start_ranger():
     # make sure the buddy_status is correct
     click_hb_btn(ranger_btn_dict['start_btn'])
     time.sleep(3)
-    pyautogui.moveTo(800, 800,1, pyautogui.easeInQuad)
+    pyautogui.moveTo(800, 800, 1, pyautogui.easeInQuad)
     pyautogui.click()
 
 
@@ -541,19 +541,21 @@ def move_and_click(position, ta=0.4, tb=0.6):
 def gold_miner_loop(acc):
     global player_id, player_break, already_won, general_failure, need_to_reset_counter, last_status
     global last_time
-    if acc['max'] <= acc['won']:
-        print('current_id should have max %s wins..' % str(acc['max']))
-        print('it has alread won %s times..' % str(acc['won']))
-        player_id += 1
-        player_break = 0
-        already_won = 0
-        logging.info('shift to the next player...')
-        if player_id >= total_account:
-            logging.warning('maxium players has been played....terminating...')
-            kill_process('Hearthstone.exe', '炉石传说')
-            kill_process('Battle.net.exe', '暴雪战网')
-            return True
-        return False
+    if acc['won'] == 31:
+        need_to_reset_counter = False
+    # if acc['max'] <= acc['won'] or:
+    #     print('current_id should have max %s wins..' % str(acc['max']))
+    #     print('it has alread won %s times..' % str(acc['won']))
+    #     player_id += 1
+    #     player_break = 0
+    #     already_won = 0
+    #     logging.info('shift to the next player...')
+    #     if player_id >= total_account:
+    #         logging.warning('maxium players has been played....terminating...')
+    #         kill_process('Hearthstone.exe', '炉石传说')
+    #         kill_process('Battle.net.exe', '暴雪战网')
+    #         return True
+    #     return False
 
     if (not is_not_midnight() and not auto_start) or \
             (is_not_midnight() >= 80000 and not auto_start):
@@ -613,8 +615,12 @@ def gold_miner_loop(acc):
             elif last_status == (999, 999, 999):
                 general_failure = 'STALK!'
             elif last_status == (88, 88, 88):
-                start_ranger()
+                win32gui.SetForegroundWindow(ranger_hwnd)
+                click_hb_btn(ranger_btn_dict['resume_button'])
+                time.sleep(1)
+                pyautogui.moveTo(800, 800, 1, pyautogui.easeInQuad)
                 last_status = (0, 0, 0)
+                pyautogui.click()
                 pass
             checking_continue = not checking_failure()
             t = time.time()
@@ -707,7 +713,8 @@ ranger_btn_dict = {'start_btn': (368, 267),
                    'config_btn': (100, 260),
                    'auto_stop_sheet': (1300, 115),
                    'reset_win_counter_btn': (945, 370),
-                   'save_config_btn': (1250, 1035)}
+                   'save_config_btn': (1250, 1035),
+                   'resume_button': (435, 258)}
 
 ranger_txt = ''
 ranger_hwnd = 0

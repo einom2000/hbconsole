@@ -169,10 +169,10 @@ for _ in range(2):
 
 
 
-# while True:
-#     if keyboard.is_pressed(' '):
-#         print(pyautogui.position())
-#         time.sleep(2)
+while True:
+    if keyboard.is_pressed(' '):
+        print(pyautogui.position())
+        time.sleep(2)
 # ================================= check the last bot abnormal stopped ===
 
 
