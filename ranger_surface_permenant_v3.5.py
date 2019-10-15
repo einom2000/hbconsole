@@ -361,6 +361,8 @@ def start_ranger():
     # make sure the buddy_status is correct
     click_hb_btn(ranger_btn_dict['start_btn'])
     time.sleep(3)
+    pyautogui.moveTo(800, 800,1, pyautogui.easeInQuad)
+    pyautogui.click()
 
 
 # reset ranger win counter
