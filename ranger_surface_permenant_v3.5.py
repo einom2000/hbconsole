@@ -405,7 +405,7 @@ def check_bot_stopped(file, default_start_time, last_check_time):
                     if last_abnormal_stop != '':
                         break
         elif previous_line == 'Bot stopped.' and \
-                line.find('Game client closed by CloseGameAfterAutoStopped settings.') < 0  and \
+                line.find('Game client closed by CloseGameAfterAutoStopped setting') < 0 and \
                 last_abnormal_stop == '':
                     last_abnormal_stop = line.strip()[0:8]
                     if last_abnormal_stop[-1] == ':':
@@ -418,6 +418,8 @@ def check_bot_stopped(file, default_start_time, last_check_time):
     if last_normal_stop != '':
         last_normal_stop_time = datetime.combine(datetime.now().date(),
                                                  datetime.strptime(last_normal_stop, format).time())
+        if last_normal_stop_time > datetime.now():
+            last_normal_stop_time = default_start_time
         print('Game client closed by CloseGameAfterAutoStopped settings.:', end=" ")
         print(last_normal_stop_time)
     else:
@@ -425,6 +427,8 @@ def check_bot_stopped(file, default_start_time, last_check_time):
     if last_abnormal_stop != '':
         last_abnormal_stop_time = datetime.combine(datetime.now().date(),
                                                    datetime.strptime(last_abnormal_stop, format).time())
+        if last_abnormal_stop_time > datetime.now():
+            last_abnormal_stop_time = default_start_time
         print('Game client last abnormal stoped at :', end='')
         print(last_abnormal_stop_time)
     else:
@@ -432,7 +436,8 @@ def check_bot_stopped(file, default_start_time, last_check_time):
     if last_pause != '':
         last_pause_time = datetime.combine(datetime.now().date(),
                                            datetime.strptime(last_pause, format).time())
-
+        if last_pause_time > datetime.now():
+            last_pause_time = default_start_time
         print('Game last pause at: ', end='')
         print(last_pause_time)
     else:
