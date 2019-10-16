@@ -397,19 +397,23 @@ def check_bot_stopped(file, default_start_time, last_check_time):
         elif line.find('Bot stopped.') >= 0:
             previous_line = 'Bot stopped.'
         elif previous_line == 'Bot stopped.' and \
-                line.find('Game client closed by CloseGameAfterAutoStopped settings.') >= 0 and \
+                (line.find('Game client closed by CloseGameAfterAutoStopped ') >= 0 or
+                 line.find('No available job to do') >= 0) and \
                 last_normal_stop == '':
                     last_normal_stop = line.strip()[0:8]
                     if last_normal_stop[-1] == '-1':
                         last_normal_stop = last_normal_stop[:-1]
+                        previous_line = ''
                     if last_abnormal_stop != '':
                         break
         elif previous_line == 'Bot stopped.' and \
-                line.find('Game client closed by CloseGameAfterAutoStopped setting') < 0 and \
+                (line.find('Game client closed by CloseGameAfterAutoStopped ') < 0 and
+                 line.find('No available job to do') < 0) and \
                 last_abnormal_stop == '':
                     last_abnormal_stop = line.strip()[0:8]
                     if last_abnormal_stop[-1] == ':':
                         last_abnormal_stop = last_abnormal_stop[:-1]
+                        previous_line = ''
                     if last_normal_stop != '':
                         break
         else:
@@ -501,7 +505,7 @@ def checking_score(player_id, max_win, already_won, last_status):
         logging.warning('player No.' + str(player_id) + ' got 32 wins!')
         logging.info('close hstone program.....')
         kill_process('Hearthstone.exe', '炉石传说')
-        kill_process('Battle.net.exe', '暴雪战网')
+        # kill_process('Battle.net.exe', '暴雪战网')
         return 99, 99, 99
     elif result == 'Abnormal_stop':
         logging.warning('player No.' + str(player_id) + ' crashed!')
@@ -527,7 +531,7 @@ def checking_failure():
         logging.warning('game disconnected.....')
         logging.warning('close hstone program.....')
         kill_process('Hearthstone.exe', '炉石传说')
-        kill_process('Battle.net.exe', '暴雪战网')
+        # kill_process('Battle.net.exe', '暴雪战网')
         player_break += 1
         logging.info('adding one more failure...')
         general_failure = 'NORMAL'
@@ -566,7 +570,7 @@ def gold_miner_loop(acc):
             (is_not_midnight() >= 80000 and not auto_start):
         logging.warning('midnight is coming, start the standard farming')
         kill_process('Hearthstone.exe', '炉石传说')
-        kill_process('Battle.net.exe', '暴雪战网')
+        # kill_process('Battle.net.exe', '暴雪战网')
         time.sleep(600)  # in case relog in the same round
         return True
 
@@ -576,7 +580,7 @@ def gold_miner_loop(acc):
     initialize_hs_window(hs_window)
 
     # close bt window be set in configuration of bn / set in bt configuration file
-    kill_process('Battle.net.exe', '暴雪战网')
+    # kill_process('Battle.net.exe', '暴雪战网')
     time.sleep(15)
     logging.info('battle net window was auto_shut!')
 
@@ -599,7 +603,7 @@ def gold_miner_loop(acc):
                     (is_not_midnight() >= 80000 and not auto_start):
                 logging.warning('midnight is coming, start the standard farming')
                 kill_process('Hearthstone.exe', '炉石传说')
-                kill_process('Battle.net.exe', '暴雪战网')
+                # kill_process('Battle.net.exe', '暴雪战网')
                 time.sleep(600)  # in case relog in the same round
                 return True
             last_status = checking_score(player_id, acc['max'] - acc['won'], already_won, last_status)
@@ -614,7 +618,7 @@ def gold_miner_loop(acc):
                 if player_id >= total_account:
                     logging.warning('maxium players has been played....terminating...')
                     kill_process('Hearthstone.exe', '炉石传说')
-                    kill_process('Battle.net.exe', '暴雪战网')
+                    # kill_process('Battle.net.exe', '暴雪战网')
                     return True
                 break
             elif last_status == (999, 999, 999):
