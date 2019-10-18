@@ -378,6 +378,13 @@ def reset_status():
     logging.info('ranger win counter reseted!')
 
 
+def remove_column(tm):
+    while True:
+        if tm[-1] != ':':
+            return tm
+        else:
+            tm = tm[:-1]
+
 # ============= find the last normal exit ================= 'Bot stopped'==========
 # as well as find the last abnormal stop
 def check_bot_stopped(file, default_start_time, last_check_time):
@@ -389,11 +396,11 @@ def check_bot_stopped(file, default_start_time, last_check_time):
     last_abnormal_stop = ''
     last_pause = ''
 
+    # try:
     for line in reversed(open(newest_stop_log, encoding='utf-8').readlines()):
         if line.lower().find('bot pause') >= 0 and last_pause == '':
             last_pause = line.strip()[0:8]
-            if last_pause[-1] == ':':
-                last_pause = last_pause[:-1]
+            last_pause = remove_column(last_pause)
         elif line.find('Bot stopped.') >= 0:
             previous_line = 'Bot stopped.'
         elif previous_line == 'Bot stopped.' and \
@@ -401,9 +408,8 @@ def check_bot_stopped(file, default_start_time, last_check_time):
                  line.find('No available job to do') >= 0) and \
                 last_normal_stop == '':
                     last_normal_stop = line.strip()[0:8]
-                    if last_normal_stop[-1] == '-1':
-                        last_normal_stop = last_normal_stop[:-1]
-                        previous_line = ''
+                    last_normal_stop = remove_column(last_normal_stop)
+                    previous_line = ''
                     if last_abnormal_stop != '':
                         break
         elif previous_line == 'Bot stopped.' and \
@@ -411,14 +417,15 @@ def check_bot_stopped(file, default_start_time, last_check_time):
                  line.find('No available job to do') < 0) and \
                 last_abnormal_stop == '':
                     last_abnormal_stop = line.strip()[0:8]
-                    if last_abnormal_stop[-1] == ':':
-                        last_abnormal_stop = last_abnormal_stop[:-1]
-                        previous_line = ''
+                    last_abnormal_stop = remove_column(last_abnormal_stop)
+                    previous_line = ''
                     if last_normal_stop != '':
                         break
         else:
             previous_line = ''
 
+    print(last_normal_stop, last_abnormal_stop, last_pause)
+    print('============================================')
     if last_normal_stop != '':
         last_normal_stop_time = datetime.combine(datetime.now().date(),
                                                  datetime.strptime(last_normal_stop, format).time())
@@ -428,6 +435,7 @@ def check_bot_stopped(file, default_start_time, last_check_time):
         print(last_normal_stop_time)
     else:
         last_normal_stop_time = default_start_time
+
     if last_abnormal_stop != '':
         last_abnormal_stop_time = datetime.combine(datetime.now().date(),
                                                    datetime.strptime(last_abnormal_stop, format).time())
@@ -437,6 +445,7 @@ def check_bot_stopped(file, default_start_time, last_check_time):
         print(last_abnormal_stop_time)
     else:
         last_abnormal_stop_time = default_start_time
+
     if last_pause != '':
         last_pause_time = datetime.combine(datetime.now().date(),
                                            datetime.strptime(last_pause, format).time())
@@ -447,7 +456,21 @@ def check_bot_stopped(file, default_start_time, last_check_time):
     else:
         last_pause_time = default_start_time
 
+    # except ValueError:
+    #     print('error found!')
+    #     logging.warning('error found:')
+    #     logging.warning(last_normal_stop)
+    #     logging.warning(last_abnormal_stop)
+    #     logging.warning(last_pause)
+    #     print(last_normal_stop, last_abnormal_stop, last_pause)
+    #     print(last_normal_stop_time, last_abnormal_stop_time, last_pause_time)
+    #     last_normal_stop_time = default_start_time
+    #     last_abnormal_stop_time = default_start_time
+    #     last_pause_time = default_start_time
+
     # return checking result
+    print(last_normal_stop_time, last_abnormal_stop,last_pause_time,last_check_time)
+    print('+++++++++++++++++++++++++++++++++++++++')
     if last_normal_stop_time > last_abnormal_stop_time and \
             last_normal_stop_time > last_pause_time and \
             last_normal_stop_time != default_start_time and \
