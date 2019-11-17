@@ -247,8 +247,10 @@ def log_in_hs(acc):
     logging_time = time.time()
     bt_window = 0
     while not logged_in:
-        loginbt.runbnet()
-        bn_hwnd = loginbt.findWindow()
+        bn_hwnd = False
+        while not bn_hwnd:
+            loginbt.runbnet()
+            bn_hwnd = loginbt.findWindow()
         loginbt.login()
         # wait for the battle net window shows up
         time_login = time.time()
@@ -275,17 +277,18 @@ def log_in_hs(acc):
 
     # looking for hs and click waiting for hs
     hs_png = 'hs_sur.png'
-    while True:
-        found = pyautogui.locateCenterOnScreen(hs_png, region=(0, 0, bt_rec[2], bt_rec[3]),
-                                               grayscale=False, confidence=0.7)
-        if found is not None:
-            x = found[0]
-            y = found[1]
-            break
-
-    logging.info('hs logo found in (' + str(x) + ', ' + str(y) + ')!')
-    pyautogui.moveTo(x, y, 1,  pyautogui.easeInQuad)
-    pyautogui.click(x, y)
+    time.sleep(10)
+    # while True:
+    #     found = pyautogui.locateCenterOnScreen(hs_png, region=(0, 0, bt_rec[2], bt_rec[3]),
+    #                                            grayscale=False, confidence=0.7)
+    #     if found is not None:
+    #         x = found[0]
+    #         y = found[1]
+    #         break
+    #
+    # logging.info('hs logo found in (' + str(x) + ', ' + str(y) + ')!')
+    # pyautogui.moveTo(x, y, 1,  pyautogui.easeInQuad)
+    # # pyautogui.click(x, y)
     time.sleep(1)
     login_png = 'login_sur.png'
     while True:
@@ -367,13 +370,13 @@ def start_ranger():
 
 # reset ranger win counter
 def reset_status():
-    time.sleep(2)
-    click_hb_btn(ranger_btn_dict['config_btn'])
     time.sleep(5)
+    click_hb_btn(ranger_btn_dict['config_btn'])
+    time.sleep(10)
     click_hb_btn(ranger_btn_dict['auto_stop_sheet'])
-    time.sleep(2)
+    time.sleep(5)
     click_hb_btn(ranger_btn_dict['reset_win_counter_btn'])
-    time.sleep(2)
+    time.sleep(5)
     click_hb_btn(ranger_btn_dict['save_config_btn'])
     logging.info('ranger win counter reseted!')
 
@@ -404,7 +407,7 @@ def check_bot_stopped(file, default_start_time, last_check_time):
         elif line.find('Bot stopped.') >= 0:
             previous_line = 'Bot stopped.'
         elif previous_line == 'Bot stopped.' and \
-                (line.find('Game client closed by CloseGameAfterAutoStopped ') >= 0 or
+                (line.find('auto stop bot') >= 0 or
                  line.find('No available job to do') >= 0) and \
                 last_normal_stop == '':
                     last_normal_stop = line.strip()[0:8]
@@ -413,9 +416,7 @@ def check_bot_stopped(file, default_start_time, last_check_time):
                     if last_abnormal_stop != '':
                         break
         elif previous_line == 'Bot stopped.' and \
-                (line.find('Game client closed by CloseGameAfterAutoStopped ') < 0 and
-                 line.find('No available job to do') < 0) and \
-                last_abnormal_stop == '':
+                 line.find('auto stop bot') < 0 and last_abnormal_stop == '':
                     last_abnormal_stop = line.strip()[0:8]
                     last_abnormal_stop = remove_column(last_abnormal_stop)
                     previous_line = ''
@@ -687,8 +688,12 @@ class LoginWindow:
                 win32gui.MoveWindow(hwndbnt, 100, 100, 365, 541, True)
                 time.sleep(2)
                 break
-        win32gui.SetForegroundWindow(hwndbnt)
-        time.sleep(0.5)
+        time.sleep(3)
+        try:
+            win32gui.SetForegroundWindow(hwndbnt)
+            time.sleep(3)
+        except:
+            return False
         return hwndbnt
 
     # login process
