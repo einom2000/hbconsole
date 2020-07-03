@@ -14,7 +14,7 @@ import logging
 from win32api import GetKeyState
 from win32con import VK_CAPITAL
 import re, glob
-
+from shutil import copyfile
 
 # ----------------------communication related------------------------------
 import rsa_encrypto
@@ -392,31 +392,51 @@ def remove_column(tm):
 # as well as find the last abnormal stop
 def check_bot_stopped(file, default_start_time, last_check_time):
     format = '%H:%M:%S'
-    newest_stop_log = max(glob.iglob(file), key=os.path.getctime)   #'c:\\HearthRanger\\task_log\\test\\*.log'
-
+    newest_stop_text = max(glob.iglob(file), key=os.path.getctime)   #'c:\\HearthRanger\\task_log\\test\\*.log'
+    newest_stop_log = 'c:\\normal.log'
+    copyfile(newest_stop_text, newest_stop_log)
     last_normal_stop = ''
     previous_line = ''
     last_abnormal_stop = ''
     last_pause = ''
 
     # try:
+    k = 1
+
     for line in reversed(open(newest_stop_log, encoding='utf-8').readlines()):
+        if k == 1:
+            print('-------------last recorded time--------')
+            last_record = line[:8]
+            if last_record[-1] == ":":
+                last_record = last_record[:-1]
+            print("last_record = " + last_record)
+            k += 1
+            last_record_time = datetime.strptime(last_record, '%H:%M:%S')
+            time_now = datetime.now()
+            diff = time_now - last_record_time
+            mins = int(diff.seconds // 60)
+            if mins >= 15:
+                print('bot stucked, kill process....')
+                kill_process('Hearthstone.exe', '炉石传说')
+                # kill_process('Battle.net.exe', '暴雪战网')
+                time.sleep(10)
+
         if line.lower().find('bot pause') >= 0 and last_pause == '':
             last_pause = line.strip()[0:8]
             last_pause = remove_column(last_pause)
-        elif line.find('Bot stopped.') >= 0:
-            previous_line = 'Bot stopped.'
-        elif previous_line == 'Bot stopped.' and \
-                (line.find('auto stop bot') >= 0 or
-                 line.find('No available job to do') >= 0) and \
-                last_normal_stop == '':
+        # elif line.find('Bot stopped.') >= 0:
+        #     previous_line = 'Bot stopped.'
+        elif line.lower().find('bot stopped') >= 0:
+            previous_line = 'bot stopped'
+        elif previous_line == 'bot stopped' and (line.lower().find('no available job') >= 0 or
+                            line.lower().find('auto stop bot') >= 0) and last_normal_stop == '':
                     last_normal_stop = line.strip()[0:8]
                     last_normal_stop = remove_column(last_normal_stop)
                     previous_line = ''
                     if last_abnormal_stop != '':
                         break
-        elif previous_line == 'Bot stopped.' and \
-                 line.find('auto stop bot') < 0 and last_abnormal_stop == '':
+        elif previous_line == 'bot stopped.' and \
+                 line.lower().find('no available job') < 0 and last_abnormal_stop == '':
                     last_abnormal_stop = line.strip()[0:8]
                     last_abnormal_stop = remove_column(last_abnormal_stop)
                     previous_line = ''
@@ -589,9 +609,10 @@ def gold_miner_loop(acc):
     #         kill_process('Battle.net.exe', '暴雪战网')
     #         return True
     #     return False
-
+    print(not is_not_midnight() and not auto_start)
+    print(is_not_midnight() >= 85000 and not auto_start)
     if (not is_not_midnight() and not auto_start) or \
-            (is_not_midnight() >= 80000 and not auto_start):
+            (is_not_midnight() >= 85000 and not auto_start):
         logging.warning('midnight is coming, start the standard farming')
         kill_process('Hearthstone.exe', '炉石传说')
         # kill_process('Battle.net.exe', '暴雪战网')
@@ -600,6 +621,7 @@ def gold_miner_loop(acc):
 
     # log in hs according to account id
     hs_window = log_in_hs(acc)
+    print('start to log in')
     time.sleep(3)
     initialize_hs_window(hs_window)
 
@@ -610,21 +632,28 @@ def gold_miner_loop(acc):
 
     load_and_initiate_ranger()
 
+
     if need_to_reset_counter:
         reset_status()
         need_to_reset_counter = False
 
     start_ranger()
+    pyautogui.click(630, 253)
     t = time.time()
     checking_continue = True
     checking_period = 180  # check in every 10 minutes
 
     while checking_continue:
         time.sleep(3)
+        found = pyautogui.locateCenterOnScreen('error.PNG', region=(900, 711, 1400, 1073),
+                                               grayscale=False, confidence=0.7)
+        if found is not None:
+            print('found the error!')
+            pyautogui.click(found[0], found[1])
 
         if time.time() - t >= checking_period - 10:
             if (not is_not_midnight() and not auto_start) or \
-                    (is_not_midnight() >= 80000 and not auto_start):
+                    (is_not_midnight() >= 85000 and not auto_start):
                 logging.warning('midnight is coming, start the standard farming')
                 kill_process('Hearthstone.exe', '炉石传说')
                 # kill_process('Battle.net.exe', '暴雪战网')
@@ -779,7 +808,7 @@ sf_list = parse_farming_list_file('acc_farm_list.pcl')
 total_account = len(sf_list)
 
 auto_start = wait_for_midnight()
-
+print(auto_start)
 if not auto_start:
     # get today's farming order from a user
     tf_list = get_and_parse_command()
