@@ -210,7 +210,7 @@ def is_not_midnight():
     now = datetime.now()
     seconds_since_midnight = (
             datetime.now() - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
-    if seconds_since_midnight > 86380 or seconds_since_midnight < 20:
+    if seconds_since_midnight > 86380 or seconds_since_midnight < 1800:
         return False
     else:
         return seconds_since_midnight
@@ -428,7 +428,7 @@ def check_bot_stopped(file, default_start_time, last_check_time):
         #     previous_line = 'Bot stopped.'
         elif line.lower().find('bot stopped') >= 0:
             previous_line = 'bot stopped'
-        elif previous_line == 'bot stopped' and (line.lower().find('no available job') >= 0 or
+        elif previous_line == 'bot stopped' and (line.lower().find('available') >= 0 or
                             line.lower().find('auto stop bot') >= 0) and last_normal_stop == '':
                     last_normal_stop = line.strip()[0:8]
                     last_normal_stop = remove_column(last_normal_stop)
@@ -436,7 +436,8 @@ def check_bot_stopped(file, default_start_time, last_check_time):
                     if last_abnormal_stop != '':
                         break
         elif previous_line == 'bot stopped.' and \
-                 line.lower().find('no available job') < 0 and last_abnormal_stop == '':
+                (line.lower().find('available') < 0 and line.lower().find('bot stopped') < 0) \
+                and last_abnormal_stop == '':
                     last_abnormal_stop = line.strip()[0:8]
                     last_abnormal_stop = remove_column(last_abnormal_stop)
                     previous_line = ''
@@ -749,11 +750,12 @@ class LoginWindow:
         pyautogui.press('tab')
         pyautogui.typewrite(self.userPwd, interval=(random.randint(15, 30) / 100))
         time.sleep(13)
-        for i in range(3):
-            pyautogui.press('tab')
-            time.sleep(random.uniform(3.0, 5.0) / 10)
+        # for i in range(3):
+        #     pyautogui.press('tab')
+        #     time.sleep(random.uniform(3.0, 5.0) / 10)
         # log in
         pyautogui.press('enter')
+        print('enter pressed')
         return
 
 
