@@ -369,16 +369,20 @@ def start_ranger():
 
 
 # reset ranger win counter
-def reset_status():
+def reset_status(is_normal):
     time.sleep(5)
     click_hb_btn(ranger_btn_dict['config_btn'])
     time.sleep(10)
-    click_hb_btn(ranger_btn_dict['auto_stop_sheet'])
+    click_hb_btn(ranger_btn_dict['basic_setting_btn'])
     time.sleep(5)
-    click_hb_btn(ranger_btn_dict['reset_win_counter_btn'])
-    time.sleep(5)
+    found = pyautogui.locateCenterOnScreen('checkmark.png', region=(73, 601, 50, 50),
+                                               grayscale=False, confidence=0.7)
+    if is_normal and not found:   # checked mark not detected.
+        click_hb_btn(ranger_btn_dict['normal_routine_check'])
+        time.sleep(5)
     click_hb_btn(ranger_btn_dict['save_config_btn'])
-    logging.info('ranger win counter reseted!')
+    time.sleep(10)
+    logging.info('ranger win counter was reset!')
 
 
 def remove_column(tm):
@@ -593,7 +597,7 @@ def move_and_click(position, ta=0.4, tb=0.6):
 
 #  gold_miner_loop for single acc:
 def gold_miner_loop(acc):
-    global player_id, player_break, already_won, general_failure, need_to_reset_counter, last_status
+    global player_id, player_break, already_won, general_failure, need_to_reset_counter, last_status, long_run
     global last_time
     if acc['won'] == 31:
         need_to_reset_counter = False
@@ -635,8 +639,12 @@ def gold_miner_loop(acc):
 
 
     if need_to_reset_counter:
-        reset_status()
+        # reset_status(True)
         need_to_reset_counter = False
+
+    if long_run:
+        reset_status(False)
+        long_run = False
 
     start_ranger()
     pyautogui.click(630, 253)
@@ -786,7 +794,10 @@ ranger_btn_dict = {'start_btn': (368, 267),
                    'auto_stop_sheet': (217, 73),
                    'reset_win_counter_btn': (961, 378),
                    'save_config_btn': (1204, 1179),
-                   'resume_button': (435, 258)}
+                   'resume_button': (435, 258),
+                   'basic_setting_btn': (172, 117),
+                   'normal_routine_check': (96, 627),
+                   'long_run_check': (100, 100)}
 
 ranger_txt = ''
 ranger_hwnd = 0
@@ -807,7 +818,7 @@ logging.warning('OLD LOG FILES DELETED!')
 # get standard farming list in to sf_list
 generate_farming_list('account_per.txt', 'acc_farm_list.pcl')
 sf_list = parse_farming_list_file('acc_farm_list.pcl')
-
+long_run = False
 # sf_list format as following:
 # [{'acc': account_id[i], 'psw': account_psd[i], 'max': max_wins[i], 'won': already_won[i], 'dck': deck_list[0]}, ..]
 
@@ -854,6 +865,7 @@ total_account = len(sf_list)
 auto_start = True
 
 while True:
+    long_run = False
     player_id = 0
     player_break = 0
     already_won = 0
@@ -862,6 +874,7 @@ while True:
     print('standard_farming list as following..:', file=sys.stderr)
     time.sleep(0.4)
     print(sf_list)
+    reset_status(True)  # normal routine
     while player_id <= total_account:
         print('current No. %s account detail: ' % str(player_id), end='')
         print(acc)
@@ -869,6 +882,32 @@ while True:
         if farm_done:
             break
         acc = sf_list[player_id]
+
+    # start long_run_farming by putting the sf_list[1] as the player
+    print('long run farming list as following..:', file=sys.stderr)
+    long_run = True
+    time.sleep(0.4)
+    tf_list = []
+    tf_list.append(sf_list[1])
+    print(tf_list)
+    player_id = 0
+    player_break = 0
+    need_to_reset_counter = True
+    already_won = 0
+    acc = tf_list[player_id]
+    total_account = len(tf_list)
+    while player_id <= total_account:
+        print('current No. %s account detail: ' % str(player_id), end='')
+        print(acc)
+        farm_done = gold_miner_loop(acc)
+        if farm_done:
+            break
+        acc = tf_list[player_id]
+
+    print('temp farming ended!', file=sys.stderr)
+    time.sleep(0.4)
+    long_run = False
+    # ===== long_run_farming ends here ======
 
     auto_start = wait_for_midnight()
 
