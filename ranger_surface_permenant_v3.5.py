@@ -210,7 +210,7 @@ def is_not_midnight():
     now = datetime.now()
     seconds_since_midnight = (
             datetime.now() - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
-    if seconds_since_midnight > 86380 or seconds_since_midnight < 1800:
+    if seconds_since_midnight > 86220 or seconds_since_midnight < 60:
         return False
     else:
         return seconds_since_midnight
@@ -653,8 +653,12 @@ def gold_miner_loop(acc):
             pyautogui.click(found[0], found[1])
 
         if time.time() - t >= checking_period - 10:
+            print("This program has been running for ", end="")
+            print(is_not_midnight())
+            print("auto_start= ", end="")
+            print(auto_start)
             if (not is_not_midnight() and not auto_start) or \
-                    (is_not_midnight() >= 85000 and not auto_start):
+                    (is_not_midnight() >= 84000 and not auto_start):
                 logging.warning('midnight is coming, start the standard farming')
                 kill_process('Hearthstone.exe', '炉石传说')
                 # kill_process('Battle.net.exe', '暴雪战网')
@@ -779,9 +783,9 @@ logging.warning('ranger switcher running!')
 
 ranger_btn_dict = {'start_btn': (368, 267),
                    'config_btn': (100, 260),
-                   'auto_stop_sheet': (1300, 115),
-                   'reset_win_counter_btn': (945, 370),
-                   'save_config_btn': (1250, 1035),
+                   'auto_stop_sheet': (217, 73),
+                   'reset_win_counter_btn': (961, 378),
+                   'save_config_btn': (1204, 1179),
                    'resume_button': (435, 258)}
 
 ranger_txt = ''
