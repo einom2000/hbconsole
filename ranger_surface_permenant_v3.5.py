@@ -377,9 +377,10 @@ def reset_status(is_normal):
     time.sleep(5)
     found = pyautogui.locateCenterOnScreen('checkmark.png', region=(73, 601, 50, 50),
                                                grayscale=False, confidence=0.7)
-    if is_normal and not found:   # checked mark not detected.
+    if (is_normal and not found) or (not is_normal and found):   # checked mark not detected.
         click_hb_btn(ranger_btn_dict['normal_routine_check'])
         time.sleep(5)
+
     click_hb_btn(ranger_btn_dict['save_config_btn'])
     time.sleep(10)
     logging.info('ranger win counter was reset!')
@@ -885,9 +886,10 @@ while True:
 
     # start long_run_farming by putting the sf_list[1] as the player
     print('long run farming list as following..:', file=sys.stderr)
+    auto_start = False
     long_run = True
     time.sleep(0.4)
-    tf_list = []
+    tf_list.clear()
     tf_list.append(sf_list[1])
     print(tf_list)
     player_id = 0
@@ -907,6 +909,8 @@ while True:
     print('temp farming ended!', file=sys.stderr)
     time.sleep(0.4)
     long_run = False
+    total_account = len(sf_list)
+    auto_start = True
     # ===== long_run_farming ends here ======
 
     auto_start = wait_for_midnight()
